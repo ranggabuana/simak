@@ -94,33 +94,20 @@
                 </button>
             </form>
 
-            <!-- Quick Demo Login Switcher (Light Style) -->
+            <!-- Quick Demo Login Switcher (Super Admin Only) -->
             <div class="mt-6 pt-6 border-t border-slate-100">
-                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center mb-3">Pilihan Akun Cepat (Akses Uji Coba)</p>
-                <div class="grid grid-cols-2 gap-2 text-xs">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 text-center mb-2.5">Akses Cepat Pengujian</p>
+                <div>
                     <button type="button" 
                             onclick="fillCredentials('admin@dindikpora.banjarnegarakab.go.id')"
-                            class="p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200/80 hover:border-blue-200 text-slate-700 transition text-left cursor-pointer">
-                        <p class="font-bold text-blue-700">Super Admin</p>
-                        <p class="text-[10px] text-slate-400">Subbag Program</p>
-                    </button>
-                    <button type="button" 
-                            onclick="fillCredentials('pimpinan@dindikpora.banjarnegarakab.go.id')"
-                            class="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50/70 border border-slate-200/80 hover:border-emerald-200 text-slate-700 transition text-left cursor-pointer">
-                        <p class="font-bold text-emerald-700">Kepala Dinas</p>
-                        <p class="text-[10px] text-slate-400">Pimpinan Eksekutif</p>
-                    </button>
-                    <button type="button" 
-                            onclick="fillCredentials('perencana@dindikpora.banjarnegarakab.go.id')"
-                            class="p-2.5 rounded-xl bg-slate-50 hover:bg-purple-50/70 border border-slate-200/80 hover:border-purple-200 text-slate-700 transition text-left cursor-pointer">
-                        <p class="font-bold text-purple-700">Perencana</p>
-                        <p class="text-[10px] text-slate-400">Analis AKIP Renstra</p>
-                    </button>
-                    <button type="button" 
-                            onclick="fillCredentials('operator@dindikpora.banjarnegarakab.go.id')"
-                            class="p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50/70 border border-slate-200/80 hover:border-amber-200 text-slate-700 transition text-left cursor-pointer">
-                        <p class="font-bold text-amber-700">Operator</p>
-                        <p class="text-[10px] text-slate-400">Korwilcam Wilayah</p>
+                            class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50/80 border border-slate-200/80 hover:border-blue-300 text-slate-700 transition flex items-center justify-between cursor-pointer group">
+                        <div class="text-left">
+                            <p class="font-bold text-xs text-blue-700 group-hover:text-blue-800">Akun Super Admin</p>
+                            <p class="text-[10px] text-slate-400">admin@dindikpora.banjarnegarakab.go.id</p>
+                        </div>
+                        <span class="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200 group-hover:bg-blue-100">
+                            Isi Otomatis &rarr;
+                        </span>
                     </button>
                 </div>
             </div>
