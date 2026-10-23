@@ -64,26 +64,26 @@ class SimakSeeder extends Seeder
 
         // 2. Kecamatan Coordinates Banjarnegara (Matched to Official GeoJSON Centroids)
         $coords = [
-            '330401' => ['lat' => -7.4981, 'lng' => 109.4056, 'desa' => 15, 'luas' => 48.87], // SUSUKAN
-            '330402' => ['lat' => -7.4783, 'lng' => 109.4507, 'desa' => 8, 'luas' => 26.23],  // PURWAREJA KLAMPOK
-            '330403' => ['lat' => -7.4772, 'lng' => 109.4985, 'desa' => 16, 'luas' => 52.61], // MANDIRAJA
-            '330404' => ['lat' => -7.4701, 'lng' => 109.5662, 'desa' => 13, 'luas' => 51.72], // PURWANEGARA
-            '330405' => ['lat' => -7.4297, 'lng' => 109.6336, 'desa' => 18, 'luas' => 38.32], // BAWANG
-            '330406' => ['lat' => -7.4126, 'lng' => 109.7130, 'desa' => 13, 'luas' => 26.24], // BANJARNEGARA
-            '330407' => ['lat' => -7.4156, 'lng' => 109.7650, 'desa' => 15, 'luas' => 39.56], // SIGALUH
-            '330408' => ['lat' => -7.3620, 'lng' => 109.7311, 'desa' => 12, 'luas' => 43.57], // MADUKARA
-            '330409' => ['lat' => -7.3372, 'lng' => 109.6789, 'desa' => 17, 'luas' => 46.21], // BANJARMANGU
-            '330410' => ['lat' => -7.3652, 'lng' => 109.6575, 'desa' => 11, 'luas' => 28.28], // WANADADI
-            '330411' => ['lat' => -7.4176, 'lng' => 109.5402, 'desa' => 11, 'luas' => 32.45], // RAKIT
-            '330412' => ['lat' => -7.3303, 'lng' => 109.5946, 'desa' => 17, 'luas' => 102.83], // PUNGGELAN
-            '330413' => ['lat' => -7.2896, 'lng' => 109.7022, 'desa' => 15, 'luas' => 39.07], // KARANGKOBAR
-            '330414' => ['lat' => -7.3138, 'lng' => 109.7915, 'desa' => 16, 'luas' => 46.19], // PAGENTAN
-            '330415' => ['lat' => -7.2373, 'lng' => 109.8164, 'desa' => 17, 'luas' => 52.25], // PEJAWARAN
-            '330416' => ['lat' => -7.2128, 'lng' => 109.8509, 'desa' => 8, 'luas' => 47.17],  // BATUR
-            '330417' => ['lat' => -7.2549, 'lng' => 109.7610, 'desa' => 11, 'luas' => 41.43], // WANAYASA
-            '330418' => ['lat' => -7.2386, 'lng' => 109.6624, 'desa' => 16, 'luas' => 49.78], // KALIBENING
-            '330419' => ['lat' => -7.2481, 'lng' => 109.5838, 'desa' => 8, 'luas' => 24.38],  // PANDANARUM
-            '330420' => ['lat' => -7.4396, 'lng' => 109.6925, 'desa' => 9, 'luas' => 50.55],  // PAGEDONGAN
+            '330401' => ['nama' => 'SUSUKAN', 'lat' => -7.4981, 'lng' => 109.4056, 'desa' => 15, 'luas' => 48.87],
+            '330402' => ['nama' => 'PURWAREJA KLAMPOK', 'lat' => -7.4783, 'lng' => 109.4507, 'desa' => 8, 'luas' => 26.23],
+            '330403' => ['nama' => 'MANDIRAJA', 'lat' => -7.4772, 'lng' => 109.4985, 'desa' => 16, 'luas' => 52.61],
+            '330404' => ['nama' => 'PURWANEGARA', 'lat' => -7.4701, 'lng' => 109.5662, 'desa' => 13, 'luas' => 51.72],
+            '330405' => ['nama' => 'BAWANG', 'lat' => -7.4297, 'lng' => 109.6336, 'desa' => 18, 'luas' => 38.32],
+            '330406' => ['nama' => 'BANJARNEGARA', 'lat' => -7.4126, 'lng' => 109.7130, 'desa' => 13, 'luas' => 26.24],
+            '330407' => ['nama' => 'SIGALUH', 'lat' => -7.4156, 'lng' => 109.7650, 'desa' => 15, 'luas' => 39.56],
+            '330408' => ['nama' => 'MADUKARA', 'lat' => -7.3620, 'lng' => 109.7311, 'desa' => 12, 'luas' => 43.57],
+            '330409' => ['nama' => 'BANJARMANGU', 'lat' => -7.3372, 'lng' => 109.6789, 'desa' => 17, 'luas' => 46.21],
+            '330410' => ['nama' => 'WANADADI', 'lat' => -7.3652, 'lng' => 109.6575, 'desa' => 11, 'luas' => 28.28],
+            '330411' => ['nama' => 'RAKIT', 'lat' => -7.4176, 'lng' => 109.5402, 'desa' => 11, 'luas' => 32.45],
+            '330412' => ['nama' => 'PUNGGELAN', 'lat' => -7.3303, 'lng' => 109.5946, 'desa' => 17, 'luas' => 102.83],
+            '330413' => ['nama' => 'KARANGKOBAR', 'lat' => -7.2896, 'lng' => 109.7022, 'desa' => 15, 'luas' => 39.07],
+            '330414' => ['nama' => 'PAGENTAN', 'lat' => -7.3138, 'lng' => 109.7915, 'desa' => 16, 'luas' => 46.19],
+            '330415' => ['nama' => 'PEJAWARAN', 'lat' => -7.2373, 'lng' => 109.8164, 'desa' => 17, 'luas' => 52.25],
+            '330416' => ['nama' => 'BATUR', 'lat' => -7.2128, 'lng' => 109.8509, 'desa' => 8, 'luas' => 47.17],
+            '330417' => ['nama' => 'WANAYASA', 'lat' => -7.2549, 'lng' => 109.7610, 'desa' => 11, 'luas' => 41.43],
+            '330418' => ['nama' => 'KALIBENING', 'lat' => -7.2386, 'lng' => 109.6624, 'desa' => 16, 'luas' => 49.78],
+            '330419' => ['nama' => 'PANDANARUM', 'lat' => -7.2481, 'lng' => 109.5838, 'desa' => 8, 'luas' => 24.38],
+            '330420' => ['nama' => 'PAGEDONGAN', 'lat' => -7.4396, 'lng' => 109.6925, 'desa' => 9, 'luas' => 50.55],
         ];
 
         // 3. Import Data Demografi dari penduduk.xlsx
@@ -220,6 +220,94 @@ class SimakSeeder extends Seeder
                     }
                 }
                 $zip->close();
+            }
+        } else {
+            // Fallback otomatis jika penduduk.xlsx tidak tersedia di server
+            foreach ($coords as $kode => $coord) {
+                $kec = WilayahKecamatan::updateOrCreate(
+                    ['kode' => $kode],
+                    [
+                        'nama' => $coord['nama'],
+                        'ibukota' => 'Kec. '.ucwords(strtolower($coord['nama'])),
+                        'luas_wilayah' => $coord['luas'],
+                        'jumlah_desa' => $coord['desa'],
+                        'latitude' => $coord['lat'],
+                        'longitude' => $coord['lng'],
+                    ]
+                );
+
+                $kecamatanModels[$kode] = $kec;
+
+                $p0_4_l = 1800 + mt_rand(-100, 150);
+                $p0_4_p = 1700 + mt_rand(-100, 150);
+                $p5_6_l = 950 + mt_rand(-50, 80);
+                $p5_6_p = 940 + mt_rand(-50, 80);
+                $p7_12_l = 3200 + mt_rand(-150, 200);
+                $p7_12_p = 3050 + mt_rand(-150, 200);
+                $p13_15_l = 1680 + mt_rand(-80, 100);
+                $p13_15_p = 1550 + mt_rand(-80, 100);
+                $p16_18_l = 1550 + mt_rand(-80, 100);
+                $p16_18_p = 1480 + mt_rand(-80, 100);
+                $p16_30_l = 7500 + mt_rand(-300, 400);
+                $p16_30_p = 7100 + mt_rand(-300, 400);
+
+                $tot0_18 = ($p0_4_l + $p0_4_p) + ($p5_6_l + $p5_6_p) + ($p7_12_l + $p7_12_p) + ($p13_15_l + $p13_15_p) + ($p16_18_l + $p16_18_p);
+                $estTotal = (int) ($tot0_18 * 3.4);
+                $est18Plus = $estTotal - $tot0_18;
+
+                // Tahun 2025
+                PendudukUsiaSekolah::updateOrCreate(
+                    ['kecamatan_id' => $kec->id, 'tahun' => 2025],
+                    [
+                        'usia_0_4_l' => $p0_4_l,
+                        'usia_0_4_p' => $p0_4_p,
+                        'usia_0_4_total' => $p0_4_l + $p0_4_p,
+                        'usia_5_6_l' => $p5_6_l,
+                        'usia_5_6_p' => $p5_6_p,
+                        'usia_5_6_total' => $p5_6_l + $p5_6_p,
+                        'usia_7_12_l' => $p7_12_l,
+                        'usia_7_12_p' => $p7_12_p,
+                        'usia_7_12_total' => $p7_12_l + $p7_12_p,
+                        'usia_13_15_l' => $p13_15_l,
+                        'usia_13_15_p' => $p13_15_p,
+                        'usia_13_15_total' => $p13_15_l + $p13_15_p,
+                        'usia_16_18_l' => $p16_18_l,
+                        'usia_16_18_p' => $p16_18_p,
+                        'usia_16_18_total' => $p16_18_l + $p16_18_p,
+                        'usia_16_30_l' => $p16_30_l,
+                        'usia_16_30_p' => $p16_30_p,
+                        'usia_16_30_total' => $p16_30_l + $p16_30_p,
+                        'usia_18_plus_total' => $est18Plus,
+                        'total_penduduk' => $estTotal,
+                    ]
+                );
+
+                // Tahun 2024 (Tahun N-1)
+                PendudukUsiaSekolah::updateOrCreate(
+                    ['kecamatan_id' => $kec->id, 'tahun' => 2024],
+                    [
+                        'usia_0_4_l' => (int) ($p0_4_l * 0.99),
+                        'usia_0_4_p' => (int) ($p0_4_p * 0.99),
+                        'usia_0_4_total' => (int) (($p0_4_l + $p0_4_p) * 0.99),
+                        'usia_5_6_l' => (int) ($p5_6_l * 0.99),
+                        'usia_5_6_p' => (int) ($p5_6_p * 0.99),
+                        'usia_5_6_total' => (int) (($p5_6_l + $p5_6_p) * 0.99),
+                        'usia_7_12_l' => (int) ($p7_12_l * 0.99),
+                        'usia_7_12_p' => (int) ($p7_12_p * 0.99),
+                        'usia_7_12_total' => (int) (($p7_12_l + $p7_12_p) * 0.99),
+                        'usia_13_15_l' => (int) ($p13_15_l * 0.99),
+                        'usia_13_15_p' => (int) ($p13_15_p * 0.99),
+                        'usia_13_15_total' => (int) (($p13_15_l + $p13_15_p) * 0.99),
+                        'usia_16_18_l' => (int) ($p16_18_l * 0.99),
+                        'usia_16_18_p' => (int) ($p16_18_p * 0.99),
+                        'usia_16_18_total' => (int) (($p16_18_l + $p16_18_p) * 0.99),
+                        'usia_16_30_l' => (int) ($p16_30_l * 0.99),
+                        'usia_16_30_p' => (int) ($p16_30_p * 0.99),
+                        'usia_16_30_total' => (int) (($p16_30_l + $p16_30_p) * 0.99),
+                        'usia_18_plus_total' => (int) ($est18Plus * 0.99),
+                        'total_penduduk' => (int) ($estTotal * 0.99),
+                    ]
+                );
             }
         }
 
@@ -383,6 +471,10 @@ class SimakSeeder extends Seeder
 
         $npsnCounter = 20300001;
 
+        if (empty($kecamatanModels)) {
+            $kecamatanModels = WilayahKecamatan::all()->keyBy('kode')->all();
+        }
+
         foreach ($kecamatanModels as $kode => $kec) {
             $demografi = PendudukUsiaSekolah::where('kecamatan_id', $kec->id)->where('tahun', 2025)->first();
 
@@ -535,12 +627,14 @@ class SimakSeeder extends Seeder
         ];
 
         $firstSchools = SatuanPendidikan::take(count($samplePrestasi))->get();
-        foreach ($samplePrestasi as $i => $prestasi) {
-            $sch = $firstSchools[$i] ?? SatuanPendidikan::first();
-            PrestasiSiswa::create(array_merge($prestasi, [
-                'satuan_pendidikan_id' => $sch->id,
-                'kecamatan_id' => $sch->kecamatan_id,
-            ]));
+        if ($firstSchools->isNotEmpty()) {
+            foreach ($samplePrestasi as $i => $prestasi) {
+                $sch = $firstSchools[$i] ?? $firstSchools->first();
+                PrestasiSiswa::create(array_merge($prestasi, [
+                    'satuan_pendidikan_id' => $sch->id,
+                    'kecamatan_id' => $sch->kecamatan_id,
+                ]));
+            }
         }
     }
 }
