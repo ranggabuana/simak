@@ -1011,6 +1011,36 @@
         </div>
     </div>
 
+    <!-- Back to Top Floating Action Button -->
+    <div x-data="{ 
+            showBackToTop: false,
+            scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+         }"
+         x-init="showBackToTop = (window.pageYOffset || document.documentElement.scrollTop) > 280"
+         @scroll.window="showBackToTop = (window.pageYOffset || document.documentElement.scrollTop) > 280"
+         class="fixed bottom-6 right-6 z-40 pointer-events-none">
+        <button type="button"
+                x-show="showBackToTop"
+                x-cloak
+                @click="scrollToTop()"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 scale-90"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 scale-90"
+                class="pointer-events-auto group relative flex items-center gap-2 p-3 sm:px-4 sm:py-2.5 rounded-full bg-white/95 hover:bg-blue-600 text-slate-700 hover:text-white border border-slate-200/90 hover:border-blue-600 shadow-lg shadow-slate-900/10 hover:shadow-xl hover:shadow-blue-600/25 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 active:translate-y-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:ring-offset-2"
+                title="Kembali ke atas"
+                aria-label="Kembali ke atas">
+            <svg class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            <span class="hidden sm:inline text-xs font-bold tracking-tight">Ke Atas</span>
+        </button>
+    </div>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     @stack('scripts')
