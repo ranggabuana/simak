@@ -28,6 +28,7 @@ class GuruPendidikController extends Controller
         $jenjang = $request->input('jenjang');
         $statusPegawai = $request->input('status_kepegawaian');
         $sertifikasi = $request->input('sertifikasi');
+        $jenisKelamin = $request->input('jenis_kelamin');
         $search = $request->input('search');
 
         $query = GuruPendidik::with(['satuanPendidikan.kecamatan']);
@@ -45,6 +46,9 @@ class GuruPendidikController extends Controller
         }
         if ($sertifikasi !== null && $sertifikasi !== '') {
             $query->where('sudah_sertifikasi', (bool) $sertifikasi);
+        }
+        if ($jenisKelamin) {
+            $query->where('jenis_kelamin', $jenisKelamin);
         }
 
         // Server-Side Search
@@ -108,7 +112,11 @@ class GuruPendidikController extends Controller
         }
         $statRow = (clone $statQuery)->selectRaw("
             COUNT(*) as total,
+            SUM(CASE WHEN jenis_kelamin = 'L' THEN 1 ELSE 0 END) as total_l,
+            SUM(CASE WHEN jenis_kelamin = 'P' THEN 1 ELSE 0 END) as total_p,
             SUM(CASE WHEN sudah_sertifikasi = 1 THEN 1 ELSE 0 END) as sertifikasi,
+            SUM(CASE WHEN sudah_sertifikasi = 1 AND jenis_kelamin = 'L' THEN 1 ELSE 0 END) as sertifikasi_l,
+            SUM(CASE WHEN sudah_sertifikasi = 1 AND jenis_kelamin = 'P' THEN 1 ELSE 0 END) as sertifikasi_p,
             SUM(CASE WHEN status_kepegawaian = 'PNS' THEN 1 ELSE 0 END) as pns,
             SUM(CASE WHEN status_kepegawaian = 'PPPK' THEN 1 ELSE 0 END) as pppk,
             SUM(CASE WHEN status_kepegawaian IN ('GTT', 'GTY', 'Honor') THEN 1 ELSE 0 END) as non_asn
@@ -119,11 +127,24 @@ class GuruPendidikController extends Controller
         $belumSertif = $total - $sertifCount;
         $persen = $total > 0 ? round(($sertifCount / $total) * 100, 2) : 0;
 
+        $totalL = (int) ($statRow->total_l ?? 0);
+        $totalP = (int) ($statRow->total_p ?? 0);
+        $sertifL = (int) ($statRow->sertifikasi_l ?? 0);
+        $sertifP = (int) ($statRow->sertifikasi_p ?? 0);
+        $persenL = $totalL > 0 ? round(($sertifL / $totalL) * 100, 1) : 0;
+        $persenP = $totalP > 0 ? round(($sertifP / $totalP) * 100, 1) : 0;
+
         $stats = [
             'total' => $total,
             'sertifikasi' => $sertifCount,
             'belum_sertifikasi' => $belumSertif,
             'persentase' => $persen,
+            'total_l' => $totalL,
+            'total_p' => $totalP,
+            'sertifikasi_l' => $sertifL,
+            'sertifikasi_p' => $sertifP,
+            'persen_l' => $persenL,
+            'persen_p' => $persenP,
             'pns' => (int) ($statRow->pns ?? 0),
             'pppk' => (int) ($statRow->pppk ?? 0),
             'non_asn' => (int) ($statRow->non_asn ?? 0),
@@ -143,6 +164,7 @@ class GuruPendidikController extends Controller
             'filterJenjang' => $jenjang,
             'filterStatus' => $statusPegawai,
             'filterSertifikasi' => $sertifikasi,
+            'filterJenisKelamin' => $jenisKelamin,
             'isOperatorScoped' => $isOperatorScoped,
         ]);
     }

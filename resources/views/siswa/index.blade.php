@@ -32,7 +32,7 @@
                 <span>Tambah Data Siswa</span>
             </button>
 
-            <a href="{{ route('export.siswa', ['tahun' => $tahun]) }}" 
+            <a href="{{ route('export.siswa', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
                class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition whitespace-nowrap shrink-0">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -71,6 +71,74 @@
         </div>
     </div>
 
+    <!-- Rekapitulasi Gender Peserta Didik -->
+    <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Rekapitulasi Partisipasi Berdasarkan Gender (Laki-laki & Perempuan)</h4>
+            </div>
+            <span class="text-[11px] text-slate-400">Tahun Kinerja {{ $tahun }}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div class="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-100 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">Siswa Laki-laki (L)</span>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span class="text-lg font-extrabold text-blue-700">{{ number_format($stats['total_siswa_l']) }}</span>
+                        <span class="text-xs font-semibold text-blue-600">({{ $stats['persen_l'] }}%)</span>
+                    </div>
+                    <span class="text-[10px] text-blue-600/70 block mt-0.5">Usia sesuai: {{ number_format($stats['total_sesuai_l']) }}</span>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                    ♂
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-pink-50/60 border border-pink-100 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-pink-900 uppercase tracking-wider block">Siswi Perempuan (P)</span>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span class="text-lg font-extrabold text-pink-700">{{ number_format($stats['total_siswa_p']) }}</span>
+                        <span class="text-xs font-semibold text-pink-600">({{ $stats['persen_p'] }}%)</span>
+                    </div>
+                    <span class="text-[10px] text-pink-600/70 block mt-0.5">Usia sesuai: {{ number_format($stats['total_sesuai_p']) }}</span>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-xs">
+                    ♀
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">Rasio Gender Siswa</span>
+                    @php
+                        $ratioL_P = $stats['total_siswa_p'] > 0 ? round($stats['total_siswa_l'] / $stats['total_siswa_p'], 2) : 1;
+                    @endphp
+                    <div class="text-lg font-extrabold text-slate-800 mt-0.5">{{ $ratioL_P }} : 1</div>
+                    <span class="text-[10px] text-slate-400 block">Perbandingan L : P</span>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-slate-200/70 text-slate-700 flex items-center justify-center font-bold text-xs">
+                    ⚖️
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-emerald-900 uppercase tracking-wider block">Paritas Gender Usia Sesuai</span>
+                    @php
+                        $gpiSiswa = $stats['total_sesuai_l'] > 0 ? round($stats['total_sesuai_p'] / $stats['total_sesuai_l'], 3) : 1;
+                    @endphp
+                    <div class="text-lg font-extrabold text-emerald-700 mt-0.5">{{ $gpiSiswa }}</div>
+                    <span class="text-[10px] text-emerald-600/70 block">Indeks GPI (P/L)</span>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs">
+                    ✓
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Filter Form -->
     <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
         <form action="{{ route('siswa.index') }}" method="GET" class="flex flex-wrap items-center gap-3 text-xs">
@@ -100,7 +168,14 @@
                     @endforeach
                 </select>
             </div>
-            @if($filterJenjang || $filterKecamatan)
+            <div>
+                <select name="gender" onchange="this.form.submit()" class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:ring-2 focus:ring-blue-500">
+                    <option value="all" {{ ($filterGender ?? 'all') === 'all' ? 'selected' : '' }}>Semua Gender</option>
+                    <option value="L" {{ ($filterGender ?? '') === 'L' ? 'selected' : '' }}>Laki-laki (L)</option>
+                    <option value="P" {{ ($filterGender ?? '') === 'P' ? 'selected' : '' }}>Perempuan (P)</option>
+                </select>
+            </div>
+            @if($filterJenjang || $filterKecamatan || ($filterGender && $filterGender !== 'all'))
                 <a href="{{ route('siswa.index', ['tahun' => $tahun]) }}" class="px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold transition">
                     &times; Reset Filter
                 </a>
@@ -192,6 +267,19 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div>
+                        <label class="block font-semibold text-blue-900 mb-1">Jumlah Siswa Laki-laki (L)</label>
+                        <input type="number" name="siswa_l" min="0" placeholder="Otomatis jika kosong" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-blue-500 font-mono">
+                        <p class="text-[9px] text-slate-400 mt-0.5">Opsional: Estimasi otomatis 51%</p>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-pink-900 mb-1">Jumlah Siswi Perempuan (P)</label>
+                        <input type="number" name="siswa_p" min="0" placeholder="Otomatis jika kosong" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-pink-500 font-mono">
+                        <p class="text-[9px] text-slate-400 mt-0.5">Opsional: Estimasi otomatis 49%</p>
+                    </div>
+                </div>
+
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                     <button type="button" @click="createModal = false" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 font-bold text-slate-600 transition">Batal</button>
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-sm">Simpan Data Siswa</button>
@@ -237,6 +325,17 @@
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Jumlah Rombel</label>
                         <input type="number" name="jumlah_rombel" x-model="activeRow.jumlah_rombel" min="0" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div>
+                        <label class="block font-semibold text-blue-900 mb-1">Siswa Laki-laki (L)</label>
+                        <input type="number" name="siswa_l" x-model="activeRow.siswa_l" min="0" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-blue-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-pink-900 mb-1">Siswi Perempuan (P)</label>
+                        <input type="number" name="siswa_p" x-model="activeRow.siswa_p" min="0" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:ring-2 focus:ring-pink-500 font-mono">
                     </div>
                 </div>
 

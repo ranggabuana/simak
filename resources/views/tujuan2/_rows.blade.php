@@ -1,6 +1,15 @@
 @forelse($prestasiList as $pres)
 <tr class="hover:bg-slate-50 transition">
-    <td class="py-3.5 px-4 font-bold text-slate-900">{{ $pres->nama_siswa }}</td>
+    <td class="py-3.5 px-4 font-bold text-slate-900">
+        <div class="flex items-center gap-1.5">
+            <span>{{ $pres->nama_siswa }}</span>
+            @if($pres->jenis_kelamin === 'P')
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-pink-50 text-pink-700 border border-pink-200" title="Perempuan">P</span>
+            @else
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200" title="Laki-laki">L</span>
+            @endif
+        </div>
+    </td>
     <td class="py-3.5 px-4 font-mono text-slate-500">{{ $pres->nisn ?? '-' }}</td>
     <td class="py-3.5 px-4 font-semibold text-slate-800">
         {{ $pres->nama_kejuaraan }}
@@ -30,6 +39,7 @@
                 'id' => $pres->id,
                 'nama_siswa' => $pres->nama_siswa,
                 'nisn' => $pres->nisn ?? '',
+                'jenis_kelamin' => $pres->jenis_kelamin ?? 'L',
                 'satuan_pendidikan_id' => $pres->satuan_pendidikan_id,
                 'nama_kejuaraan' => $pres->nama_kejuaraan,
                 'bidang' => $pres->bidang,

@@ -15,12 +15,13 @@ class TujuanSatuController extends Controller
     public function index(Request $request): View
     {
         $tahun = (int) $request->input('tahun', 2025);
+        $gender = $request->input('gender', 'all');
 
         $pendudukList = PendudukUsiaSekolah::with('kecamatan')
             ->where('tahun', $tahun)
             ->get();
 
-        $totals = [
+        $totalsAll = [
             'usia_0_4' => $pendudukList->sum('usia_0_4_total'),
             'usia_5_6' => $pendudukList->sum('usia_5_6_total'),
             'usia_7_12' => $pendudukList->sum('usia_7_12_total'),
@@ -31,10 +32,52 @@ class TujuanSatuController extends Controller
             'total' => $pendudukList->sum('total_penduduk'),
         ];
 
+        $totalsL = [
+            'usia_0_4' => $pendudukList->sum('usia_0_4_l'),
+            'usia_5_6' => $pendudukList->sum('usia_5_6_l'),
+            'usia_7_12' => $pendudukList->sum('usia_7_12_l'),
+            'usia_13_15' => $pendudukList->sum('usia_13_15_l'),
+            'usia_16_18' => $pendudukList->sum('usia_16_18_l'),
+            'usia_16_30' => $pendudukList->sum('usia_16_30_l'),
+            'usia_18_plus' => (int) round($pendudukList->sum('usia_18_plus_total') * 0.505),
+            'total' => $pendudukList->sum('usia_0_4_l') + $pendudukList->sum('usia_5_6_l') + $pendudukList->sum('usia_7_12_l') + $pendudukList->sum('usia_13_15_l') + $pendudukList->sum('usia_16_18_l') + (int) round($pendudukList->sum('usia_18_plus_total') * 0.505),
+        ];
+
+        $totalsP = [
+            'usia_0_4' => $pendudukList->sum('usia_0_4_p'),
+            'usia_5_6' => $pendudukList->sum('usia_5_6_p'),
+            'usia_7_12' => $pendudukList->sum('usia_7_12_p'),
+            'usia_13_15' => $pendudukList->sum('usia_13_15_p'),
+            'usia_16_18' => $pendudukList->sum('usia_16_18_p'),
+            'usia_16_30' => $pendudukList->sum('usia_16_30_p'),
+            'usia_18_plus' => (int) round($pendudukList->sum('usia_18_plus_total') * 0.495),
+            'total' => $pendudukList->sum('usia_0_4_p') + $pendudukList->sum('usia_5_6_p') + $pendudukList->sum('usia_7_12_p') + $pendudukList->sum('usia_13_15_p') + $pendudukList->sum('usia_16_18_p') + (int) round($pendudukList->sum('usia_18_plus_total') * 0.495),
+        ];
+
+        $activeTotals = match ($gender) {
+            'L' => $totalsL,
+            'P' => $totalsP,
+            default => $totalsAll,
+        };
+
+        $genderRecap = [
+            'total_l' => $totalsL['total'],
+            'total_p' => $totalsP['total'],
+            'persen_l' => $totalsAll['total'] > 0 ? round(($totalsL['total'] / $totalsAll['total']) * 100, 1) : 0,
+            'persen_p' => $totalsAll['total'] > 0 ? round(($totalsP['total'] / $totalsAll['total']) * 100, 1) : 0,
+            'usia_sekolah_l' => $totalsL['usia_5_6'] + $totalsL['usia_7_12'] + $totalsL['usia_13_15'] + $totalsL['usia_16_18'],
+            'usia_sekolah_p' => $totalsP['usia_5_6'] + $totalsP['usia_7_12'] + $totalsP['usia_13_15'] + $totalsP['usia_16_18'],
+        ];
+
         return view('tujuan1.index', [
             'tahun' => $tahun,
+            'gender' => $gender,
             'pendudukList' => $pendudukList,
-            'totals' => $totals,
+            'totals' => $activeTotals,
+            'totalsAll' => $totalsAll,
+            'totalsL' => $totalsL,
+            'totalsP' => $totalsP,
+            'genderRecap' => $genderRecap,
             'kecamatanList' => WilayahKecamatan::orderBy('nama')->get(),
         ]);
     }

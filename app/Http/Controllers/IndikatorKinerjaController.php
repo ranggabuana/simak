@@ -21,9 +21,10 @@ class IndikatorKinerjaController extends Controller
         $tab = $request->input('tab', 'wilayah'); // wilayah | sekolah
         $kecamatanId = $request->input('kecamatan_id');
         $jenjang = $request->input('jenjang');
+        $gender = $request->input('gender'); // null | L | P
 
-        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
-        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);
+        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
+        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
         $sekolahPaginated = $tab === 'sekolah'
             ? $this->kinerjaService->hitungKinerjaSekolah($kecamatanId ? (int) $kecamatanId : null, $jenjang, $tahun)
             : null;
@@ -33,6 +34,7 @@ class IndikatorKinerjaController extends Controller
             'tab' => $tab,
             'kecamatanId' => $kecamatanId,
             'jenjang' => $jenjang,
+            'gender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
             'sekolahList' => $sekolahPaginated,
@@ -46,9 +48,10 @@ class IndikatorKinerjaController extends Controller
         $tab = $request->input('tab', 'wilayah');
         $kecamatanId = $request->input('kecamatan_id');
         $jenjang = $request->input('jenjang');
+        $gender = $request->input('gender');
 
-        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
-        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);
+        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
+        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
         $sekolahPaginated = $tab === 'sekolah'
             ? $this->kinerjaService->hitungKinerjaSekolah($kecamatanId ? (int) $kecamatanId : null, $jenjang, $tahun)
             : null;
@@ -58,6 +61,7 @@ class IndikatorKinerjaController extends Controller
             'tab' => $tab,
             'kecamatanId' => $kecamatanId,
             'jenjang' => $jenjang,
+            'gender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
             'sekolahList' => $sekolahPaginated,
@@ -71,9 +75,10 @@ class IndikatorKinerjaController extends Controller
         $tab = $request->input('tab', 'wilayah');
         $kecamatanId = $request->input('kecamatan_id');
         $jenjang = $request->input('jenjang');
+        $gender = $request->input('gender');
 
-        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
-        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);
+        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
+        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
         $sekolahPaginated = $tab === 'sekolah'
             ? $this->kinerjaService->hitungKinerjaSekolah($kecamatanId ? (int) $kecamatanId : null, $jenjang, $tahun)
             : null;
@@ -83,6 +88,7 @@ class IndikatorKinerjaController extends Controller
             'tab' => $tab,
             'kecamatanId' => $kecamatanId,
             'jenjang' => $jenjang,
+            'gender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
             'sekolahList' => $sekolahPaginated,
@@ -94,19 +100,24 @@ class IndikatorKinerjaController extends Controller
     {
         $tahun = (int) $request->input('tahun', 2025);
         $kecamatanId = $request->input('kecamatan_id');
+        $gender = $request->input('gender');
 
-        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
-        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);
+        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
+        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
 
         $guruQuery = GuruPendidik::with(['satuanPendidikan.kecamatan']);
         if ($kecamatanId) {
             $guruQuery->where('kecamatan_id', $kecamatanId);
         }
-        $guruList = $guruQuery->paginate(15);
+        if ($gender) {
+            $guruQuery->where('jenis_kelamin', $gender);
+        }
+        $guruList = $guruQuery->paginate(15)->withQueryString();
 
         return view('indikator.guru', [
             'tahun' => $tahun,
             'kecamatanId' => $kecamatanId,
+            'filterGender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
             'guruList' => $guruList,

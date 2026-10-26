@@ -31,7 +31,7 @@
                 <span>Import CSV</span>
             </button>
 
-            <a href="{{ route('export.prestasi', ['tahun' => $tahun]) }}" 
+            <a href="{{ route('export.prestasi', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
                class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition shadow-2xs whitespace-nowrap shrink-0">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -43,7 +43,7 @@
 
     <!-- Filter & Statistics Bar -->
     <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
-        <form method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
             <input type="hidden" name="tahun" value="{{ $tahun }}">
 
             <div>
@@ -76,6 +76,15 @@
                 </select>
             </div>
 
+            <div>
+                <label class="block text-slate-500 font-semibold mb-1">Jenis Kelamin:</label>
+                <select name="jenis_kelamin" onchange="this.form.submit()" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 outline-none">
+                    <option value="">Semua Gender</option>
+                    <option value="L" {{ ($jenis_kelamin ?? '') == 'L' ? 'selected' : '' }}>Laki-laki (L)</option>
+                    <option value="P" {{ ($jenis_kelamin ?? '') == 'P' ? 'selected' : '' }}>Perempuan (P)</option>
+                </select>
+            </div>
+
             <div class="flex items-end gap-2">
                 <button type="submit" class="w-full py-2 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition">
                     Terapkan Filter
@@ -87,6 +96,62 @@
                 </a>
             </div>
         </form>
+
+        @php
+            $totL = $rekapGender['L'] ?? 0;
+            $totP = $rekapGender['P'] ?? 0;
+            $totAll = $totL + $totP;
+            $pctL = $totAll > 0 ? round(($totL / $totAll) * 100, 1) : 0;
+            $pctP = $totAll > 0 ? round(($totP / $totAll) * 100, 1) : 0;
+        @endphp
+
+        <!-- Rekapitulasi Gender Prestasi Siswa -->
+        <div class="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Capaian Prestasi</span>
+                    <span class="text-lg font-extrabold text-slate-800">{{ number_format($totAll) }}</span>
+                    <span class="text-[11px] text-slate-400 block">Tahun {{ $tahun }}</span>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+                    🏆
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-100 flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <span class="text-[11px] font-bold text-blue-900 uppercase tracking-wider">Siswa Laki-laki</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span class="text-lg font-extrabold text-blue-700">{{ number_format($totL) }}</span>
+                        <span class="text-xs font-semibold text-blue-600/80">({{ $pctL }}%)</span>
+                    </div>
+                    <span class="text-[11px] text-blue-600/70 block">Perolehan medali & juara</span>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+                    ♂ L
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-pink-50/60 border border-pink-100 flex items-center justify-between">
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-pink-500"></span>
+                        <span class="text-[11px] font-bold text-pink-900 uppercase tracking-wider">Siswi Perempuan</span>
+                    </div>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                        <span class="text-lg font-extrabold text-pink-700">{{ number_format($totP) }}</span>
+                        <span class="text-xs font-semibold text-pink-600/80">({{ $pctP }}%)</span>
+                    </div>
+                    <span class="text-[11px] text-pink-600/70 block">Perolehan medali & juara</span>
+                </div>
+                <div class="w-9 h-9 rounded-xl bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-xs">
+                    ♀ P
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Daftar Prestasi (Tabel & Kartu Switcher) -->
@@ -173,6 +238,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 <span class="font-bold text-slate-900">{{ $pres->nama_siswa }}</span>
+                                @if($pres->jenis_kelamin === 'P')
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-pink-50 text-pink-700 border border-pink-200">P</span>
+                                @else
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">L</span>
+                                @endif
                                 @if($pres->nisn)<span class="text-[10px] text-slate-400 font-mono">({{ $pres->nisn }})</span>@endif
                             </div>
                             <p class="text-[11px] text-slate-600 pl-6">
@@ -192,6 +262,7 @@
                                 'id' => $pres->id,
                                 'nama_siswa' => $pres->nama_siswa,
                                 'nisn' => $pres->nisn ?? '',
+                                'jenis_kelamin' => $pres->jenis_kelamin ?? 'L',
                                 'satuan_pendidikan_id' => $pres->satuan_pendidikan_id,
                                 'nama_kejuaraan' => $pres->nama_kejuaraan,
                                 'bidang' => $pres->bidang,
@@ -253,10 +324,17 @@
             <form action="{{ route('tujuan2.store') }}" method="POST" class="space-y-4 text-xs">
                 @csrf
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Nama Siswa *</label>
                         <input type="text" name="nama_siswa" required placeholder="Contoh: Budi Santoso" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Jenis Kelamin *</label>
+                        <select name="jenis_kelamin" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="L">Laki-laki (L)</option>
+                            <option value="P">Perempuan (P)</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">NISN (Opsional)</label>
@@ -356,10 +434,17 @@
                 @csrf
                 @method('PUT')
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">Nama Siswa *</label>
                         <input type="text" name="nama_siswa" x-model="activeRow.nama_siswa" required placeholder="Contoh: Budi Santoso" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Jenis Kelamin *</label>
+                        <select name="jenis_kelamin" x-model="activeRow.jenis_kelamin" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="L">Laki-laki (L)</option>
+                            <option value="P">Perempuan (P)</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">NISN (Opsional)</label>

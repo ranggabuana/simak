@@ -32,7 +32,7 @@
                 <span>Tambah Guru Baru</span>
             </button>
 
-            <a href="{{ route('export.guru') }}" 
+            <a href="{{ route('export.guru', request()->query()) }}" 
                class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition whitespace-nowrap shrink-0">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -76,11 +76,52 @@
         </div>
     </div>
 
+    <!-- Rekapitulasi Menurut Gender -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                    L
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-blue-950 block">Guru Laki-laki</span>
+                    <span class="text-[11px] text-blue-700">Bersertifikasi: <strong>{{ number_format($stats['sertifikasi_l'] ?? 0) }}</strong> ({{ $stats['persen_l'] ?? 0 }}%)</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xl font-black text-blue-900">{{ number_format($stats['total_l'] ?? 0) }}</span>
+                <span class="text-[10px] text-blue-600 block">Guru ({{ $stats['total'] > 0 ? round((($stats['total_l'] ?? 0) / $stats['total']) * 100, 1) : 0 }}%)</span>
+            </div>
+        </div>
+        <div class="p-4 rounded-2xl bg-pink-50/60 border border-pink-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                    P
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-pink-950 block">Guru Perempuan</span>
+                    <span class="text-[11px] text-pink-700">Bersertifikasi: <strong>{{ number_format($stats['sertifikasi_p'] ?? 0) }}</strong> ({{ $stats['persen_p'] ?? 0 }}%)</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xl font-black text-pink-900">{{ number_format($stats['total_p'] ?? 0) }}</span>
+                <span class="text-[10px] text-pink-600 block">Guru ({{ $stats['total'] > 0 ? round((($stats['total_p'] ?? 0) / $stats['total']) * 100, 1) : 0 }}%)</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Filter Form -->
     <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
         <form action="{{ route('guru.index') }}" method="GET" class="flex flex-wrap items-center gap-3 text-xs">
             <div class="flex items-center gap-2">
                 <span class="font-bold text-slate-600 uppercase text-[10px] tracking-wider">Filter Data Guru:</span>
+            </div>
+            <div>
+                <select name="jenis_kelamin" onchange="this.form.submit()" class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-bold focus:ring-2 focus:ring-purple-500">
+                    <option value="">Jenis Kelamin (Semua)</option>
+                    <option value="L" {{ ($filterJenisKelamin ?? '') === 'L' ? 'selected' : '' }}>Laki-laki (L)</option>
+                    <option value="P" {{ ($filterJenisKelamin ?? '') === 'P' ? 'selected' : '' }}>Perempuan (P)</option>
+                </select>
             </div>
             <div>
                 <select name="kecamatan_id" onchange="this.form.submit()" class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:ring-2 focus:ring-purple-500">
@@ -113,7 +154,7 @@
                     <option value="0" {{ $filterSertifikasi === '0' ? 'selected' : '' }}>Belum Sertifikasi</option>
                 </select>
             </div>
-            @if($filterKecamatan || $filterJenjang || $filterStatus || ($filterSertifikasi !== null && $filterSertifikasi !== ''))
+            @if($filterKecamatan || $filterJenjang || $filterStatus || ($filterSertifikasi !== null && $filterSertifikasi !== '') || ($filterJenisKelamin ?? ''))
                 <a href="{{ route('guru.index') }}" class="px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold transition">
                     &times; Reset Filter
                 </a>

@@ -19,6 +19,7 @@ class PartisipasiSiswaController extends Controller
         $tahun = (int) $request->input('tahun', 2025);
         $jenjang = $request->input('jenjang');
         $kecamatanId = $request->input('kecamatan_id');
+        $gender = $request->input('gender', 'all');
         $search = $request->input('search');
         $isOperatorScoped = false;
 
@@ -80,7 +81,7 @@ class PartisipasiSiswaController extends Controller
         // Server-Side AJAX JSON Response
         if ($request->ajax() || $request->wantsJson() || $request->has('serverside')) {
             return response()->json([
-                'html' => view('siswa._rows', ['siswaList' => $siswaList, 'tahun' => $tahun])->render(),
+                'html' => view('siswa._rows', ['siswaList' => $siswaList, 'tahun' => $tahun, 'gender' => $gender])->render(),
                 'total' => $siswaList->total(),
                 'filtered' => $siswaList->total(),
                 'current_page' => $siswaList->currentPage(),
@@ -100,11 +101,19 @@ class PartisipasiSiswaController extends Controller
             COUNT(*) as total_sekolah,
             SUM(total_siswa_semua_usia) as total_siswa,
             SUM(siswa_usia_sesuai) as total_sesuai,
-            SUM(jumlah_rombel) as total_rombel
+            SUM(jumlah_rombel) as total_rombel,
+            SUM(siswa_l) as total_siswa_l,
+            SUM(siswa_p) as total_siswa_p,
+            SUM(siswa_usia_sesuai_l) as total_sesuai_l,
+            SUM(siswa_usia_sesuai_p) as total_sesuai_p
         ')->first();
 
         $totalSiswa = (int) ($statRow->total_siswa ?? 0);
         $totalSesuai = (int) ($statRow->total_sesuai ?? 0);
+        $totalSiswaL = (int) ($statRow->total_siswa_l ?? 0);
+        $totalSiswaP = (int) ($statRow->total_siswa_p ?? 0);
+        $totalSesuaiL = (int) ($statRow->total_sesuai_l ?? 0);
+        $totalSesuaiP = (int) ($statRow->total_sesuai_p ?? 0);
         $persenSesuai = $totalSiswa > 0 ? round(($totalSesuai / $totalSiswa) * 100, 1) : 0;
         $totalRombel = (int) ($statRow->total_rombel ?? 0);
 
@@ -114,6 +123,12 @@ class PartisipasiSiswaController extends Controller
             'persen_sesuai' => $persenSesuai,
             'total_rombel' => $totalRombel,
             'total_sekolah_terdata' => (int) ($statRow->total_sekolah ?? 0),
+            'total_siswa_l' => $totalSiswaL,
+            'total_siswa_p' => $totalSiswaP,
+            'total_sesuai_l' => $totalSesuaiL,
+            'total_sesuai_p' => $totalSesuaiP,
+            'persen_l' => $totalSiswa > 0 ? round(($totalSiswaL / $totalSiswa) * 100, 1) : 0,
+            'persen_p' => $totalSiswa > 0 ? round(($totalSiswaP / $totalSiswa) * 100, 1) : 0,
         ];
 
         $sekolahQuery = SatuanPendidikan::orderBy('nama_sekolah');
@@ -129,6 +144,7 @@ class PartisipasiSiswaController extends Controller
             'sekolahList' => $sekolahQuery->get(['id', 'npsn', 'nama_sekolah', 'jenjang', 'kecamatan_id']),
             'filterJenjang' => $jenjang,
             'filterKecamatan' => $kecamatanId,
+            'filterGender' => $gender,
             'isOperatorScoped' => $isOperatorScoped,
         ]);
     }
@@ -141,6 +157,10 @@ class PartisipasiSiswaController extends Controller
             'tahun' => 'required|integer|min:2020|max:2035',
             'total_siswa_semua_usia' => 'required|integer|min:0',
             'siswa_usia_sesuai' => 'required|integer|min:0',
+            'siswa_l' => 'nullable|integer|min:0',
+            'siswa_p' => 'nullable|integer|min:0',
+            'siswa_usia_sesuai_l' => 'nullable|integer|min:0',
+            'siswa_usia_sesuai_p' => 'nullable|integer|min:0',
             'jumlah_rombel' => 'nullable|integer|min:0',
         ]);
 
@@ -149,6 +169,28 @@ class PartisipasiSiswaController extends Controller
         $totalSiswa = (int) $validated['total_siswa_semua_usia'];
         $siswaSesuai = min((int) $validated['siswa_usia_sesuai'], $totalSiswa);
         $rombel = (int) ($validated['jumlah_rombel'] ?? max(1, (int) ($totalSiswa / 28)));
+
+        $siswaL = isset($validated['siswa_l']) ? (int) $validated['siswa_l'] : null;
+        $siswaP = isset($validated['siswa_p']) ? (int) $validated['siswa_p'] : null;
+        if ($siswaL === null && $siswaP === null) {
+            $siswaL = (int) round($totalSiswa * 0.51);
+            $siswaP = max(0, $totalSiswa - $siswaL);
+        } elseif ($siswaL !== null && $siswaP === null) {
+            $siswaP = max(0, $totalSiswa - $siswaL);
+        } elseif ($siswaL === null && $siswaP !== null) {
+            $siswaL = max(0, $totalSiswa - $siswaP);
+        }
+
+        $sesuaiL = isset($validated['siswa_usia_sesuai_l']) ? (int) $validated['siswa_usia_sesuai_l'] : null;
+        $sesuaiP = isset($validated['siswa_usia_sesuai_p']) ? (int) $validated['siswa_usia_sesuai_p'] : null;
+        if ($sesuaiL === null && $sesuaiP === null) {
+            $sesuaiL = (int) round($siswaSesuai * 0.51);
+            $sesuaiP = max(0, $siswaSesuai - $sesuaiL);
+        } elseif ($sesuaiL !== null && $sesuaiP === null) {
+            $sesuaiP = max(0, $siswaSesuai - $sesuaiL);
+        } elseif ($sesuaiL === null && $sesuaiP !== null) {
+            $sesuaiL = max(0, $siswaSesuai - $sesuaiP);
+        }
 
         // Distribusi usia jenjang berdasarkan jenjang sekolah
         $u5_6 = ($sekolah->jenjang === 'PAUD' || $sekolah->jenjang === 'TK') ? $siswaSesuai : 0;
@@ -167,6 +209,10 @@ class PartisipasiSiswaController extends Controller
                 'jenjang' => $sekolah->jenjang,
                 'total_siswa_semua_usia' => $totalSiswa,
                 'siswa_usia_sesuai' => $siswaSesuai,
+                'siswa_l' => $siswaL,
+                'siswa_p' => $siswaP,
+                'siswa_usia_sesuai_l' => $sesuaiL,
+                'siswa_usia_sesuai_p' => $sesuaiP,
                 'siswa_usia_5_6' => $u5_6,
                 'siswa_usia_7_12' => $u7_12,
                 'siswa_usia_13_15' => $u13_15,
@@ -188,6 +234,10 @@ class PartisipasiSiswaController extends Controller
         $validated = $request->validate([
             'total_siswa_semua_usia' => 'required|integer|min:0',
             'siswa_usia_sesuai' => 'required|integer|min:0',
+            'siswa_l' => 'nullable|integer|min:0',
+            'siswa_p' => 'nullable|integer|min:0',
+            'siswa_usia_sesuai_l' => 'nullable|integer|min:0',
+            'siswa_usia_sesuai_p' => 'nullable|integer|min:0',
             'jumlah_rombel' => 'nullable|integer|min:0',
             'tahun_ajaran' => 'required|string|max:10',
             'tahun' => 'required|integer|min:2020|max:2035',
@@ -198,6 +248,28 @@ class PartisipasiSiswaController extends Controller
         $siswaSesuai = min((int) $validated['siswa_usia_sesuai'], $totalSiswa);
         $rombel = (int) ($validated['jumlah_rombel'] ?? $partisipasi->jumlah_rombel);
 
+        $siswaL = isset($validated['siswa_l']) ? (int) $validated['siswa_l'] : null;
+        $siswaP = isset($validated['siswa_p']) ? (int) $validated['siswa_p'] : null;
+        if ($siswaL === null && $siswaP === null) {
+            $siswaL = (int) round($totalSiswa * 0.51);
+            $siswaP = max(0, $totalSiswa - $siswaL);
+        } elseif ($siswaL !== null && $siswaP === null) {
+            $siswaP = max(0, $totalSiswa - $siswaL);
+        } elseif ($siswaL === null && $siswaP !== null) {
+            $siswaL = max(0, $totalSiswa - $siswaP);
+        }
+
+        $sesuaiL = isset($validated['siswa_usia_sesuai_l']) ? (int) $validated['siswa_usia_sesuai_l'] : null;
+        $sesuaiP = isset($validated['siswa_usia_sesuai_p']) ? (int) $validated['siswa_usia_sesuai_p'] : null;
+        if ($sesuaiL === null && $sesuaiP === null) {
+            $sesuaiL = (int) round($siswaSesuai * 0.51);
+            $sesuaiP = max(0, $siswaSesuai - $sesuaiL);
+        } elseif ($sesuaiL !== null && $sesuaiP === null) {
+            $sesuaiP = max(0, $siswaSesuai - $sesuaiL);
+        } elseif ($sesuaiL === null && $sesuaiP !== null) {
+            $sesuaiL = max(0, $siswaSesuai - $sesuaiP);
+        }
+
         $u5_6 = ($sekolah->jenjang === 'PAUD' || $sekolah->jenjang === 'TK') ? $siswaSesuai : 0;
         $u7_12 = ($sekolah->jenjang === 'SD' || $sekolah->jenjang === 'MI') ? $siswaSesuai : 0;
         $u13_15 = ($sekolah->jenjang === 'SMP' || $sekolah->jenjang === 'MTS') ? $siswaSesuai : 0;
@@ -206,6 +278,10 @@ class PartisipasiSiswaController extends Controller
         $partisipasi->update([
             'total_siswa_semua_usia' => $totalSiswa,
             'siswa_usia_sesuai' => $siswaSesuai,
+            'siswa_l' => $siswaL,
+            'siswa_p' => $siswaP,
+            'siswa_usia_sesuai_l' => $sesuaiL,
+            'siswa_usia_sesuai_p' => $sesuaiP,
             'siswa_usia_5_6' => $u5_6,
             'siswa_usia_7_12' => $u7_12,
             'siswa_usia_13_15' => $u13_15,

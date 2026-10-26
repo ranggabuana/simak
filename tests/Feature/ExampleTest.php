@@ -829,6 +829,7 @@ class ExampleTest extends TestCase
         $resCreate = $this->actingAs($admin)->post('/tujuan2/prestasi', [
             'nama_siswa' => 'Test Siswa Berprestasi',
             'nisn' => '1234567890',
+            'jenis_kelamin' => 'L',
             'satuan_pendidikan_id' => $sekolah->id,
             'nama_kejuaraan' => 'Olimpiade Sains Nasional',
             'bidang' => 'Sains & Akademik',
@@ -842,6 +843,7 @@ class ExampleTest extends TestCase
         $resCreate->assertSessionHas('success');
         $this->assertDatabaseHas('prestasi_siswa', [
             'nama_siswa' => 'Test Siswa Berprestasi',
+            'jenis_kelamin' => 'L',
             'nama_kejuaraan' => 'Olimpiade Sains Nasional',
             'peringkat' => 'Juara 1',
             'satuan_pendidikan_id' => $sekolah->id,
@@ -857,6 +859,7 @@ class ExampleTest extends TestCase
         $resUpdate = $this->actingAs($admin)->put('/tujuan2/prestasi/'.$prestasi->id, [
             'nama_siswa' => 'Test Siswa Berprestasi Updated',
             'nisn' => '1234567890',
+            'jenis_kelamin' => 'P',
             'satuan_pendidikan_id' => $sekolah->id,
             'nama_kejuaraan' => 'Olimpiade Sains Internasional',
             'bidang' => 'Sains & Akademik',
@@ -871,6 +874,7 @@ class ExampleTest extends TestCase
         $this->assertDatabaseHas('prestasi_siswa', [
             'id' => $prestasi->id,
             'nama_siswa' => 'Test Siswa Berprestasi Updated',
+            'jenis_kelamin' => 'P',
             'nama_kejuaraan' => 'Olimpiade Sains Internasional',
             'tingkat' => 'Internasional',
             'peringkat' => 'Juara 2',

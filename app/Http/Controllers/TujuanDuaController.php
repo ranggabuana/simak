@@ -18,6 +18,7 @@ class TujuanDuaController extends Controller
         $tahun = (int) $request->input('tahun', 2025);
         $bidang = $request->input('bidang');
         $tingkat = $request->input('tingkat');
+        $jenisKelamin = $request->input('jenis_kelamin');
         $search = $request->input('search');
 
         $query = PrestasiSiswa::with(['satuanPendidikan.kecamatan', 'kecamatan']);
@@ -32,6 +33,10 @@ class TujuanDuaController extends Controller
 
         if ($tingkat) {
             $query->where('tingkat', $tingkat);
+        }
+
+        if ($jenisKelamin) {
+            $query->where('jenis_kelamin', $jenisKelamin);
         }
 
         if ($search) {
@@ -101,14 +106,21 @@ class TujuanDuaController extends Controller
             ->groupBy('tingkat')
             ->pluck('total', 'tingkat');
 
+        $rekapGender = PrestasiSiswa::where('tahun', $tahun)
+            ->selectRaw('jenis_kelamin, count(*) as total')
+            ->groupBy('jenis_kelamin')
+            ->pluck('total', 'jenis_kelamin');
+
         return view('tujuan2.index', [
             'tahun' => $tahun,
             'bidang' => $bidang,
             'tingkat' => $tingkat,
+            'jenis_kelamin' => $jenisKelamin,
             'search' => $search,
             'prestasiList' => $prestasiList,
             'rekapBidang' => $rekapBidang,
             'rekapTingkat' => $rekapTingkat,
+            'rekapGender' => $rekapGender,
             'sekolahList' => SatuanPendidikan::with('kecamatan')->orderBy('nama_sekolah')->get(),
             'kecamatanList' => WilayahKecamatan::orderBy('nama')->get(),
         ]);
@@ -119,6 +131,7 @@ class TujuanDuaController extends Controller
         $validated = $request->validate([
             'nama_siswa' => 'required|string|max:150',
             'nisn' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|in:L,P',
             'nama_kejuaraan' => 'required|string|max:200',
             'bidang' => 'required|in:Sains & Akademik,Olahraga,Seni & Budaya,Teknologi & Robotik,Keagamaan,Lainnya',
             'tingkat' => 'required|in:Kecamatan,Kabupaten,Provinsi,Nasional,Internasional',
@@ -128,6 +141,8 @@ class TujuanDuaController extends Controller
             'penyelenggara' => 'nullable|string|max:150',
             'keterangan' => 'nullable|string',
         ]);
+
+        $validated['jenis_kelamin'] = $validated['jenis_kelamin'] ?? 'L';
 
         $sekolah = SatuanPendidikan::findOrFail($validated['satuan_pendidikan_id']);
         $validated['kecamatan_id'] = $sekolah->kecamatan_id;
@@ -144,6 +159,7 @@ class TujuanDuaController extends Controller
         $validated = $request->validate([
             'nama_siswa' => 'required|string|max:150',
             'nisn' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|in:L,P',
             'nama_kejuaraan' => 'required|string|max:200',
             'bidang' => 'required|in:Sains & Akademik,Olahraga,Seni & Budaya,Teknologi & Robotik,Keagamaan,Lainnya',
             'tingkat' => 'required|in:Kecamatan,Kabupaten,Provinsi,Nasional,Internasional',
@@ -155,6 +171,7 @@ class TujuanDuaController extends Controller
         ]);
 
         $prestasi = PrestasiSiswa::findOrFail($id);
+        $validated['jenis_kelamin'] = $validated['jenis_kelamin'] ?? $prestasi->jenis_kelamin ?? 'L';
         $sekolah = SatuanPendidikan::findOrFail($validated['satuan_pendidikan_id']);
         $validated['kecamatan_id'] = $sekolah->kecamatan_id;
 

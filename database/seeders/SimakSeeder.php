@@ -504,6 +504,10 @@ class SimakSeeder extends Seeder
                     $factor = ($jenjang === 'SD') ? 220 : (($jenjang === 'SMP') ? 340 : (($jenjang === 'SMA' || $jenjang === 'SMK') ? 400 : 55));
                     $totalSiswa = (int) ($factor + mt_rand(-15, 25));
                     $siswaSesuai = (int) ($totalSiswa * 0.94);
+                    $siswaL = (int) round($totalSiswa * 0.51);
+                    $siswaP = $totalSiswa - $siswaL;
+                    $siswaSesuaiL = (int) round($siswaSesuai * 0.51);
+                    $siswaSesuaiP = $siswaSesuai - $siswaSesuaiL;
 
                     PartisipasiSiswa::updateOrCreate(
                         [
@@ -515,7 +519,11 @@ class SimakSeeder extends Seeder
                             'tahun' => 2025,
                             'jenjang' => $jenjang,
                             'total_siswa_semua_usia' => $totalSiswa,
+                            'siswa_l' => $siswaL,
+                            'siswa_p' => $siswaP,
                             'siswa_usia_sesuai' => $siswaSesuai,
+                            'siswa_usia_sesuai_l' => $siswaSesuaiL,
+                            'siswa_usia_sesuai_p' => $siswaSesuaiP,
                             'siswa_usia_5_6' => ($jenjang === 'PAUD' ? $siswaSesuai : ($jenjang === 'SD' ? 8 : 0)),
                             'siswa_usia_7_12' => ($jenjang === 'SD' ? $siswaSesuai : ($jenjang === 'SMP' ? 6 : 0)),
                             'siswa_usia_13_15' => ($jenjang === 'SMP' ? $siswaSesuai : ($jenjang === 'SMA' || $jenjang === 'SMK' ? 12 : 0)),
@@ -550,6 +558,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Ahmad Fauzan Pratama',
                 'nisn' => '0089123451',
+                'jenis_kelamin' => 'L',
                 'nama_kejuaraan' => 'Olimpiade Sains Nasional (OSN) Bidang Matematika',
                 'bidang' => 'Sains & Akademik',
                 'tingkat' => 'Nasional',
@@ -561,6 +570,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Nabila Putri Cahyani',
                 'nisn' => '0098432112',
+                'jenis_kelamin' => 'P',
                 'nama_kejuaraan' => 'Festival dan Lomba Seni Siswa Nasional (FLS2N) Tari Tradisional',
                 'bidang' => 'Seni & Budaya',
                 'tingkat' => 'Provinsi',
@@ -572,6 +582,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Rizky Kurniawan',
                 'nisn' => '0076543219',
+                'jenis_kelamin' => 'L',
                 'nama_kejuaraan' => 'Olimpiade Olahraga Siswa Nasional (O2SN) Cabang Pencak Silat',
                 'bidang' => 'Olahraga',
                 'tingkat' => 'Nasional',
@@ -583,6 +594,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Dimas Arya Pamungkas',
                 'nisn' => '0091122334',
+                'jenis_kelamin' => 'L',
                 'nama_kejuaraan' => 'Kontes Robotika Pintar Pelajar',
                 'bidang' => 'Teknologi & Robotik',
                 'tingkat' => 'Nasional',
@@ -594,6 +606,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Siti Aisyah Wardani',
                 'nisn' => '0102233445',
+                'jenis_kelamin' => 'P',
                 'nama_kejuaraan' => 'Musabaqah Tilawatil Quran (MTQ) Pelajar',
                 'bidang' => 'Keagamaan',
                 'tingkat' => 'Kabupaten',
@@ -605,6 +618,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Bintang Gilang Ramadhan',
                 'nisn' => '0085566778',
+                'jenis_kelamin' => 'L',
                 'nama_kejuaraan' => 'Pekan Olahraga Pelajar Daerah (POPDA) Cabang Bulutangkis',
                 'bidang' => 'Olahraga',
                 'tingkat' => 'Provinsi',
@@ -616,6 +630,7 @@ class SimakSeeder extends Seeder
             [
                 'nama_siswa' => 'Zahra Khairunnisa',
                 'nisn' => '0113344556',
+                'jenis_kelamin' => 'P',
                 'nama_kejuaraan' => 'Lomba Cipta Puisi & Menulis Esai Pendidikan Karakter',
                 'bidang' => 'Seni & Budaya',
                 'tingkat' => 'Kabupaten',

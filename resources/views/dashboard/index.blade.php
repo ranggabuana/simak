@@ -18,11 +18,28 @@
                 Ringkasan capaian Indikator Kinerja Kunci (IKK) Renstra, evaluasi AKIP DINDIKPORA, dan pemerataan partisipasi sekolah di 20 wilayah kecamatan.
             </p>
         </div>
-        <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 shrink-0 font-medium bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/70">
-            <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Periode Renstra 2025–2029</span>
+        <div class="flex items-center gap-2 flex-wrap">
+            <div class="inline-flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 text-xs font-semibold">
+                <a href="{{ route('dashboard', array_merge(request()->query(), ['gender' => ''])) }}" 
+                   class="px-3 py-1.5 rounded-lg transition {{ empty($gender) ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                    Semua
+                </a>
+                <a href="{{ route('dashboard', array_merge(request()->query(), ['gender' => 'L'])) }}" 
+                   class="px-3 py-1.5 rounded-lg transition {{ $gender === 'L' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                    ♂ Laki-laki
+                </a>
+                <a href="{{ route('dashboard', array_merge(request()->query(), ['gender' => 'P'])) }}" 
+                   class="px-3 py-1.5 rounded-lg transition {{ $gender === 'P' ? 'bg-white text-pink-700 shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                    ♀ Perempuan
+                </a>
+            </div>
+
+            <div class="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 shrink-0 font-medium bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/70">
+                <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Renstra 2025–2029</span>
+            </div>
         </div>
     </div>
 
@@ -197,6 +214,132 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Rekapitulasi Kinerja Menurut Gender (Gender Analysis Dashboard) -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-500/20">
+                    ⚥
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-slate-900">Rekapitulasi Kinerja Pendidikan Menurut Gender (L & P)</h3>
+                    <p class="text-xs text-slate-500">Komparasi demografi, partisipasi siswa, kualifikasi guru, dan prestasi se-Kabupaten Banjarnegara</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                    Tahun {{ $tahun }}
+                </span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <!-- 1. Demografi Penduduk Usia Sekolah -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">1. Demografi Usia Sekolah</span>
+                    <span class="text-[10px] text-slate-400">7-18 Th</span>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Laki-laki:</span>
+                        <strong class="text-blue-700 font-bold">{{ number_format($kabupaten['gender_comparison']['populasi_l'] ?? 0) }}</strong>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Perempuan:</span>
+                        <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['populasi_p'] ?? 0) }}</strong>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500">Rasio Penduduk:</span>
+                    @php
+                        $popTot = ($kabupaten['gender_comparison']['populasi_l'] ?? 0) + ($kabupaten['gender_comparison']['populasi_p'] ?? 0);
+                        $popPctL = $popTot > 0 ? round((($kabupaten['gender_comparison']['populasi_l'] ?? 0) / $popTot) * 100, 1) : 50;
+                    @endphp
+                    <span class="font-semibold text-slate-700">{{ $popPctL }}% L / {{ 100 - $popPctL }}% P</span>
+                </div>
+            </div>
+
+            <!-- 2. Partisipasi Murid (Dapodik) -->
+            <div class="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-blue-900 uppercase tracking-wider text-[11px]">2. Partisipasi Murid</span>
+                    <span class="text-[10px] text-blue-500 font-medium">Aktif</span>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Siswa (L):</span>
+                        <strong class="text-blue-700 font-bold">{{ number_format($kabupaten['gender_comparison']['siswa_l'] ?? 0) }}</strong>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Siswi (P):</span>
+                        <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['siswa_p'] ?? 0) }}</strong>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-blue-200/70 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-600">GPI APK SD & SMP:</span>
+                    <span class="font-bold text-blue-900">
+                        {{ $kabupaten['gender_comparison']['gpi_apk_sd'] ?? 1 }} &bull; {{ $kabupaten['gender_comparison']['gpi_apk_smp'] ?? 1 }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3. Guru & Sertifikasi Pendidik -->
+            <div class="p-4 rounded-2xl bg-purple-50/50 border border-purple-100 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-purple-900 uppercase tracking-wider text-[11px]">3. Guru & Sertifikasi</span>
+                    <span class="text-[10px] text-purple-600 font-medium">Pendidik</span>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Guru (L):</span>
+                        <span class="font-semibold text-slate-800">
+                            {{ number_format($kabupaten['gender_comparison']['guru_total_l'] ?? 0) }}
+                            <strong class="text-purple-700">({{ $kabupaten['gender_comparison']['guru_persen_l'] ?? 0 }}%)</strong>
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Guru (P):</span>
+                        <span class="font-semibold text-slate-800">
+                            {{ number_format($kabupaten['gender_comparison']['guru_total_p'] ?? 0) }}
+                            <strong class="text-pink-700">({{ $kabupaten['gender_comparison']['guru_persen_p'] ?? 0 }}%)</strong>
+                        </span>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-purple-200/70 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-600">Sertifikasi L / P:</span>
+                    <span class="font-bold text-purple-900">
+                        {{ number_format($kabupaten['gender_comparison']['guru_sertif_l'] ?? 0) }} / {{ number_format($kabupaten['gender_comparison']['guru_sertif_p'] ?? 0) }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- 4. Prestasi Siswa -->
+            <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-100 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-amber-900 uppercase tracking-wider text-[11px]">4. Capaian Prestasi</span>
+                    <span class="text-[10px] text-amber-700 font-medium">Tujuan 2</span>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Prestasi (L):</span>
+                        <strong class="text-blue-700 font-bold">{{ number_format($kabupaten['gender_comparison']['prestasi_l'] ?? 0) }} Juara</strong>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-600">Prestasi (P):</span>
+                        <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['prestasi_p'] ?? 0) }} Juara</strong>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-amber-200/70 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-600">Total Juara Terdata:</span>
+                    <span class="font-bold text-amber-900">
+                        {{ number_format(($kabupaten['gender_comparison']['prestasi_l'] ?? 0) + ($kabupaten['gender_comparison']['prestasi_p'] ?? 0)) }} Ajang
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Middle Section: Akuntabilitas Kinerja & Charts -->
@@ -386,7 +529,14 @@
                     </span>
                 </div>
                 <h4 class="font-bold text-slate-900 text-sm line-clamp-1">{{ $pres->nama_kejuaraan }}</h4>
-                <p class="text-xs font-semibold text-slate-700">{{ $pres->nama_siswa }}</p>
+                <div class="flex items-center gap-1.5">
+                    <p class="text-xs font-semibold text-slate-700">{{ $pres->nama_siswa }}</p>
+                    @if($pres->jenis_kelamin === 'P')
+                        <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-pink-50 text-pink-700 border border-pink-200">P</span>
+                    @else
+                        <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">L</span>
+                    @endif
+                </div>
                 <p class="text-[11px] text-slate-500 truncate">{{ $pres->satuanPendidikan->nama_sekolah }} (Kec. {{ $pres->satuanPendidikan->kecamatan->nama }})</p>
             </div>
             @empty

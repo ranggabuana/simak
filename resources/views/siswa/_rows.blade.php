@@ -1,5 +1,6 @@
 @forelse($siswaList as $row)
 @php
+    $gender = $gender ?? 'all';
     $rasio = $row->total_siswa_semua_usia > 0 ? round(($row->siswa_usia_sesuai / $row->total_siswa_semua_usia) * 100, 1) : 0;
     $rowData = [
         'id' => $row->id,
@@ -13,6 +14,10 @@
         'tahun_ajaran' => $row->tahun_ajaran,
         'total_siswa_semua_usia' => $row->total_siswa_semua_usia,
         'siswa_usia_sesuai' => $row->siswa_usia_sesuai,
+        'siswa_l' => $row->siswa_l ?? 0,
+        'siswa_p' => $row->siswa_p ?? 0,
+        'siswa_usia_sesuai_l' => $row->siswa_usia_sesuai_l ?? 0,
+        'siswa_usia_sesuai_p' => $row->siswa_usia_sesuai_p ?? 0,
         'jumlah_rombel' => $row->jumlah_rombel,
     ];
 @endphp
@@ -31,11 +36,33 @@
     <td class="py-3.5 px-4 text-center font-mono text-slate-500">
         {{ $row->tahun_ajaran }}
     </td>
-    <td class="py-3.5 px-4 text-right font-extrabold text-slate-900">
-        {{ number_format($row->total_siswa_semua_usia) }}
+    <td class="py-3.5 px-4 text-right">
+        @if($gender === 'L')
+            <span class="font-extrabold text-blue-700">{{ number_format($row->siswa_l) }}</span>
+            <span class="block text-[10px] text-blue-500">Laki-laki</span>
+        @elseif($gender === 'P')
+            <span class="font-extrabold text-pink-700">{{ number_format($row->siswa_p) }}</span>
+            <span class="block text-[10px] text-pink-500">Perempuan</span>
+        @else
+            <span class="font-extrabold text-slate-900">{{ number_format($row->total_siswa_semua_usia) }}</span>
+            <span class="block text-[10px] text-slate-400 font-normal">
+                <span class="text-blue-600 font-semibold">L: {{ number_format($row->siswa_l) }}</span> &bull; 
+                <span class="text-pink-600 font-semibold">P: {{ number_format($row->siswa_p) }}</span>
+            </span>
+        @endif
     </td>
     <td class="py-3.5 px-4 text-right font-bold text-blue-600">
-        {{ number_format($row->siswa_usia_sesuai) }}
+        @if($gender === 'L')
+            <span class="font-extrabold text-blue-700">{{ number_format($row->siswa_usia_sesuai_l) }}</span>
+        @elseif($gender === 'P')
+            <span class="font-extrabold text-pink-700">{{ number_format($row->siswa_usia_sesuai_p) }}</span>
+        @else
+            <span>{{ number_format($row->siswa_usia_sesuai) }}</span>
+            <span class="block text-[10px] text-slate-400 font-normal">
+                <span class="text-blue-600 font-medium">L: {{ number_format($row->siswa_usia_sesuai_l) }}</span> &bull; 
+                <span class="text-pink-600 font-medium">P: {{ number_format($row->siswa_usia_sesuai_p) }}</span>
+            </span>
+        @endif
     </td>
     <td class="py-3.5 px-4 text-right font-extrabold text-emerald-600">
         {{ $rasio }}%

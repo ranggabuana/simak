@@ -17,6 +17,7 @@ class PrestasiSiswa extends Model
         'kecamatan_id',
         'nama_siswa',
         'nisn',
+        'jenis_kelamin',
         'nama_kejuaraan',
         'bidang',
         'tingkat',

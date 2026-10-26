@@ -4,25 +4,52 @@
 <div class="space-y-8">
 
     <!-- Formula Reference Banner (From Flowchart.pdf) -->
-    <div class="p-6 rounded-3xl bg-indigo-50/70 border border-indigo-200 text-indigo-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-sm">
-        <div class="space-y-1.5 max-w-2xl">
+    <div class="p-6 rounded-3xl bg-indigo-50/70 border border-indigo-200 text-indigo-950 shadow-sm space-y-4">
+        <!-- Formula Explanation (Full Width) -->
+        <div class="space-y-2">
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-600 text-white tracking-wider">Formula Flowchart</span>
                 <h2 class="text-base font-bold text-slate-900">Rumus Angka Partisipasi Murni (APM)</h2>
             </div>
-            <p class="text-xs text-slate-600 leading-relaxed font-mono bg-white/80 p-2.5 rounded-xl border border-indigo-100">
+            <p class="text-xs text-slate-700 leading-relaxed font-mono bg-white/90 p-3 rounded-xl border border-indigo-100 shadow-2xs">
                 APM = (Jumlah anak usia sekolah tertentu yang bersekolah pada jenjang tersebut / Jumlah anak usia sekolah tertentu pada kabupaten/kota) &times; 100
             </p>
             <p class="text-[11px] text-slate-500 italic">
                 *Contoh: APM SD/MI = (Jumlah siswa jenjang SD & MI usia 7 - 12 tahun / Jumlah anak usia SD&MI (7-12 Tahun) di Kabupaten Banjarnegara) &times; 100
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ route('export.kecamatan', ['tahun' => $tahun]) }}" class="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 font-bold text-xs shadow-sm flex items-center gap-2 transition">
-                <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+
+        <!-- Dedicated Action Toolbar (Divider + Filter Gender Left + Unduh Excel Right) -->
+        <div class="pt-3.5 border-t border-indigo-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Filter Gender:
+                </span>
+                <div class="inline-flex items-center p-1 bg-white rounded-2xl border border-indigo-200 text-xs font-semibold shadow-2xs">
+                    <a href="{{ route('indikator.apm', array_merge(request()->query(), ['gender' => ''])) }}" 
+                       class="px-3.5 py-1.5 rounded-xl transition {{ empty($gender) ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                        Semua
+                    </a>
+                    <a href="{{ route('indikator.apm', array_merge(request()->query(), ['gender' => 'L'])) }}" 
+                       class="px-3.5 py-1.5 rounded-xl transition {{ $gender === 'L' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                        ♂ Laki-laki
+                    </a>
+                    <a href="{{ route('indikator.apm', array_merge(request()->query(), ['gender' => 'P'])) }}" 
+                       class="px-3.5 py-1.5 rounded-xl transition {{ $gender === 'P' ? 'bg-pink-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                        ♀ Perempuan
+                    </a>
+                </div>
+            </div>
+
+            <a href="{{ route('export.kecamatan', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 hover:text-indigo-800 border border-indigo-200 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Unduh Excel (.xlsx)</span>
+                <span>Unduh Rekap Excel (.xlsx)</span>
             </a>
         </div>
     </div>
@@ -31,7 +58,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <!-- 5 - 6 Tahun (PAUD) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 5 – 6 TAHUN (PAUD/TK)</span>
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 5 – 6 TAHUN (PAUD/TK)</span>
+                @if($gender)
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                    </span>
+                @endif
+            </div>
             <div class="mt-3 flex items-baseline gap-2">
                 <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['paud'], 2) }}%</span>
                 <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_paud ?? 65.2 }}%</span>
@@ -44,7 +78,14 @@
 
         <!-- 7 - 12 Tahun (SD/MI) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 7 – 12 TAHUN (SD/MI)</span>
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 7 – 12 TAHUN (SD/MI)</span>
+                @if($gender)
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                    </span>
+                @endif
+            </div>
             <div class="mt-3 flex items-baseline gap-2">
                 <span class="text-3xl font-extrabold text-indigo-600">{{ number_format($kabupaten['apm']['sd'], 2) }}%</span>
                 <span class="text-xs font-semibold text-emerald-600">Target: {{ $kabupaten['target']?->target_apm_sd ?? 98.4 }}%</span>
@@ -57,7 +98,14 @@
 
         <!-- 13 - 15 Tahun (SMP/MTs) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 13 – 15 TAHUN (SMP/MTS)</span>
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 13 – 15 TAHUN (SMP/MTS)</span>
+                @if($gender)
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                    </span>
+                @endif
+            </div>
             <div class="mt-3 flex items-baseline gap-2">
                 <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['smp'], 2) }}%</span>
                 <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_smp ?? 86.8 }}%</span>
@@ -70,7 +118,14 @@
 
         <!-- 16 - 18 Tahun (SMA/SMK) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 16 – 18 TAHUN (SMA/SMK)</span>
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 16 – 18 TAHUN (SMA/SMK)</span>
+                @if($gender)
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                    </span>
+                @endif
+            </div>
             <div class="mt-3 flex items-baseline gap-2">
                 <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['sma'], 2) }}%</span>
                 <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_sma ?? 72.5 }}%</span>
@@ -78,6 +133,93 @@
             <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
                 <div class="flex justify-between"><span>Siswa Usia Tepat (16-18 Th):</span> <strong>{{ number_format($kabupaten['populasi']['usia_16_18'] * ($kabupaten['apm']['sma']/100)) }}</strong></div>
                 <div class="flex justify-between"><span>Populasi 16–18 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_16_18']) }}</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analisis Paritas Gender APM (Gender Parity Index / GPI) -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">Analisis Paritas Gender APM (Gender Parity Index / GPI)</h3>
+                <p class="text-xs text-slate-500">Perbandingan Partisipasi Murni Laki-laki vs Perempuan dan Rasio Paritas Gender (Target Ideal GPI = 0.97 - 1.03)</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 self-start sm:self-auto">
+                Tahun {{ $tahun }}
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] block">PAUD (5-6 Th)</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Laki-laki:</span>
+                    <strong class="text-indigo-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_paud_l'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Perempuan:</span>
+                    <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_paud_p'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between">
+                    <span class="font-semibold text-slate-600">GPI (P/L):</span>
+                    <span class="px-2 py-0.5 rounded font-extrabold text-[11px] bg-white border border-slate-200 text-slate-800">
+                        {{ number_format($kabupaten['gender_comparison']['gpi_apm_paud'] ?? 1, 2) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-2">
+                <span class="font-bold text-indigo-900 uppercase tracking-wider text-[11px] block">SD/MI (7-12 Th)</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">Laki-laki:</span>
+                    <strong class="text-indigo-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_sd_l'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">Perempuan:</span>
+                    <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_sd_p'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="pt-2 border-t border-indigo-200/70 flex items-center justify-between">
+                    <span class="font-semibold text-slate-700">GPI (P/L):</span>
+                    <span class="px-2 py-0.5 rounded font-extrabold text-[11px] bg-white border border-indigo-200 text-indigo-900">
+                        {{ number_format($kabupaten['gender_comparison']['gpi_apm_sd'] ?? 1, 2) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-purple-50/50 border border-purple-100 space-y-2">
+                <span class="font-bold text-purple-900 uppercase tracking-wider text-[11px] block">SMP/MTs (13-15 Th)</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">Laki-laki:</span>
+                    <strong class="text-indigo-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_smp_l'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">Perempuan:</span>
+                    <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_smp_p'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="pt-2 border-t border-purple-200/70 flex items-center justify-between">
+                    <span class="font-semibold text-slate-700">GPI (P/L):</span>
+                    <span class="px-2 py-0.5 rounded font-extrabold text-[11px] bg-white border border-purple-200 text-purple-900">
+                        {{ number_format($kabupaten['gender_comparison']['gpi_apm_smp'] ?? 1, 2) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
+                <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] block">SMA/SMK (16-18 Th)</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Laki-laki:</span>
+                    <strong class="text-indigo-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_sma_l'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-500">Perempuan:</span>
+                    <strong class="text-pink-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_sma_p'] ?? 0, 1) }}%</strong>
+                </div>
+                <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between">
+                    <span class="font-semibold text-slate-600">GPI (P/L):</span>
+                    <span class="px-2 py-0.5 rounded font-extrabold text-[11px] bg-white border border-slate-200 text-slate-800">
+                        {{ number_format($kabupaten['gender_comparison']['gpi_apm_sma'] ?? 1, 2) }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -137,10 +279,10 @@
                     <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[11px] border-b border-slate-200">
                         <th class="py-3.5 px-4">Kode</th>
                         <th class="py-3.5 px-4">Nama Kecamatan</th>
-                        <th class="py-3.5 px-4 text-center">APM 5–6 Th (PAUD)</th>
-                        <th class="py-3.5 px-4 text-center">APM 7–12 Th (SD)</th>
-                        <th class="py-3.5 px-4 text-center">APM 13–15 Th (SMP)</th>
-                        <th class="py-3.5 px-4 text-center">APM 16–18 Th (SMA)</th>
+                        <th class="py-3.5 px-4 text-center">APM 5–6 Th {{ $gender ? '('.$gender.')' : '(PAUD)' }}</th>
+                        <th class="py-3.5 px-4 text-center">APM 7–12 Th {{ $gender ? '('.$gender.')' : '(SD)' }}</th>
+                        <th class="py-3.5 px-4 text-center">APM 13–15 Th {{ $gender ? '('.$gender.')' : '(SMP)' }}</th>
+                        <th class="py-3.5 px-4 text-center">APM 16–18 Th {{ $gender ? '('.$gender.')' : '(SMA)' }}</th>
                         <th class="py-3.5 px-4 text-right">Penduduk 7–12 Th</th>
                     </tr>
                 </thead>

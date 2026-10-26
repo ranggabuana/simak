@@ -32,7 +32,7 @@
                 <span>Input Manual Baru</span>
             </button>
 
-            <a href="{{ route('export.penduduk', ['tahun' => $tahun]) }}" 
+            <a href="{{ route('export.penduduk', ['tahun' => $tahun, 'gender' => $gender]) }}" 
                class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition whitespace-nowrap shrink-0">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -42,30 +42,96 @@
         </div>
     </div>
 
+    <!-- Filter Gender Bar -->
+    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                Filter Menurut Gender:
+            </span>
+            <div class="inline-flex items-center p-1 bg-slate-100 rounded-2xl border border-slate-200 text-xs font-semibold shadow-2xs">
+                <a href="{{ route('tujuan1.index', ['tahun' => $tahun, 'gender' => 'all']) }}" 
+                   class="px-3.5 py-1.5 rounded-xl transition {{ ($gender ?? 'all') === 'all' ? 'bg-white text-blue-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                    Semua
+                </a>
+                <a href="{{ route('tujuan1.index', ['tahun' => $tahun, 'gender' => 'L']) }}" 
+                   class="px-3.5 py-1.5 rounded-xl transition {{ ($gender ?? '') === 'L' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                    ♂ Laki-laki (L)
+                </a>
+                <a href="{{ route('tujuan1.index', ['tahun' => $tahun, 'gender' => 'P']) }}" 
+                   class="px-3.5 py-1.5 rounded-xl transition {{ ($gender ?? '') === 'P' ? 'bg-pink-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                    ♀ Perempuan (P)
+                </a>
+            </div>
+        </div>
+
+        <div class="text-xs text-slate-500 font-medium flex items-center gap-2">
+            <span>Tahun Data: <strong class="text-slate-800">{{ $tahun }}</strong></span>
+            <span>&bull;</span>
+            <span>Total Penduduk: <strong class="text-slate-800">{{ number_format($totals['total']) }} Jiwa</strong></span>
+        </div>
+    </div>
+
+    <!-- Rekapitulasi Menurut Gender -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                    L
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-blue-950 block">Penduduk Laki-laki</span>
+                    <span class="text-[11px] text-blue-700">Usia Sekolah (5-18 Th): <strong>{{ number_format($genderRecap['usia_sekolah_l']) }}</strong> Jiwa</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xl font-black text-blue-900">{{ number_format($genderRecap['total_l']) }}</span>
+                <span class="text-[10px] text-blue-600 block">Jiwa ({{ $genderRecap['persen_l'] }}%)</span>
+            </div>
+        </div>
+        <div class="p-4 rounded-2xl bg-pink-50/60 border border-pink-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                    P
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-pink-950 block">Penduduk Perempuan</span>
+                    <span class="text-[11px] text-pink-700">Usia Sekolah (5-18 Th): <strong>{{ number_format($genderRecap['usia_sekolah_p']) }}</strong> Jiwa</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xl font-black text-pink-900">{{ number_format($genderRecap['total_p']) }}</span>
+                <span class="text-[10px] text-pink-600 block">Jiwa ({{ $genderRecap['persen_p'] }}%)</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Summary Stats Bar -->
     <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-[11px] font-bold uppercase text-slate-400">5 – 6 Tahun (PAUD)</span>
+            <span class="text-[11px] font-bold uppercase text-slate-400">5 – 6 Tahun (PAUD) {{ $gender === 'L' ? '(L)' : ($gender === 'P' ? '(P)' : '') }}</span>
             <div class="text-xl font-extrabold text-slate-900 mt-1">{{ number_format($totals['usia_5_6']) }}</div>
             <p class="text-[10px] text-slate-500">Jiwa di 20 Kecamatan</p>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-[11px] font-bold uppercase text-slate-400">7 – 12 Tahun (SD/MI)</span>
+            <span class="text-[11px] font-bold uppercase text-slate-400">7 – 12 Tahun (SD/MI) {{ $gender === 'L' ? '(L)' : ($gender === 'P' ? '(P)' : '') }}</span>
             <div class="text-xl font-extrabold text-blue-600 mt-1">{{ number_format($totals['usia_7_12']) }}</div>
             <p class="text-[10px] text-slate-500">Jiwa di 20 Kecamatan</p>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-[11px] font-bold uppercase text-slate-400">13 – 15 Tahun (SMP)</span>
+            <span class="text-[11px] font-bold uppercase text-slate-400">13 – 15 Tahun (SMP) {{ $gender === 'L' ? '(L)' : ($gender === 'P' ? '(P)' : '') }}</span>
             <div class="text-xl font-extrabold text-indigo-600 mt-1">{{ number_format($totals['usia_13_15']) }}</div>
             <p class="text-[10px] text-slate-500">Jiwa di 20 Kecamatan</p>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-            <span class="text-[11px] font-bold uppercase text-slate-400">16 – 18 Tahun (SMA)</span>
+            <span class="text-[11px] font-bold uppercase text-slate-400">16 – 18 Tahun (SMA) {{ $gender === 'L' ? '(L)' : ($gender === 'P' ? '(P)' : '') }}</span>
             <div class="text-xl font-extrabold text-slate-900 mt-1">{{ number_format($totals['usia_16_18']) }}</div>
             <p class="text-[10px] text-slate-500">Jiwa di 20 Kecamatan</p>
         </div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm col-span-2 sm:col-span-1">
-            <span class="text-[11px] font-bold uppercase text-slate-400">> 18 Tahun</span>
+            <span class="text-[11px] font-bold uppercase text-slate-400">> 18 Tahun {{ $gender === 'L' ? '(L)' : ($gender === 'P' ? '(P)' : '') }}</span>
             <div class="text-xl font-extrabold text-slate-900 mt-1">{{ number_format($totals['usia_18_plus']) }}</div>
             <p class="text-[10px] text-slate-500">Pendidikan Lanjutan</p>
         </div>
@@ -98,16 +164,47 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach($pendudukList as $p)
+                    @php
+                        $u0_4 = $gender === 'L' ? $p->usia_0_4_l : ($gender === 'P' ? $p->usia_0_4_p : $p->usia_0_4_total);
+                        $u5_6 = $gender === 'L' ? $p->usia_5_6_l : ($gender === 'P' ? $p->usia_5_6_p : $p->usia_5_6_total);
+                        $u7_12 = $gender === 'L' ? $p->usia_7_12_l : ($gender === 'P' ? $p->usia_7_12_p : $p->usia_7_12_total);
+                        $u13_15 = $gender === 'L' ? $p->usia_13_15_l : ($gender === 'P' ? $p->usia_13_15_p : $p->usia_13_15_total);
+                        $u16_18 = $gender === 'L' ? $p->usia_16_18_l : ($gender === 'P' ? $p->usia_16_18_p : $p->usia_16_18_total);
+                        $u18p = $gender === 'L' ? (int) round($p->usia_18_plus_total * 0.505) : ($gender === 'P' ? (int) round($p->usia_18_plus_total * 0.495) : $p->usia_18_plus_total);
+                        $uTot = $gender === 'L' ? ($p->usia_0_4_l + $p->usia_5_6_l + $p->usia_7_12_l + $p->usia_13_15_l + $p->usia_16_18_l + $u18p)
+                              : ($gender === 'P' ? ($p->usia_0_4_p + $p->usia_5_6_p + $p->usia_7_12_p + $p->usia_13_15_p + $p->usia_16_18_p + $u18p)
+                              : $p->total_penduduk);
+                    @endphp
                     <tr class="hover:bg-slate-50 transition">
                         <td class="py-3.5 px-4 font-mono text-slate-400">{{ $p->kecamatan->kode }}</td>
                         <td class="py-3.5 px-4 font-bold text-slate-900">{{ $p->kecamatan->nama }}</td>
-                        <td class="py-3.5 px-4 text-right text-slate-600">{{ number_format($p->usia_0_4_total) }}</td>
-                        <td class="py-3.5 px-4 text-right font-medium text-slate-800">{{ number_format($p->usia_5_6_total) }}</td>
-                        <td class="py-3.5 px-4 text-right font-bold text-blue-600">{{ number_format($p->usia_7_12_total) }}</td>
-                        <td class="py-3.5 px-4 text-right font-bold text-indigo-600">{{ number_format($p->usia_13_15_total) }}</td>
-                        <td class="py-3.5 px-4 text-right font-medium text-slate-800">{{ number_format($p->usia_16_18_total) }}</td>
-                        <td class="py-3.5 px-4 text-right text-slate-600">{{ number_format($p->usia_18_plus_total) }}</td>
-                        <td class="py-3.5 px-4 text-right font-semibold text-slate-900">{{ number_format($p->total_penduduk) }}</td>
+                        <td class="py-3.5 px-4 text-right text-slate-600">{{ number_format($u0_4) }}</td>
+                        <td class="py-3.5 px-4 text-right font-medium text-slate-800">
+                            <div>{{ number_format($u5_6) }}</div>
+                            @if($gender === 'all')
+                                <div class="text-[9px] text-slate-400 font-mono">L:{{ number_format($p->usia_5_6_l) }} P:{{ number_format($p->usia_5_6_p) }}</div>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-4 text-right font-bold text-blue-600">
+                            <div>{{ number_format($u7_12) }}</div>
+                            @if($gender === 'all')
+                                <div class="text-[9px] text-blue-400 font-mono">L:{{ number_format($p->usia_7_12_l) }} P:{{ number_format($p->usia_7_12_p) }}</div>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-4 text-right font-bold text-indigo-600">
+                            <div>{{ number_format($u13_15) }}</div>
+                            @if($gender === 'all')
+                                <div class="text-[9px] text-indigo-400 font-mono">L:{{ number_format($p->usia_13_15_l) }} P:{{ number_format($p->usia_13_15_p) }}</div>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-4 text-right font-medium text-slate-800">
+                            <div>{{ number_format($u16_18) }}</div>
+                            @if($gender === 'all')
+                                <div class="text-[9px] text-slate-400 font-mono">L:{{ number_format($p->usia_16_18_l) }} P:{{ number_format($p->usia_16_18_p) }}</div>
+                            @endif
+                        </td>
+                        <td class="py-3.5 px-4 text-right text-slate-600">{{ number_format($u18p) }}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-slate-900">{{ number_format($uTot) }}</td>
                         <td class="py-3.5 px-4 text-center">
                             <div class="flex items-center justify-center gap-1.5">
                                 <button type="button" 

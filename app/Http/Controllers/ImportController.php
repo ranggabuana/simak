@@ -284,6 +284,7 @@ class ImportController extends Controller
                 fputcsv($output, [
                     'nama_siswa',
                     'nisn',
+                    'jenis_kelamin',
                     'nama_kejuaraan',
                     'bidang',
                     'tingkat',
@@ -298,6 +299,7 @@ class ImportController extends Controller
                 fputcsv($output, [
                     'Budi Santoso',
                     '0081234567',
+                    'L',
                     'Olimpiade Sains Nasional (OSN) Matematika',
                     'Sains & Akademik',
                     'Kabupaten',
@@ -310,6 +312,7 @@ class ImportController extends Controller
                 fputcsv($output, [
                     'Siti Aisyah',
                     '0097654321',
+                    'P',
                     'Festival Lomba Seni Siswa Nasional (FLS2N) Tari Tradisional',
                     'Seni & Budaya',
                     'Provinsi',
@@ -564,14 +567,16 @@ class ImportController extends Controller
 
             $namaSiswa = trim($row[$headerMap['nama_siswa'] ?? 0] ?? '');
             $nisn = trim($row[$headerMap['nisn'] ?? 1] ?? '');
-            $namaKejuaraan = trim($row[$headerMap['nama_kejuaraan'] ?? $headerMap['kejuaraan'] ?? 2] ?? '');
-            $bidang = trim($row[$headerMap['bidang'] ?? 3] ?? 'Sains & Akademik');
-            $tingkat = trim($row[$headerMap['tingkat'] ?? 4] ?? 'Kabupaten');
-            $peringkat = trim($row[$headerMap['peringkat'] ?? 5] ?? 'Juara 1');
+            $rawJk = isset($headerMap['jenis_kelamin']) ? strtoupper(trim($row[$headerMap['jenis_kelamin']])) : (isset($headerMap['jk']) ? strtoupper(trim($row[$headerMap['jk']])) : 'L');
+            $jenisKelamin = in_array($rawJk, ['L', 'P']) ? $rawJk : 'L';
+            $namaKejuaraan = trim($row[$headerMap['nama_kejuaraan'] ?? $headerMap['kejuaraan'] ?? 3] ?? '');
+            $bidang = trim($row[$headerMap['bidang'] ?? 4] ?? 'Sains & Akademik');
+            $tingkat = trim($row[$headerMap['tingkat'] ?? 5] ?? 'Kabupaten');
+            $peringkat = trim($row[$headerMap['peringkat'] ?? 6] ?? 'Juara 1');
             $tahun = isset($headerMap['tahun']) ? (int) ($row[$headerMap['tahun']] ?? $tahunDefault) : $tahunDefault;
-            $namaSekolah = trim($row[$headerMap['nama_sekolah'] ?? $headerMap['sekolah'] ?? 7] ?? '');
-            $penyelenggara = trim($row[$headerMap['penyelenggara'] ?? 8] ?? 'Dinas Pendidikan');
-            $keterangan = trim($row[$headerMap['keterangan'] ?? 9] ?? '');
+            $namaSekolah = trim($row[$headerMap['nama_sekolah'] ?? $headerMap['sekolah'] ?? 8] ?? '');
+            $penyelenggara = trim($row[$headerMap['penyelenggara'] ?? 9] ?? 'Dinas Pendidikan');
+            $keterangan = trim($row[$headerMap['keterangan'] ?? 10] ?? '');
 
             if (empty($namaSiswa) || empty($namaKejuaraan)) {
                 continue;
@@ -599,6 +604,7 @@ class ImportController extends Controller
             PrestasiSiswa::create([
                 'nama_siswa' => $namaSiswa,
                 'nisn' => $nisn,
+                'jenis_kelamin' => $jenisKelamin,
                 'nama_kejuaraan' => $namaKejuaraan,
                 'bidang' => $bidang,
                 'tingkat' => $tingkat,
