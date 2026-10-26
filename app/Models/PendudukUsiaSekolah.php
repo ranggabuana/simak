@@ -33,6 +33,8 @@ class PendudukUsiaSekolah extends Model
         'usia_16_30_l',
         'usia_16_30_p',
         'usia_16_30_total',
+        'usia_18_plus_l',
+        'usia_18_plus_p',
         'usia_18_plus_total',
         'total_penduduk',
     ];

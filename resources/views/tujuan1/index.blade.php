@@ -178,7 +178,12 @@
                     <tr class="hover:bg-slate-50 transition">
                         <td class="py-3.5 px-4 font-mono text-slate-400">{{ $p->kecamatan->kode }}</td>
                         <td class="py-3.5 px-4 font-bold text-slate-900">{{ $p->kecamatan->nama }}</td>
-                        <td class="py-3.5 px-4 text-right text-slate-600">{{ number_format($u0_4) }}</td>
+                        <td class="py-3.5 px-4 text-right text-slate-600">
+                            <div>{{ number_format($u0_4) }}</div>
+                            @if($gender === 'all')
+                                <div class="text-[9px] text-slate-400 font-mono">L:{{ number_format($p->usia_0_4_l) }} P:{{ number_format($p->usia_0_4_p) }}</div>
+                            @endif
+                        </td>
                         <td class="py-3.5 px-4 text-right font-medium text-slate-800">
                             <div>{{ number_format($u5_6) }}</div>
                             @if($gender === 'all')
@@ -203,7 +208,12 @@
                                 <div class="text-[9px] text-slate-400 font-mono">L:{{ number_format($p->usia_16_18_l) }} P:{{ number_format($p->usia_16_18_p) }}</div>
                             @endif
                         </td>
-                        <td class="py-3.5 px-4 text-right text-slate-600">{{ number_format($u18p) }}</td>
+                        <td class="py-3.5 px-4 text-right text-slate-600">
+                            <div>{{ number_format($u18p) }}</div>
+                            @if($gender === 'all')
+                                <div class="text-[9px] text-slate-400 font-mono">L:{{ number_format($p->usia_18_plus_l) }} P:{{ number_format($p->usia_18_plus_p) }}</div>
+                            @endif
+                        </td>
                         <td class="py-3.5 px-4 text-right font-semibold text-slate-900">{{ number_format($uTot) }}</td>
                         <td class="py-3.5 px-4 text-center">
                             <div class="flex items-center justify-center gap-1.5">
@@ -211,10 +221,19 @@
                                         @click="editModal = true; activeRow = {
                                             id: '{{ $p->id }}',
                                             nama: '{{ $p->kecamatan->nama }}',
-                                            u5_6: '{{ $p->usia_5_6_total }}',
-                                            u7_12: '{{ $p->usia_7_12_total }}',
-                                            u13_15: '{{ $p->usia_13_15_total }}',
-                                            u16_18: '{{ $p->usia_16_18_total }}'
+                                            tahun: '{{ $p->tahun }}',
+                                            u0_4_l: '{{ $p->usia_0_4_l }}',
+                                            u0_4_p: '{{ $p->usia_0_4_p }}',
+                                            u5_6_l: '{{ $p->usia_5_6_l }}',
+                                            u5_6_p: '{{ $p->usia_5_6_p }}',
+                                            u7_12_l: '{{ $p->usia_7_12_l }}',
+                                            u7_12_p: '{{ $p->usia_7_12_p }}',
+                                            u13_15_l: '{{ $p->usia_13_15_l }}',
+                                            u13_15_p: '{{ $p->usia_13_15_p }}',
+                                            u16_18_l: '{{ $p->usia_16_18_l }}',
+                                            u16_18_p: '{{ $p->usia_16_18_p }}',
+                                            u18p_l: '{{ $p->usia_18_plus_l }}',
+                                            u18p_p: '{{ $p->usia_18_plus_p }}'
                                         }" 
                                         class="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition cursor-pointer" 
                                         title="Edit Data Kependudukan">
@@ -248,38 +267,135 @@
     <div x-show="editModal" 
          x-cloak 
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 space-y-6"
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 space-y-6"
              @click.away="editModal = false">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
                     <h3 class="font-bold text-lg text-slate-900">Perbarui Data Usia Sekolah</h3>
-                    <p class="text-xs text-slate-500">Kecamatan <span class="font-bold text-blue-600" x-text="activeRow.nama"></span></p>
+                    <p class="text-xs text-slate-500">
+                        Kecamatan <span class="font-bold text-blue-600" x-text="activeRow.nama"></span> &bull; Tahun Kinerja <span class="font-bold text-slate-800" x-text="activeRow.tahun"></span>
+                    </p>
                 </div>
-                <button @click="editModal = false" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                <button @click="editModal = false" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">&times;</button>
             </div>
 
             <form :action="'{{ url('/tujuan1/penduduk') }}/' + activeRow.id" method="POST" class="space-y-4">
                 @csrf
                 @method('PUT')
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Usia 5 – 6 Tahun (PAUD/TK)</label>
-                    <input type="number" name="usia_5_6_total" :value="activeRow.u5_6" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Rincian Penduduk Terpilah Menurut Gender (L & P)</span>
+                    <span class="text-[11px] text-slate-500 italic">*Satuan: Jiwa</span>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Usia 7 – 12 Tahun (SD/MI)</label>
-                    <input type="number" name="usia_7_12_total" :value="activeRow.u7_12" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+                    <!-- 0 - 4 Tahun -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">0 – 4 Tahun (Balita)</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">Pra-TK</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_0_4_l" :value="activeRow.u0_4_l" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_0_4_p" :value="activeRow.u0_4_p" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Usia 13 – 15 Tahun (SMP/MTs)</label>
-                    <input type="number" name="usia_13_15_total" :value="activeRow.u13_15" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
+                    <!-- 5 - 6 Tahun (PAUD) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">5 – 6 Tahun (PAUD/TK) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">PAUD</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_5_6_l" :value="activeRow.u5_6_l" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_5_6_p" :value="activeRow.u5_6_p" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Usia 16 – 18 Tahun (SMA/SMK)</label>
-                    <input type="number" name="usia_16_18_total" :value="activeRow.u16_18" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    <!-- 7 - 12 Tahun (SD) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">7 – 12 Tahun (SD/MI) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">SD</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_7_12_l" :value="activeRow.u7_12_l" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_7_12_p" :value="activeRow.u7_12_p" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 13 - 15 Tahun (SMP) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">13 – 15 Tahun (SMP/MTs) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">SMP</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_13_15_l" :value="activeRow.u13_15_l" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_13_15_p" :value="activeRow.u13_15_p" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 16 - 18 Tahun (SMA) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">16 – 18 Tahun (SMA/SMK) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">SMA</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_16_18_l" :value="activeRow.u16_18_l" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_16_18_p" :value="activeRow.u16_18_p" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- > 18 Tahun -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">> 18 Tahun (Lanjutan)</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">>18</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_18_plus_l" :value="activeRow.u18p_l" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_18_plus_p" :value="activeRow.u18p_p" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
@@ -294,7 +410,7 @@
     <div x-show="createModal" 
          x-cloak 
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-slate-100 space-y-6"
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 space-y-6"
              @click.away="createModal = false">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
@@ -333,30 +449,118 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">0 – 4 Tahun</label>
-                        <input type="number" name="usia_0_4_total" value="{{ old('usia_0_4_total', 0) }}" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800">
+                <div class="flex items-center justify-between pt-1">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Rincian Penduduk Terpilah Menurut Gender (L & P)</span>
+                    <span class="text-[11px] text-slate-500 italic">*Satuan: Jiwa</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+                    <!-- 0 - 4 Tahun -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">0 – 4 Tahun (Balita)</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">Pra-TK</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_0_4_l" value="{{ old('usia_0_4_l', 0) }}" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_0_4_p" value="{{ old('usia_0_4_p', 0) }}" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">5 – 6 Tahun (PAUD) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="usia_5_6_total" value="{{ old('usia_5_6_total', 0) }}" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800">
+
+                    <!-- 5 - 6 Tahun (PAUD) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">5 – 6 Tahun (PAUD/TK) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">PAUD</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_5_6_l" value="{{ old('usia_5_6_l', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_5_6_p" value="{{ old('usia_5_6_p', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">7 – 12 Tahun (SD) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="usia_7_12_total" value="{{ old('usia_7_12_total', 0) }}" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800">
+
+                    <!-- 7 - 12 Tahun (SD) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">7 – 12 Tahun (SD/MI) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">SD</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_7_12_l" value="{{ old('usia_7_12_l', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_7_12_p" value="{{ old('usia_7_12_p', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">13 – 15 Tahun (SMP) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="usia_13_15_total" value="{{ old('usia_13_15_total', 0) }}" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800">
+
+                    <!-- 13 - 15 Tahun (SMP) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">13 – 15 Tahun (SMP/MTs) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800">SMP</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_13_15_l" value="{{ old('usia_13_15_l', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_13_15_p" value="{{ old('usia_13_15_p', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">16 – 18 Tahun (SMA) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="usia_16_18_total" value="{{ old('usia_16_18_total', 0) }}" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800">
+
+                    <!-- 16 - 18 Tahun (SMA) -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">16 – 18 Tahun (SMA/SMK) <span class="text-rose-500">*</span></span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">SMA</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_16_18_l" value="{{ old('usia_16_18_l', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_16_18_p" value="{{ old('usia_16_18_p', 0) }}" required min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block font-semibold text-slate-600 mb-1">> 18 Tahun</label>
-                        <input type="number" name="usia_18_plus_total" value="{{ old('usia_18_plus_total', 0) }}" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-slate-800">
+
+                    <!-- > 18 Tahun -->
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-800">> 18 Tahun (Lanjutan)</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">>18</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-blue-700 uppercase mb-0.5">♂ Laki-laki</label>
+                                <input type="number" name="usia_18_plus_l" value="{{ old('usia_18_plus_l', 0) }}" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-pink-700 uppercase mb-0.5">♀ Perempuan</label>
+                                <input type="number" name="usia_18_plus_p" value="{{ old('usia_18_plus_p', 0) }}" min="0" placeholder="0" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-pink-500 outline-none">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
