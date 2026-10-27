@@ -80,6 +80,60 @@
                     </div>
                 </div>
 
+                <!-- Kode Keamanan (Captcha) -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="captcha" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            Kode Keamanan (Captcha)
+                        </label>
+                        <span class="text-[11px] text-slate-400 font-medium">Klik gambar untuk ganti</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <!-- Display Visual Captcha -->
+                            <div id="captcha-container" 
+                                 onclick="refreshCaptcha()" 
+                                 title="Klik untuk memuat ulang kode captcha" 
+                                 class="w-[150px] h-[44px] flex-shrink-0 cursor-pointer overflow-hidden rounded-xl border border-slate-200/90 shadow-inner bg-slate-50 transition transform hover:opacity-90 active:scale-95 group relative flex items-center justify-center">
+                                {!! $captchaSvg !!}
+                            </div>
+
+                            <!-- Refresh Button -->
+                            <button type="button" 
+                                    id="btn-refresh-captcha" 
+                                    onclick="refreshCaptcha()" 
+                                    title="Muat ulang kode captcha baru"
+                                    class="h-[44px] w-[44px] flex-shrink-0 flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition cursor-pointer active:scale-95">
+                                <svg id="refresh-icon" class="w-5 h-5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+
+                            <!-- Captcha Input Field -->
+                            <div class="relative flex-1">
+                                <input id="captcha" 
+                                       name="captcha" 
+                                       type="text" 
+                                       required 
+                                       autocomplete="off"
+                                       maxlength="5"
+                                       placeholder="Kode"
+                                       class="w-full px-3 py-2.5 h-[44px] rounded-xl bg-slate-50/70 border @error('captcha') border-rose-300 bg-rose-50/30 @else border-slate-200 @enderror text-slate-900 placeholder-slate-400 text-sm font-bold tracking-widest uppercase text-center focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                            </div>
+                        </div>
+
+                        @error('captcha')
+                            <p class="text-xs text-rose-600 font-medium flex items-center gap-1.5 mt-1">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span>{{ $message }}</span>
+                            </p>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between text-xs">
                     <label class="flex items-center gap-2 text-slate-600 cursor-pointer font-medium">
                         <input type="checkbox" name="remember" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
@@ -122,6 +176,52 @@
         function fillCredentials(email) {
             document.getElementById('email').value = email;
             document.getElementById('password').value = 'password';
+            const captchaInput = document.getElementById('captcha');
+            if (captchaInput) {
+                captchaInput.focus();
+            }
+        }
+
+        function refreshCaptcha() {
+            const icon = document.getElementById('refresh-icon');
+            const container = document.getElementById('captcha-container');
+            const input = document.getElementById('captcha');
+
+            if (icon) {
+                icon.classList.add('animate-spin');
+            }
+
+            fetch("{{ route('captcha.refresh') }}", {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal memuat ulang captcha');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.svg && container) {
+                    container.innerHTML = data.svg;
+                }
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+            })
+            .catch(err => {
+                console.error('Refresh captcha error:', err);
+            })
+            .finally(() => {
+                if (icon) {
+                    setTimeout(() => {
+                        icon.classList.remove('animate-spin');
+                    }, 350);
+                }
+            });
         }
     </script>
 </body>
