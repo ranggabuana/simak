@@ -25,6 +25,18 @@ class AuthCaptchaTest extends TestCase
     }
 
     /**
+     * Pastikan halaman login menampilkan tombol lihat/sembunyikan kata sandi.
+     */
+    public function test_login_page_renders_with_password_toggle(): void
+    {
+        $response = $this->get('/login');
+
+        $response->assertStatus(200);
+        $response->assertSee('btn-toggle-password');
+        $response->assertSee('togglePasswordVisibility');
+    }
+
+    /**
      * Pastikan endpoint refresh captcha mengembalikan JSON dengan SVG baru.
      */
     public function test_captcha_refresh_endpoint_returns_new_captcha_svg(): void
