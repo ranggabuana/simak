@@ -1,111 +1,47 @@
 @extends('layouts.app', ['title' => 'Angka Partisipasi Murni (APM)'])
 
 @section('content')
-<div class="space-y-8">
+<div class="space-y-8" x-data="{ infoModal: false }">
 
-    <!-- Formula Reference Banner (From Flowchart.pdf) -->
-    <div class="p-6 rounded-3xl bg-indigo-50/70 border border-indigo-200 text-indigo-950 shadow-sm space-y-4">
-        <!-- Formula Explanation (Full Width) -->
-        <div class="space-y-3">
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-600 text-white tracking-wider">Formula Flowchart</span>
-                <h2 class="text-base font-bold text-slate-900">Rumus Angka Partisipasi Murni (APM)</h2>
-            </div>
-
-            <!-- Box Persamaan Matematis -->
-            <div class="p-3.5 bg-white/95 rounded-2xl border border-indigo-100 shadow-2xs space-y-2">
-                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
-                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-                    <span>Persamaan Matematis:</span>
+    <!-- Formula Reference Banner (Compact with Modal Trigger) -->
+    <div class="p-5 sm:p-6 rounded-3xl bg-indigo-50/70 border border-indigo-200 text-indigo-950 shadow-sm space-y-4">
+        <!-- Formula Header & Action Button -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-indigo-600 text-white tracking-wider">Formula Flowchart</span>
+                    <h2 class="text-base font-bold text-slate-900">Rumus Angka Partisipasi Murni (APM)</h2>
                 </div>
-                <p class="text-xs text-slate-700 leading-relaxed font-mono bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100/70">
-                    APM = (<span class="text-indigo-700 font-bold">Data A: Siswa Usia Resmi di Jenjangnya</span> / <span class="text-purple-700 font-bold">Data B: Penduduk Usia Jenjang Tertentu</span>) &times; 100%
-                </p>
-                <p class="text-[11px] text-slate-500 italic">
-                    *Contoh: APM SD/MI = (Jumlah siswa SD & MI yang benar-benar berusia 7–12 tahun / Jumlah total penduduk usia 7–12 tahun di Banjarnegara) &times; 100%
+                <p class="text-xs text-slate-600">
+                    APM mengukur persentase anak usia sekolah tertentu yang bersekolah tepat pada jenjang yang sesuai dengan kelompok usianya.
                 </p>
             </div>
 
-            <!-- Keterangan Sumber Data & Alur Penilaian -->
-            <div class="space-y-2 pt-1">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Keterangan Sumber Data & Alur Penilaian (Data A & Data B):
-                    </span>
-                    <span class="text-[10px] font-bold text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-md border border-indigo-200">
-                        Integrasi Sistem
-                    </span>
-                </div>
+            <!-- Tombol Buka Popup Modal Info Rumus -->
+            <button type="button" 
+                    @click="infoModal = true"
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 hover:text-indigo-800 border border-indigo-300 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0 cursor-pointer">
+                <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Info Rumus & Alur Sumber Data</span>
+                <span class="px-1.5 py-0.5 rounded-md bg-indigo-100 text-[10px] text-indigo-800 font-extrabold">Popup</span>
+            </button>
+        </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <!-- Data A (Pembilang) -->
-                    <div class="bg-white/95 rounded-2xl p-4 border border-indigo-100 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
-                                Data A (Pembilang / Numerator)
-                            </span>
-                            <a href="{{ route('siswa.index') }}" 
-                               class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-1">
-                                <span>Buka Menu Siswa</span>
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                            </a>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-900">Jumlah Siswa Usia Resmi di Jenjangnya</p>
-                            <p class="text-[11px] text-indigo-700 font-semibold mt-0.5">
-                                Sumber: Menu Master Data &rarr; <span class="underline">Partisipasi Siswa (Dapodik)</span>
-                            </p>
-                        </div>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">
-                            Diambil dari kolom <strong>Siswa Usia Sesuai</strong> pada data partisipasi siswa. Hanya menghitung anak yang umurnya tepat sesuai usia standar jenjang (misal siswa SD/MI yang berumur tepat 7–12 tahun; siswa di luar usia ini tidak dihitung).
-                        </p>
-                    </div>
-
-                    <!-- Data B (Penyebut) -->
-                    <div class="bg-white/95 rounded-2xl p-4 border border-indigo-100 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-                                Data B (Penyebut / Denominator)
-                            </span>
-                            <a href="{{ route('tujuan1.index') }}" 
-                               class="text-[11px] font-bold text-purple-600 hover:text-purple-800 hover:underline inline-flex items-center gap-1">
-                                <span>Buka Menu Penduduk</span>
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                            </a>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-900">Jumlah Penduduk Usia Jenjang Tersebut</p>
-                            <p class="text-[11px] text-purple-700 font-semibold mt-0.5">
-                                Sumber: Menu Master Data &rarr; <span class="underline">Tujuan 1: Penduduk Usia Sekolah</span>
-                            </p>
-                        </div>
-                        <p class="text-[11px] text-slate-600 leading-relaxed">
-                            Diambil dari data agregat kependudukan Dukcapil Kabupaten Banjarnegara per rentang usia resmi jenjang: <strong>5–6 th</strong> (PAUD), <strong>7–12 th</strong> (SD/MI), <strong>13–15 th</strong> (SMP/MTs), dan <strong>16–18 th</strong> (SMA/SMK).
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Alur Penilaian & Target Renstra Footer Note -->
-                <div class="p-3 bg-white/90 rounded-2xl border border-indigo-100 text-[11px] text-slate-700 shadow-2xs flex items-start gap-2.5">
-                    <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">ℹ</span>
-                    <div class="space-y-0.5">
-                        <strong class="text-slate-900 font-semibold">Alur Penilaian Kinerja:</strong>
-                        <p class="text-slate-600 leading-relaxed">
-                            Sistem menghitung persentase capaian riil dengan rumus <code>(Data A &divide; Data B) &times; 100%</code>, lalu membandingkannya terhadap sasaran pada menu 
-                            <a href="{{ route('renstra.target') }}" class="font-bold text-indigo-700 hover:underline">Target Renstra (2025–2029)</a>. 
-                            Nilai APM <em>maksimal 100%</em>, mengukur efisiensi sistem pendidikan dalam menyerap anak sekolah tepat pada usia idealnya.
-                        </p>
-                    </div>
-                </div>
+        <!-- Formula Compact One-Liner Box -->
+        <div class="p-3 bg-white/95 rounded-2xl border border-indigo-100 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs text-slate-700">
+            <div class="flex items-center gap-2 font-mono flex-wrap">
+                <span class="px-2 py-0.5 rounded-md bg-indigo-100/80 text-indigo-800 text-[10px] font-extrabold uppercase">Rumus</span>
+                <span>APM = (<strong class="text-indigo-700">Data A: Siswa Usia Resmi di Jenjangnya</strong> / <strong class="text-purple-700">Data B: Penduduk Usia Jenjang</strong>) &times; 100%</span>
+            </div>
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 shrink-0">
+                <span>Data A: Siswa Usia Sesuai</span>
+                <span class="text-slate-300">&bull;</span>
+                <span>Data B: Dukcapil</span>
+                <button type="button" @click="infoModal = true" class="text-indigo-600 font-bold hover:underline cursor-pointer">
+                    Lihat Rincian &rarr;
+                </button>
             </div>
         </div>
 
@@ -437,6 +373,128 @@
                 </tbody>
             </table>
         @endif
+    </div>
+
+    <!-- POPUP MODAL: INFO RUMUS & ALUR SUMBER DATA APM -->
+    <div x-show="infoModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="infoModal = false">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
+             @click.away="infoModal = false">
+            
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3 gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-indigo-600 text-white tracking-wider">Formula Flowchart</span>
+                            <h3 class="text-base font-bold text-slate-900">Info Rumus & Alur Sumber Data APM</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Penjelasan alur kalkulasi Angka Partisipasi Murni dan integrasi antar menu sistem SIMAK</p>
+                    </div>
+                </div>
+                <button type="button" 
+                        @click="infoModal = false" 
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="space-y-4 text-xs text-slate-700">
+                <!-- Persamaan Matematis Lengkap -->
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                        Persamaan Matematis Kemendikbud:
+                    </span>
+                    <p class="p-3 bg-white font-mono rounded-xl border border-slate-200 text-slate-800 leading-relaxed shadow-2xs">
+                        APM = (<span class="text-indigo-700 font-bold">Data A: Siswa Usia Resmi di Jenjangnya</span> / <span class="text-purple-700 font-bold">Data B: Penduduk Usia Jenjang Tertentu</span>) &times; 100%
+                    </p>
+                    <p class="text-[11px] text-slate-500 italic">
+                        *Contoh: APM SD/MI = (Jumlah siswa SD & MI yang benar-benar berusia 7–12 tahun / Jumlah total penduduk usia 7–12 tahun di Banjarnegara) &times; 100%
+                    </p>
+                </div>
+
+                <!-- Sumber Data Pembilang & Penyebut (Masing-masing 1 Baris Penuh) -->
+                <div class="space-y-3">
+                    <!-- Baris 1: Data A (Pembilang) -->
+                    <div class="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-200/80 space-y-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 pb-2">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-indigo-600 text-white shadow-2xs">
+                                    Data A (Pembilang / Numerator)
+                                </span>
+                                <span class="text-xs font-bold text-slate-900">Jumlah Siswa Usia Resmi di Jenjangnya</span>
+                            </div>
+                            <a href="{{ route('siswa.index') }}" 
+                               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] border border-indigo-200 shadow-2xs transition shrink-0">
+                                <span>Buka Menu Siswa (Dapodik)</span>
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-indigo-900">Master Data &rarr; Partisipasi Siswa (Dapodik)</strong> (kolom <strong>Siswa Usia Sesuai</strong>). Hanya menghitung peserta didik yang umurnya tepat sesuai usia standar jenjang (misal siswa SD/MI yang berumur tepat 7–12 tahun; siswa di luar usia ini tidak dihitung).
+                        </p>
+                    </div>
+
+                    <!-- Baris 2: Data B (Penyebut) -->
+                    <div class="bg-purple-50/50 rounded-2xl p-4 border border-purple-200/80 space-y-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-purple-100 pb-2">
+                            <div class="flex items-center gap-2.5 flex-wrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-purple-600 text-white shadow-2xs">
+                                    Data B (Penyebut / Denominator)
+                                </span>
+                                <span class="text-xs font-bold text-slate-900">Jumlah Penduduk Usia Sekolah Jenjang Tersebut</span>
+                            </div>
+                            <a href="{{ route('tujuan1.index') }}" 
+                               class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-purple-100 text-purple-700 font-bold text-[11px] border border-purple-200 shadow-2xs transition shrink-0">
+                                <span>Buka Menu Penduduk</span>
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-purple-900">Master Data &rarr; Tujuan 1: Penduduk Usia Sekolah</strong>. Total data agregat kependudukan Dukcapil Kabupaten Banjarnegara per rentang usia resmi jenjang: <strong>5–6 th</strong> (PAUD), <strong>7–12 th</strong> (SD/MI), <strong>13–15 th</strong> (SMP/MTs), dan <strong>16–18 th</strong> (SMA/SMK).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Alur Penilaian & Target Renstra -->
+                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-[11px] text-slate-700 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">⚡</span>
+                        <strong class="text-slate-900 font-bold">Alur Penilaian & Komparasi Kinerja:</strong>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed pl-7">
+                        1. Sistem menghitung persentase capaian riil dengan rumus <code>(Data A &divide; Data B) &times; 100%</code>.<br>
+                        2. Capaian riil dikomparasikan terhadap target sasaran pada menu 
+                        <a href="{{ route('renstra.target') }}" class="font-bold text-indigo-700 hover:underline">Target Renstra (2025–2029)</a> untuk mengukur capaian dinas.<br>
+                        3. <em>Catatan Khusus APM:</em> Nilai capaian <strong>maksimal bernilai 100%</strong>, mengukur ketepatan usia peserta didik tanpa anak terlambat masuk atau tinggal kelas.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" 
+                        @click="infoModal = false" 
+                        class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Tutup Informasi
+                </button>
+            </div>
+        </div>
     </div>
 
 </div>
