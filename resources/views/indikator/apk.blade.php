@@ -6,17 +6,107 @@
     <!-- Formula Reference Banner (From Flowchart.pdf) -->
     <div class="p-6 rounded-3xl bg-blue-50/70 border border-blue-200 text-blue-950 shadow-sm space-y-4">
         <!-- Formula Explanation (Full Width) -->
-        <div class="space-y-2">
+        <div class="space-y-3">
             <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-600 text-white tracking-wider">Formula Flowchart</span>
                 <h2 class="text-base font-bold text-slate-900">Rumus Angka Partisipasi Kasar (APK)</h2>
             </div>
-            <p class="text-xs text-slate-700 leading-relaxed font-mono bg-white/90 p-3 rounded-xl border border-blue-100 shadow-2xs">
-                APK = (Jumlah anak yang bersekolah pada jenjang tertentu / Jumlah anak usia sekolah jenjang tertentu pada kabupaten/kota) &times; 100
-            </p>
-            <p class="text-[11px] text-slate-500 italic">
-                *Contoh: APK SD/MI = (Jumlah siswa jenjang SD & MI semua usia / Jumlah anak usia SD&MI (7-12 Tahun) di Kabupaten Banjarnegara) &times; 100
-            </p>
+
+            <!-- Box Persamaan Matematis -->
+            <div class="p-3.5 bg-white/95 rounded-2xl border border-blue-100 shadow-2xs space-y-2">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                    <span>Persamaan Matematis:</span>
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed font-mono bg-blue-50/50 p-2.5 rounded-xl border border-blue-100/70">
+                    APK = (<span class="text-blue-700 font-bold">Data A: Siswa Bersekolah pada Jenjang Tertentu</span> / <span class="text-indigo-700 font-bold">Data B: Penduduk Usia Jenjang Tertentu</span>) &times; 100%
+                </p>
+                <p class="text-[11px] text-slate-500 italic">
+                    *Contoh: APK SD/MI = (Jumlah seluruh siswa terdaftar di SD & MI semua usia / Jumlah total penduduk usia 7–12 tahun di Banjarnegara) &times; 100%
+                </p>
+            </div>
+
+            <!-- Keterangan Sumber Data & Alur Penilaian -->
+            <div class="space-y-2 pt-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Keterangan Sumber Data & Alur Penilaian (Data A & Data B):
+                    </span>
+                    <span class="text-[10px] font-bold text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-md border border-blue-200">
+                        Integrasi Sistem
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Data A (Pembilang) -->
+                    <div class="bg-white/95 rounded-2xl p-4 border border-blue-100 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                Data A (Pembilang / Numerator)
+                            </span>
+                            <a href="{{ route('siswa.index') }}" 
+                               class="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1">
+                                <span>Buka Menu Siswa</span>
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">Jumlah Siswa yang Bersekolah pada Jenjang Tertentu</p>
+                            <p class="text-[11px] text-blue-700 font-semibold mt-0.5">
+                                Sumber: Menu Master Data &rarr; <span class="underline">Partisipasi Siswa (Dapodik)</span>
+                            </p>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Diambil dari akumulasi seluruh siswa aktif yang terdaftar di sekolah jenjang terkait (PAUD/TK, SD/MI, SMP/MTs, SMA/SMK/MA) <strong>tanpa membatasi usia anak</strong> (mencakup siswa usia resmi, siswa lebih muda, maupun siswa lebih tua).
+                        </p>
+                    </div>
+
+                    <!-- Data B (Penyebut) -->
+                    <div class="bg-white/95 rounded-2xl p-4 border border-blue-100 shadow-2xs space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                                Data B (Penyebut / Denominator)
+                            </span>
+                            <a href="{{ route('tujuan1.index') }}" 
+                               class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 hover:underline inline-flex items-center gap-1">
+                                <span>Buka Menu Penduduk</span>
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-900">Jumlah Penduduk Usia Sekolah Jenjang Tersebut</p>
+                            <p class="text-[11px] text-indigo-700 font-semibold mt-0.5">
+                                Sumber: Menu Master Data &rarr; <span class="underline">Tujuan 1: Penduduk Usia Sekolah</span>
+                            </p>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">
+                            Diambil dari data agregat kependudukan Dukcapil Kabupaten Banjarnegara per rentang usia resmi jenjang: <strong>5–6 th</strong> (PAUD), <strong>7–12 th</strong> (SD/MI), <strong>13–15 th</strong> (SMP/MTs), dan <strong>16–18 th</strong> (SMA/SMK).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Alur Penilaian & Target Renstra Footer Note -->
+                <div class="p-3 bg-white/90 rounded-2xl border border-blue-100 text-[11px] text-slate-700 shadow-2xs flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">ℹ</span>
+                    <div class="space-y-0.5">
+                        <strong class="text-slate-900 font-semibold">Alur Penilaian Kinerja:</strong>
+                        <p class="text-slate-600 leading-relaxed">
+                            Sistem menghitung persentase capaian riil dengan rumus <code>(Data A &divide; Data B) &times; 100%</code>, lalu membandingkannya terhadap sasaran pada menu 
+                            <a href="{{ route('renstra.target') }}" class="font-bold text-blue-700 hover:underline">Target Renstra (2025–2029)</a>. 
+                            Nilai APK <em>bisa melebihi 100%</em> jika terdapat siswa yang bersekolah sebelum usia standar (&lt; 7 th) atau yang terlambat lulus (&gt; 12 th).
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Dedicated Action Toolbar (Divider + Filter Gender Left + Unduh Excel Right) -->
