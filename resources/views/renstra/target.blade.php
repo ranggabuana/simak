@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="space-y-8" x-data="{ 
+    infoModal: false,
     createModal: false, 
     editModal: false, 
     deleteModal: false, 
@@ -19,26 +20,54 @@
 }">
 
     <!-- Header Banner (Light Style) -->
-    <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-white text-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs border border-blue-200/60">
-        <div class="space-y-1.5 max-w-2xl">
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-100 text-blue-700 tracking-wider border border-blue-200">Perencanaan Renstra</span>
-                <h2 class="text-lg font-bold text-slate-900">Target Renstra, AKIP, RLS & HLS</h2>
+    <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-white text-slate-900 shadow-xs border border-blue-200/60 space-y-4">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+            <div class="space-y-1.5 max-w-2xl">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-100 text-blue-700 tracking-wider border border-blue-200">Perencanaan Renstra</span>
+                    <h2 class="text-lg font-bold text-slate-900">Target Renstra, AKIP, RLS & HLS</h2>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Penetapan dan pengelolaan indikator target capaian kinerja lima tahunan DINDIKPORA Kabupaten Banjarnegara sesuai Dokumen Rencana Strategis dan RPJMD Daerah.
+                </p>
             </div>
-            <p class="text-xs text-slate-600 leading-relaxed">
-                Penetapan dan pengelolaan indikator target capaian kinerja lima tahunan DINDIKPORA Kabupaten Banjarnegara sesuai Dokumen Rencana Strategis dan RPJMD Daerah.
-            </p>
+
+            <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                <!-- Tombol Buka Popup Modal Info Kegunaan & Alur Data -->
+                <button type="button" 
+                        @click="infoModal = true"
+                        class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl bg-white hover:bg-blue-50 text-blue-700 hover:text-blue-800 border border-blue-300 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0 cursor-pointer">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Info Kegunaan & Alur Data</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-blue-100 text-[10px] text-blue-800 font-extrabold">Panduan</span>
+                </button>
+
+                <button @click="createModal = true" 
+                        type="button"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/25 transition-all duration-150 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Input Target Baru</span>
+                </button>
+            </div>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-            <button @click="createModal = true" 
-                    type="button"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/25 transition-all duration-150 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Input Target Baru</span>
-            </button>
+        <!-- Target Renstra Compact Flow Reference Box -->
+        <div class="p-3 bg-white/95 rounded-2xl border border-blue-100 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs text-slate-700">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-0.5 rounded-md bg-blue-100/80 text-blue-800 text-[10px] font-extrabold uppercase">Titik Tolok Ukur (Benchmark)</span>
+                <span>Target Renstra menjadi acuan resmi sasaran kinerja (2025–2029) untuk komparasi capaian riil pada menu <strong>Indikator (APK, APM, APS)</strong>, <strong>Dashboard</strong>, dan dokumen <strong>LKjIP</strong>.</span>
+            </div>
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 shrink-0">
+                <span>8 Indikator Renstra</span>
+                <span class="text-slate-300">&bull;</span>
+                <button type="button" @click="infoModal = true" class="text-blue-600 font-bold hover:underline cursor-pointer">
+                    Lihat Rincian &rarr;
+                </button>
+            </div>
         </div>
     </div>
 
@@ -536,6 +565,132 @@
                     Ya, Hapus Data
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL: INFO KEGUNAAN & ALUR DATA TARGET RENSTRA -->
+    <div x-show="infoModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="infoModal = false">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
+             @click.away="infoModal = false">
+            
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3 gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-2xl bg-blue-50 text-blue-600 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-blue-600 text-white tracking-wider">Panduan Perencanaan</span>
+                            <h3 class="text-base font-bold text-slate-900">Info Kegunaan & Alur Data Target Renstra</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Penjelasan fungsi target lima tahunan (2025–2029) dan integrasinya ke berbagai menu SIMAK</p>
+                    </div>
+                </div>
+                <button type="button" 
+                        @click="infoModal = false" 
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="space-y-4 text-xs text-slate-700">
+                <!-- Baris 1: Konsep & Fungsi Utama -->
+                <div class="p-4 bg-blue-50/60 rounded-2xl border border-blue-200/80 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-blue-600 text-white shadow-2xs">
+                            1. Fungsi Utama Menu
+                        </span>
+                        <span class="text-xs font-bold text-slate-900">Penetapan Tolok Ukur (Benchmark) Sasaran 5 Tahunan</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed pl-1">
+                        Menu ini digunakan untuk menetapkan dan mengelola sasaran target kinerja lima tahunan DINDIKPORA Banjarnegara (periode 2025–2029) berdasarkan Dokumen Renstra dan RPJMD Daerah. Angka target ini menjadi <strong>titik acuan mutlak</strong> bagi sistem untuk mengevaluasi apakah capaian riil di lapangan berhasil melampaui atau belum memenuhi sasaran.
+                    </p>
+                </div>
+
+                <!-- Baris 2: Indikator Kinerja yang Dikelola -->
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-slate-700 text-white shadow-2xs">
+                            2. 8 Indikator Target
+                        </span>
+                        <span class="text-xs font-bold text-slate-900">Daftar Indikator Target Kinerja yang Ditetapkan Per Tahun</span>
+                    </div>
+                    <ul class="text-[11px] text-slate-600 leading-relaxed pl-1 space-y-1.5 list-disc list-inside">
+                        <li><strong>Target Partisipasi Sekolah:</strong> Target APK & APM per jenjang PAUD/TK (5–6 th), SD/MI (7–12 th), dan SMP/MTs (13–15 th).</li>
+                        <li><strong>Target Kualitas Pendidik:</strong> Persentase Guru Berkualifikasi S1/D4 (%) dan Target PAUD Terakreditasi Minimal B (%).</li>
+                        <li><strong>Target Makro SAKIP & IPM:</strong> Target Nilai Akuntabilitas Kinerja Instansi Pemerintah (AKIP skala 0–100), RLS (Rata-rata Lama Sekolah), HLS (Harapan Lama Sekolah), dan Target IKK Renstra (%).</li>
+                    </ul>
+                </div>
+
+                <!-- Baris 3: Alur Integrasi ke Menu Lain -->
+                <div class="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-200/80 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2 border-b border-indigo-100 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-indigo-600 text-white shadow-2xs">
+                                3. Alur Integrasi
+                            </span>
+                            <span class="text-xs font-bold text-slate-900">Bagaimana Data Target Mempengaruhi Menu Lain</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-[11px] text-slate-600 leading-relaxed pl-1">
+                        <div class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Menu Indikator (APK, APM, APS):</strong> Target tahun berjalan otomatis ditampilkan di setiap kartu ringkasan sebagai pembanding capaian riil (misal: <em>"Target: 101.80%"</em>) serta menghitung gap deviasi capaian dinas.
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Dashboard Kinerja Eksekutif:</strong> Membentuk garis target (dashed target line) pada grafik tren multi-tahun dan mengkalkulasi persentase ketercapaian target dinas secara keseluruhan.
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Form Evaluasi Kinerja:</strong> Menjadi penyebut target dalam rumus evaluasi SAKIP: <em>Tingkat Capaian = (Realisasi / Target Renstra) &times; 100%</em>.
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-indigo-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Dokumen LKjIP (Bab III & Bab IV):</strong> Masuk secara otomatis sebagai tabel target resmi yang dipertanggungjawabkan kepada KemenPAN-RB dan Pemkab Banjarnegara.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris 4: Hubungan dengan Menu Realisasi Capaian Kinerja -->
+                <div class="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-200 text-[11px] text-slate-700 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">⇄</span>
+                        <strong class="text-slate-900 font-bold">Korelasi dengan Menu Realisasi Capaian Kinerja:</strong>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed pl-7">
+                        <strong>Target Renstra</strong> adalah angka <em>rencana/sasaran</em>, sedangkan menu 
+                        <a href="{{ route('renstra.realisasi') }}" class="font-bold text-emerald-700 hover:underline">Realisasi Capaian Kinerja</a> 
+                        adalah pencatatan angka <em>hasil riil</em> yang berhasil dicapai. Keduanya saling berpasangan di dalam matriks evaluasi untuk menetapkan predikat keberhasilan organisasi (Sangat Baik / Baik / Cukup / Kurang).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" 
+                        @click="infoModal = false" 
+                        class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Tutup Informasi
+                </button>
+            </div>
         </div>
     </div>
 

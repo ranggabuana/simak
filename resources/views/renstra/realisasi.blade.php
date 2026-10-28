@@ -2,6 +2,7 @@
 
 @section('content')
 <div class="space-y-8" x-data="{ 
+    infoModal: false,
     createModal: false, 
     editModal: false, 
     deleteModal: false, 
@@ -24,26 +25,54 @@
 }">
 
     <!-- Header Banner (Light Style) -->
-    <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/80 via-slate-50 to-white text-slate-900 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-xs border border-emerald-200/70">
-        <div class="space-y-1.5 max-w-2xl">
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 tracking-wider border border-emerald-200">Realisasi SAKIP</span>
-                <h2 class="text-lg font-bold text-slate-900">Realisasi Capaian IKK Renstra, AKIP, RLS & HLS</h2>
+    <div class="p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-emerald-50/80 via-slate-50 to-white text-slate-900 shadow-xs border border-emerald-200/70 space-y-4">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+            <div class="space-y-1.5 max-w-2xl">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 tracking-wider border border-emerald-200">Realisasi SAKIP</span>
+                    <h2 class="text-lg font-bold text-slate-900">Realisasi Capaian IKK Renstra, AKIP, RLS & HLS</h2>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    Pemantauan dan penetapan realisasi capaian kinerja tahun berjalan (Tahun N) dibandingkan dengan capaian tahun sebelumnya (Tahun N-1) untuk dokumen pelaporan LAKIP / LKjIP resmi.
+                </p>
             </div>
-            <p class="text-xs text-slate-600 leading-relaxed">
-                Pemantauan dan penetapan realisasi capaian kinerja tahun berjalan (Tahun N) dibandingkan dengan capaian tahun sebelumnya (Tahun N-1) untuk dokumen pelaporan LAKIP / LKjIP resmi.
-            </p>
+
+            <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                <!-- Tombol Buka Popup Modal Info Kegunaan & Alur Data -->
+                <button type="button" 
+                        @click="infoModal = true"
+                        class="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-2xl bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-emerald-300 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0 cursor-pointer">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Info Kegunaan & Alur Data</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-emerald-100 text-[10px] text-emerald-800 font-extrabold">Panduan</span>
+                </button>
+
+                <button @click="createModal = true" 
+                        type="button"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Input Realisasi Baru</span>
+                </button>
+            </div>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-            <button @click="createModal = true" 
-                    type="button"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Input Realisasi Baru</span>
-            </button>
+        <!-- Realisasi Compact Flow Reference Box -->
+        <div class="p-3 bg-white/95 rounded-2xl border border-emerald-100 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs text-slate-700">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-0.5 rounded-md bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold uppercase">Pelaporan SAKIP & LKjIP</span>
+                <span>Menu ini mengelola <strong>indikator makro dinas</strong> (AKIP, RLS, HLS, IKK %) dan analisis evaluasi kualitatif untuk dokumen resmi LKjIP dan ringkasan eksekutif Dashboard.</span>
+            </div>
+            <div class="text-[11px] text-slate-500 flex items-center gap-2 shrink-0">
+                <span>Data Makro & Evaluasi</span>
+                <span class="text-slate-300">&bull;</span>
+                <button type="button" @click="infoModal = true" class="text-emerald-600 font-bold hover:underline cursor-pointer">
+                    Lihat Rincian &rarr;
+                </button>
+            </div>
         </div>
     </div>
 
@@ -520,6 +549,129 @@
                     Ya, Hapus Data
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL: INFO KEGUNAAN & ALUR DATA REALISASI CAPAIAN KINERJA -->
+    <div x-show="infoModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="infoModal = false">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
+             @click.away="infoModal = false">
+            
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3 gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-emerald-600 text-white tracking-wider">Panduan SAKIP</span>
+                            <h3 class="text-base font-bold text-slate-900">Info Kegunaan & Alur Data Realisasi Kinerja</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Penjelasan fungsi pencatatan realisasi capaian SAKIP, evaluasi, dan integrasinya ke sistem SIMAK</p>
+                    </div>
+                </div>
+                <button type="button" 
+                        @click="infoModal = false" 
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="space-y-4 text-xs text-slate-700">
+                <!-- Baris 1: Konsep & Fungsi Utama -->
+                <div class="p-4 bg-emerald-50/60 rounded-2xl border border-emerald-200/80 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-emerald-600 text-white shadow-2xs">
+                            1. Fungsi Utama Menu
+                        </span>
+                        <span class="text-xs font-bold text-slate-900">Pencatatan Realisasi Capaian SAKIP & Evaluasi Kinerja</span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed pl-1">
+                        Menu ini mencatat capaian kinerja tahunan riil (Tahun N) yang diperbandingkan dengan capaian tahun sebelumnya (Tahun N-1). Menu ini merupakan instrumen inti untuk menyusun pertanggungjawaban Sistem Akuntabilitas Kinerja Instansi Pemerintah (SAKIP) DINDIKPORA Banjarnegara yang diserahkan ke Inspektorat, Bappeda, dan KemenPAN-RB.
+                    </p>
+                </div>
+
+                <!-- Baris 2: Data Makro & Evaluasi yang Dikelola -->
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-slate-700 text-white shadow-2xs">
+                            2. Data yang Dikelola
+                        </span>
+                        <span class="text-xs font-bold text-slate-900">Indikator Makro SAKIP & Analisis Naratif</span>
+                    </div>
+                    <ul class="text-[11px] text-slate-600 leading-relaxed pl-1 space-y-1.5 list-disc list-inside">
+                        <li><strong>Nilai AKIP (Tahun N & N-1):</strong> Nilai evaluasi akuntabilitas kinerja (skala 0–100) dan predikat resmi (A/BB/B/CC/C).</li>
+                        <li><strong>Indikator IPM BPS:</strong> Rata-rata Lama Sekolah (RLS) dan Harapan Lama Sekolah (HLS) hasil survei resmi BPS.</li>
+                        <li><strong>IKK Renstra (%):</strong> Rata-rata persentase capaian seluruh Indikator Kinerja Kunci Renstra dinas.</li>
+                        <li><strong>Analisis Naratif Evaluasi:</strong> Faktor pendukung keberhasilan, kendala/penghambat, serta rekomendasi strategis pimpinan untuk perbaikan ke depan.</li>
+                    </ul>
+                </div>
+
+                <!-- Baris 3: Alur Integrasi ke Menu Lain -->
+                <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-200/80 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2 border-b border-blue-100 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-blue-600 text-white shadow-2xs">
+                                3. Alur Integrasi
+                            </span>
+                            <span class="text-xs font-bold text-slate-900">Bagaimana Data Realisasi Mengalir ke Menu Lain</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-[11px] text-slate-600 leading-relaxed pl-1">
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Dashboard Utama:</strong> Mengisi metrik nilai AKIP terkini, perbandingan kenaikan RLS/HLS terhadap tahun lalu, dan ringkasan status SAKIP pimpinan.
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Dokumen LKjIP (Bab IV):</strong> Mengotomatisasi tabel realisasi capaian, analisis efisiensi anggaran, narasi faktor penghambat, dan rekomendasi tindak lanjut secara langsung ke format siap cetak A4.
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold shrink-0">&bull;</span>
+                            <div>
+                                <strong class="text-slate-800">Form Evaluasi Kinerja:</strong> Menyediakan data komparasi historis (Tahun N-1) untuk mengukur tren perkembangan capaian tahun ke tahun.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris 4: Penegasan Terkait APK, APM, & APS -->
+                <div class="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200 text-[11px] text-slate-700 space-y-1.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-lg bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0">ℹ️</span>
+                        <strong class="text-slate-900 font-bold">Catatan Penting: Pengaruh terhadap Rumus APK, APM, & APS:</strong>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed pl-7">
+                        Menu Realisasi Capaian Kinerja <strong>TIDAK MENGUBAH ataupun MEMANIPULASI</strong> hasil perhitungan pada menu 
+                        <a href="{{ route('indikator.apk') }}" class="font-bold text-amber-800 hover:underline">APK</a>, 
+                        <a href="{{ route('indikator.apm') }}" class="font-bold text-amber-800 hover:underline">APM</a>, maupun 
+                        <a href="{{ route('indikator.aps') }}" class="font-bold text-amber-800 hover:underline">APS</a>.<br>
+                        Perhitungan ketiga indikator tersebut tetap dihitung otomatis dan independen dari data mikro Dapodik (siswa) dan Dukcapil (penduduk). Menu ini khusus untuk indikator makro tingkat dinas serta evaluasi kualitatif dokumen SAKIP.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" 
+                        @click="infoModal = false" 
+                        class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Tutup Informasi
+                </button>
+            </div>
         </div>
     </div>
 
