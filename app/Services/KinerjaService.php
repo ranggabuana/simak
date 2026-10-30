@@ -19,8 +19,10 @@ class KinerjaService
      *
      * @return array<string, mixed>
      */
-    public function hitungKinerjaKabupaten(int $tahun = 2025, ?string $gender = null): array
+    public function hitungKinerjaKabupaten(?int $tahun = null, ?string $gender = null): array
     {
+        $tahun ??= (int) date('Y');
+
         // 1. Total Penduduk Usia Sekolah
         $penduduk = PendudukUsiaSekolah::where('tahun', $tahun)->get();
 
@@ -312,8 +314,10 @@ class KinerjaService
      *
      * @return Collection<int, array<string, mixed>>
      */
-    public function hitungKinerjaPerKecamatan(int $tahun = 2025, ?string $gender = null): Collection
+    public function hitungKinerjaPerKecamatan(?int $tahun = null, ?string $gender = null): Collection
     {
+        $tahun ??= (int) date('Y');
+
         $kecamatanList = WilayahKecamatan::with([
             'pendudukUsiaSekolah' => fn ($q) => $q->where('tahun', $tahun),
             'satuanPendidikan',
@@ -516,8 +520,10 @@ class KinerjaService
     /**
      * Hitung indikator Basic Sekolah
      */
-    public function hitungKinerjaSekolah(?int $kecamatanId = null, ?string $jenjang = null, int $tahun = 2025)
+    public function hitungKinerjaSekolah(?int $kecamatanId = null, ?string $jenjang = null, ?int $tahun = null)
     {
+        $tahun ??= (int) date('Y');
+
         $query = SatuanPendidikan::with([
             'kecamatan',
             'partisipasiSiswa' => fn ($q) => $q->where('tahun', $tahun),
@@ -541,8 +547,10 @@ class KinerjaService
      *
      * @return array<string, mixed>
      */
-    public function hitungEarlyWarningSystem(int $tahun = 2025): array
+    public function hitungEarlyWarningSystem(?int $tahun = null): array
     {
+        $tahun ??= (int) date('Y');
+
         $kabupaten = $this->hitungKinerjaKabupaten($tahun);
         $kecamatanList = $this->hitungKinerjaPerKecamatan($tahun);
         $target = TargetRenstra::where('tahun', $tahun)->first();

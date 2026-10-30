@@ -1,5 +1,7 @@
-@props(['defaultTarget' => 'semua', 'tahun' => 2025])
+@props(['defaultTarget' => 'semua', 'tahun' => null])
 @php
+    $resolvedTahun = (int) ($tahun ?? session('tahun_anggaran', date('Y')));
+    $tahunOptionsList = \App\Http\Controllers\Controller::availableTahunOptions();
     $hasDummyData = \App\Models\SatuanPendidikan::whereBetween('npsn', ['20300001', '20300500'])->exists()
         || \App\Models\GuruPendidik::where('nama', 'like', 'Guru %')->exists();
 @endphp
@@ -11,7 +13,7 @@
         tab: 'agent',
         target: '{{ $defaultTarget }}',
         entityFile: '{{ $defaultTarget === 'semua' ? 'sekolah' : $defaultTarget }}',
-        tahunTarget: {{ (int) $tahun }},
+        tahunTarget: {{ $resolvedTahun }},
         purgeDummy: {{ $hasDummyData ? 'true' : 'false' }},
         syncing: false,
         taskId: null,
@@ -209,9 +211,9 @@
                 <div x-show="entityFile === 'siswa'">
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Simpan untuk Tahun Evaluasi</label>
                     <select name="tahun_target" x-model="tahunTarget" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold text-slate-800">
-                        <option value="2025">Tahun 2025 (Renstra Aktif)</option>
-                        <option value="2026">Tahun 2026 (Semester 20261)</option>
-                        <option value="2024">Tahun 2024</option>
+                        @foreach($tahunOptionsList as $opt)
+                            <option value="{{ $opt['tahun'] }}">{{ $opt['label'] }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>

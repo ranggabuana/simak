@@ -14,7 +14,7 @@ class TujuanSatuController extends Controller
 {
     public function index(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $gender = $request->input('gender', 'all');
 
         $pendudukList = PendudukUsiaSekolah::with('kecamatan')

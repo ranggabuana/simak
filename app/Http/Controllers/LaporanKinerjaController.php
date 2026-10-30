@@ -18,7 +18,7 @@ class LaporanKinerjaController extends Controller
 
     public function lkjip(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
         $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);

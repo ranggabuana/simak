@@ -15,7 +15,7 @@ class TujuanDuaController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $bidang = $request->input('bidang');
         $tingkat = $request->input('tingkat');
         $jenisKelamin = $request->input('jenis_kelamin');

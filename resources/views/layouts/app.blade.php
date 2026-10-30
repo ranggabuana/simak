@@ -455,16 +455,24 @@
                 <!-- Tahun Anggaran Selector -->
                 <form method="GET" action="{{ url()->current() }}" class="flex items-center gap-2">
                     @foreach(request()->except('tahun') as $key => $val)
-                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                        @if(!is_array($val))
+                            <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                        @endif
                     @endforeach
                     <label for="filter-tahun" class="text-xs font-semibold text-slate-400 hidden xl:inline">Tahun:</label>
                     <select id="filter-tahun" 
                             name="tahun" 
                             onchange="this.form.submit()" 
                             class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition shadow-2xs">
-                        <option value="2025" {{ (request('tahun', 2025) == 2025) ? 'selected' : '' }}>Tahun 2025 (Tahun N)</option>
-                        <option value="2024" {{ (request('tahun') == 2024) ? 'selected' : '' }}>Tahun 2024 (Tahun N-1)</option>
-                        <option value="2026" {{ (request('tahun') == 2026) ? 'selected' : '' }}>Tahun 2026 (Proyeksi)</option>
+                        @php
+                            $currentSelectedTahun = (int) ($activeTahunGlobal ?? $tahun ?? request('tahun', session('tahun_anggaran', date('Y'))));
+                            $tahunOptionsList = $availableTahunOptions ?? \App\Http\Controllers\Controller::availableTahunOptions();
+                        @endphp
+                        @foreach($tahunOptionsList as $opt)
+                            <option value="{{ $opt['tahun'] }}" {{ $currentSelectedTahun === (int) $opt['tahun'] ? 'selected' : '' }}>
+                                {{ $opt['label'] }}
+                            </option>
+                        @endforeach
                     </select>
                 </form>
 
@@ -1030,7 +1038,7 @@
 
     <!-- Modal Global Sinkronisasi Dapodik Banjarnegara -->
     @if(auth()->check() && auth()->user()->canAccessAnyMenu(['sekolah', 'siswa', 'guru', 'pengaturan']))
-    <x-dapodik-sync-modal defaultTarget="semua" />
+    <x-dapodik-sync-modal defaultTarget="semua" :tahun="$activeTahunGlobal ?? $tahun ?? (int) date('Y')" />
     @endif
 
     <!-- Back to Top Floating Action Button -->

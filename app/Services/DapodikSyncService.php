@@ -193,8 +193,9 @@ class DapodikSyncService
      *
      * @param  array<int, array<string, mixed>>  $rows
      */
-    public function syncSiswaBatch(array $rows, int $defaultTahun = 2025, ?int $scopedKecamatanId = null): int
+    public function syncSiswaBatch(array $rows, ?int $defaultTahun = null, ?int $scopedKecamatanId = null): int
     {
+        $defaultTahun ??= (int) date('Y');
         $allSekolah = SatuanPendidikan::all()->keyBy('npsn');
         $count = 0;
 

@@ -14,7 +14,7 @@ class RenstraAkipController extends Controller
     public function target(Request $request): View
     {
         $targetList = TargetRenstra::orderBy('tahun')->get();
-        $latestTahun = $targetList->max('tahun') ?? 2025;
+        $latestTahun = $targetList->max('tahun') ?? self::defaultTahun();
         $suggestedNextTahun = $latestTahun + 1;
 
         return view('renstra.target', [
@@ -131,7 +131,7 @@ class RenstraAkipController extends Controller
     public function realisasi(Request $request): View
     {
         $realisasiList = RealisasiKinerja::orderBy('tahun', 'desc')->get();
-        $latestTahun = $realisasiList->max('tahun') ?? 2025;
+        $latestTahun = $realisasiList->max('tahun') ?? self::defaultTahun();
         $suggestedNextTahun = $latestTahun + 1;
 
         return view('renstra.realisasi', [

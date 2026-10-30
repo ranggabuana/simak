@@ -24,7 +24,7 @@ class ExportController extends Controller
      */
     public function unduhKecamatanCsv(Request $request): StreamedResponse
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);
 
         $filename = "rekap_kinerja_kecamatan_{$tahun}.xlsx";
@@ -105,7 +105,7 @@ class ExportController extends Controller
      */
     public function unduhPendudukCsv(Request $request): StreamedResponse
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $gender = $request->input('gender', 'all');
         $pendudukList = PendudukUsiaSekolah::with('kecamatan')->where('tahun', $tahun)->get();
 
@@ -214,7 +214,7 @@ class ExportController extends Controller
      */
     public function unduhPrestasiCsv(Request $request): StreamedResponse
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $jenisKelamin = $request->input('jenis_kelamin');
 
         $query = PrestasiSiswa::with(['satuanPendidikan.kecamatan', 'kecamatan'])
@@ -336,7 +336,7 @@ class ExportController extends Controller
      */
     public function unduhSiswaCsv(Request $request): StreamedResponse
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $gender = $request->input('gender', 'all');
 
         $siswaList = PartisipasiSiswa::with(['satuanPendidikan.kecamatan'])

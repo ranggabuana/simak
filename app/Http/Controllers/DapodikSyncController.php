@@ -133,7 +133,8 @@ class DapodikSyncController extends Controller
                 $processed = $this->syncService->syncSekolahBatch($rows);
                 $task->increment('sekolah_synced', $processed);
             } elseif ($entity === 'siswa') {
-                $processed = $this->syncService->syncSiswaBatch($rows, 2025);
+                $defaultTahun = (int) substr((string) ($task->semester_id ?? self::defaultTahun().'1'), 0, 4);
+                $processed = $this->syncService->syncSiswaBatch($rows, $defaultTahun);
                 $task->increment('siswa_synced', $processed);
             } elseif ($entity === 'guru') {
                 $processed = $this->syncService->syncGuruBatch($rows);
@@ -187,7 +188,7 @@ class DapodikSyncController extends Controller
         $user = auth()->user();
         $scopedKecamatanId = ($user && $user->role === 'operator' && $user->kecamatan_id) ? (int) $user->kecamatan_id : null;
         $entity = $request->input('entity');
-        $tahunTarget = (int) $request->input('tahun_target', 2025);
+        $tahunTarget = (int) $request->input('tahun_target', $this->resolveTahun($request));
         $purgeDummy = $request->boolean('purge_dummy', false);
 
         $file = $request->file('file_dapodik');

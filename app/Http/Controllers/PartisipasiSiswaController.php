@@ -17,7 +17,7 @@ class PartisipasiSiswaController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         $user = auth()->user();
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $jenjang = $request->input('jenjang');
         $kecamatanId = $request->input('kecamatan_id');
         $gender = $request->input('gender', 'all');

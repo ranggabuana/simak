@@ -17,7 +17,7 @@ class IndikatorKinerjaController extends Controller
 
     public function apk(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $tab = $request->input('tab', 'wilayah'); // wilayah | sekolah
         $kecamatanId = $request->input('kecamatan_id');
         $jenjang = $request->input('jenjang');
@@ -44,7 +44,7 @@ class IndikatorKinerjaController extends Controller
 
     public function apm(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $tab = $request->input('tab', 'wilayah');
         $kecamatanId = $request->input('kecamatan_id');
         $jenjang = $request->input('jenjang');
@@ -71,7 +71,7 @@ class IndikatorKinerjaController extends Controller
 
     public function aps(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $tab = $request->input('tab', 'wilayah');
         $kecamatanId = $request->input('kecamatan_id');
         $jenjang = $request->input('jenjang');
@@ -98,7 +98,7 @@ class IndikatorKinerjaController extends Controller
 
     public function guru(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $kecamatanId = $request->input('kecamatan_id');
         $gender = $request->input('gender');
 
@@ -127,7 +127,7 @@ class IndikatorKinerjaController extends Controller
 
     public function paud(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $kecamatanId = $request->input('kecamatan_id');
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);

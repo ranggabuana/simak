@@ -17,7 +17,7 @@ class EvaluasiController extends Controller
 
     public function index(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
         $target = TargetRenstra::where('tahun', $tahun)->first();

@@ -15,7 +15,7 @@ class PetaSebaranController extends Controller
 
     public function index(Request $request): View
     {
-        $tahun = (int) $request->input('tahun', 2025);
+        $tahun = $this->resolveTahun($request);
         $indikator = $request->input('indikator', 'apk_sd'); // apk_sd, apm_sd, aps_sd, guru, paud
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
