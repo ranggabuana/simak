@@ -28,7 +28,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="h-full antialiased text-slate-800 flex bg-slate-50/80" x-data="{ sidebarOpen: false, profileOpen: false, profileModal: false, settingsModal: false, exportModal: false }">
+<body class="h-full antialiased text-slate-800 flex bg-slate-50/80" x-data="{ sidebarOpen: false, profileOpen: false, profileModal: false, settingsModal: false, exportModal: false, dapodikModal: false }">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" 
@@ -383,6 +383,23 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- Tombol Tunggal Sinkronisasi Dapodik (Di Bawah Menu Pengaturan Aplikasi) -->
+                    @if(auth()->user()->canAccessAnyMenu(['sekolah', 'siswa', 'guru', 'pengaturan']))
+                    <div class="pt-2">
+                        <button type="button"
+                                @click="dapodikModal = true; sidebarOpen = false"
+                                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-xs bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition cursor-pointer group">
+                            <div class="flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-white group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span>Sinkronisasi Dapodik</span>
+                            </div>
+                            <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white/20 text-white">SYNC</span>
+                        </button>
+                    </div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -1010,6 +1027,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Global Sinkronisasi Dapodik Banjarnegara -->
+    @if(auth()->check() && auth()->user()->canAccessAnyMenu(['sekolah', 'siswa', 'guru', 'pengaturan']))
+    <x-dapodik-sync-modal defaultTarget="semua" />
+    @endif
 
     <!-- Back to Top Floating Action Button -->
     <div x-data="{ 

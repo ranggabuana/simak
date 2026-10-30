@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Data Partisipasi Siswa (Dapodik)'])
 
 @section('content')
-<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, importModal: false, dapodikModal: false, activeRow: {} }">
+<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, importModal: false, activeRow: {} }">
 
     <!-- Header Banner -->
     <div class="p-6 rounded-3xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-white text-slate-900 flex flex-col xl:flex-row xl:items-center justify-between gap-5 shadow-xs border border-blue-200/60">
@@ -14,15 +14,6 @@
         
         <!-- Action Row (1 Row) -->
         <div class="flex items-center gap-2.5 shrink-0 flex-nowrap overflow-x-auto pb-1 xl:pb-0">
-            <button type="button" 
-                    @click="dapodikModal = true" 
-                    class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold text-xs shadow-sm shadow-indigo-500/25 transition whitespace-nowrap shrink-0 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>Sinkron Dapodik</span>
-            </button>
-
             <button type="button" 
                     @click="importModal = true" 
                     class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-500/20 transition whitespace-nowrap shrink-0 cursor-pointer">
@@ -437,9 +428,6 @@
             </form>
         </div>
     </div>
-
-    <!-- MODAL 5: Sinkronisasi Dapodik Banjarnegara -->
-    <x-dapodik-sync-modal defaultTarget="siswa" :tahun="$tahun" />
 
 </div>
 @endsection
