@@ -14,6 +14,7 @@ class SatuanPendidikan extends Model
     protected $table = 'satuan_pendidikan';
 
     protected $fillable = [
+        'sekolah_id',
         'npsn',
         'nama_sekolah',
         'jenjang',

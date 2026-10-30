@@ -36,12 +36,19 @@ class DapodikSyncController extends Controller
         $validated = $request->validate([
             'target' => 'required|in:semua,sekolah,siswa,guru',
             'semester_id' => 'nullable|string|max:10',
+            'purge_dummy' => 'nullable|boolean',
         ]);
+
+        $purgeDummy = $request->boolean('purge_dummy', true);
+        if ($purgeDummy) {
+            $this->syncService->purgeDummyData($validated['target']);
+        }
 
         $log = DapodikSyncLog::create([
             'target' => $validated['target'],
             'status' => 'pending',
             'semester_id' => $validated['semester_id'] ?? '20261',
+            'purge_dummy' => $purgeDummy,
             'message' => 'Menunggu agen PowerShell di Windows Server Kominfo mengambil tugas...',
             'user_id' => auth()->id(),
             'started_at' => now(),
@@ -174,18 +181,24 @@ class DapodikSyncController extends Controller
             'entity' => 'required|in:sekolah,siswa,guru',
             'file_dapodik' => 'required|file|max:51200',
             'tahun_target' => 'nullable|integer|min:2020|max:2035',
+            'purge_dummy' => 'nullable|boolean',
         ]);
 
         $user = auth()->user();
         $scopedKecamatanId = ($user && $user->role === 'operator' && $user->kecamatan_id) ? (int) $user->kecamatan_id : null;
         $entity = $request->input('entity');
         $tahunTarget = (int) $request->input('tahun_target', 2025);
+        $purgeDummy = $request->boolean('purge_dummy', false);
 
         $file = $request->file('file_dapodik');
         $rows = $this->syncService->parseDelimitedFile($file->getRealPath());
 
         if (empty($rows)) {
             return back()->withErrors(['file_dapodik' => 'File kosong atau header kolom tidak dikenali. Pastikan mengekspor dari View SSMS dengan opsi "Save Results As CSV" (Include column headers).']);
+        }
+
+        if ($purgeDummy && ! $scopedKecamatanId) {
+            $this->syncService->purgeDummyData($entity);
         }
 
         if ($entity === 'sekolah') {

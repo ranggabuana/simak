@@ -76,6 +76,31 @@ class DapodikSyncService
     }
 
     /**
+     * Bersihkan data dummy bawaan seeder (NPSN 20300001..20300500 & Guru dummy) sebelum sinkronisasi.
+     */
+    public function purgeDummyData(string $target = 'semua'): void
+    {
+        if (in_array($target, ['semua', 'guru'], true)) {
+            GuruPendidik::where('nama', 'like', 'Guru %')->delete();
+        }
+
+        if (in_array($target, ['semua', 'sekolah', 'siswa'], true)) {
+            $dummySchoolIds = SatuanPendidikan::whereBetween('npsn', ['20300001', '20300500'])
+                ->orWhere('kepala_sekolah', 'Drs. Supriyanto, M.Pd.')
+                ->pluck('id');
+
+            if ($dummySchoolIds->isNotEmpty()) {
+                PartisipasiSiswa::whereIn('satuan_pendidikan_id', $dummySchoolIds)->delete();
+                GuruPendidik::whereIn('satuan_pendidikan_id', $dummySchoolIds)->delete();
+
+                if (in_array($target, ['semua', 'sekolah'], true)) {
+                    SatuanPendidikan::whereIn('id', $dummySchoolIds)->delete();
+                }
+            }
+        }
+    }
+
+    /**
      * Sinkronisasi batch data Satuan Pendidikan dari struktur v_simak_sekolah_bna.
      *
      * @param  array<int, array<string, mixed>>  $rows
@@ -121,6 +146,7 @@ class DapodikSyncService
                 $akrRaw = strtoupper(self::cleanVal($row['akreditasi'] ?? ''));
                 $akreditasi = in_array($akrRaw, ['A', 'B', 'C']) ? $akrRaw : 'Belum Terakreditasi';
 
+                $sekolahId = self::cleanVal($row['sekolah_id'] ?? $row['sekolahid'] ?? '');
                 $alamat = self::cleanVal($row['alamat'] ?? $row['alamat_jalan'] ?? '');
                 $kepsek = self::cleanVal($row['kepala_sekolah'] ?? $row['kepalasekolah'] ?? $row['kepsek'] ?? '');
                 $telepon = self::cleanVal($row['telepon'] ?? $row['nomor_telepon'] ?? '');
@@ -130,20 +156,25 @@ class DapodikSyncService
                 $lat = is_numeric($latRaw) && (float) $latRaw >= -90 && (float) $latRaw <= 90 ? (float) $latRaw : $kecamatan->latitude;
                 $lng = is_numeric($lngRaw) && (float) $lngRaw >= -180 && (float) $lngRaw <= 180 ? (float) $lngRaw : $kecamatan->longitude;
 
+                $payload = [
+                    'nama_sekolah' => substr($nama, 0, 150),
+                    'jenjang' => $jenjang,
+                    'status' => $status,
+                    'akreditasi' => $akreditasi,
+                    'kecamatan_id' => $kecId,
+                    'alamat' => $alamat !== '' ? substr($alamat, 0, 255) : 'Banjarnegara',
+                    'kepala_sekolah' => $kepsek !== '' ? substr($kepsek, 0, 150) : '-',
+                    'telepon' => $telepon !== '' ? substr($telepon, 0, 30) : null,
+                    'latitude' => $lat,
+                    'longitude' => $lng,
+                ];
+                if ($sekolahId !== '') {
+                    $payload['sekolah_id'] = substr($sekolahId, 0, 40);
+                }
+
                 SatuanPendidikan::updateOrCreate(
                     ['npsn' => substr($npsn, 0, 10)],
-                    [
-                        'nama_sekolah' => substr($nama, 0, 150),
-                        'jenjang' => $jenjang,
-                        'status' => $status,
-                        'akreditasi' => $akreditasi,
-                        'kecamatan_id' => $kecId,
-                        'alamat' => $alamat !== '' ? substr($alamat, 0, 255) : 'Banjarnegara',
-                        'kepala_sekolah' => $kepsek !== '' ? substr($kepsek, 0, 150) : '-',
-                        'telepon' => $telepon !== '' ? substr($telepon, 0, 30) : null,
-                        'latitude' => $lat,
-                        'longitude' => $lng,
-                    ]
+                    $payload
                 );
 
                 $count++;
@@ -232,29 +263,43 @@ class DapodikSyncService
                 $rombel = max(1, (int) (self::cleanVal($row['jumlah_rombel'] ?? $row['jumlahrombel'] ?? $row['rombel'] ?? '') ?: max(1, (int) round($totalSiswa / 28))));
                 $lainnya = max(0, $totalSiswa - ($u5_6 + $u7_12 + $u13_15 + $u16_18));
 
+                $siswaAttributes = [
+                    'kecamatan_id' => $sekolah->kecamatan_id,
+                    'tahun' => $tahun,
+                    'jenjang' => $jenjang,
+                    'total_siswa_semua_usia' => $totalSiswa,
+                    'siswa_usia_sesuai' => $siswaSesuai,
+                    'siswa_l' => $siswaL,
+                    'siswa_p' => $siswaP,
+                    'siswa_usia_sesuai_l' => $sesuaiL,
+                    'siswa_usia_sesuai_p' => $sesuaiP,
+                    'siswa_usia_5_6' => $u5_6,
+                    'siswa_usia_7_12' => $u7_12,
+                    'siswa_usia_13_15' => $u13_15,
+                    'siswa_usia_16_18' => $u16_18,
+                    'siswa_usia_lainnya' => $lainnya,
+                    'jumlah_rombel' => $rombel,
+                ];
+
                 PartisipasiSiswa::updateOrCreate(
                     [
                         'satuan_pendidikan_id' => $sekolah->id,
                         'tahun_ajaran' => substr($ta, 0, 10),
                     ],
-                    [
-                        'kecamatan_id' => $sekolah->kecamatan_id,
-                        'tahun' => $tahun,
-                        'jenjang' => $jenjang,
-                        'total_siswa_semua_usia' => $totalSiswa,
-                        'siswa_usia_sesuai' => $siswaSesuai,
-                        'siswa_l' => $siswaL,
-                        'siswa_p' => $siswaP,
-                        'siswa_usia_sesuai_l' => $sesuaiL,
-                        'siswa_usia_sesuai_p' => $sesuaiP,
-                        'siswa_usia_5_6' => $u5_6,
-                        'siswa_usia_7_12' => $u7_12,
-                        'siswa_usia_13_15' => $u13_15,
-                        'siswa_usia_16_18' => $u16_18,
-                        'siswa_usia_lainnya' => $lainnya,
-                        'jumlah_rombel' => $rombel,
-                    ]
+                    $siswaAttributes
                 );
+
+                // Jika data Dapodik bertahun 2026 (semester 20261), selaraskan juga ke tahun evaluasi aktif 2025
+                // apabila sekolah tersebut belum memiliki data riil tahun 2025 agar Dashboard 2025 langsung akurat.
+                if ($tahun === 2026) {
+                    PartisipasiSiswa::updateOrCreate(
+                        [
+                            'satuan_pendidikan_id' => $sekolah->id,
+                            'tahun_ajaran' => '2024/2025',
+                        ],
+                        array_merge($siswaAttributes, ['tahun' => 2025])
+                    );
+                }
 
                 $count++;
             }
@@ -302,6 +347,7 @@ class DapodikSyncService
                     continue;
                 }
 
+                $ptkId = self::cleanVal($row['ptk_id'] ?? $row['ptkid'] ?? '');
                 $nip = self::cleanVal($row['nip'] ?? '');
                 $nuptk = self::cleanVal($row['nuptk'] ?? '');
 
@@ -332,7 +378,9 @@ class DapodikSyncService
                     $mapel = 'Guru Kelas/Mapel';
                 }
 
-                if ($nuptk !== '') {
+                if ($ptkId !== '') {
+                    $matchKey = ['ptk_id' => substr($ptkId, 0, 40)];
+                } elseif ($nuptk !== '') {
                     $matchKey = ['nuptk' => substr($nuptk, 0, 30)];
                 } elseif ($nip !== '') {
                     $matchKey = ['nip' => substr($nip, 0, 30)];
@@ -343,20 +391,22 @@ class DapodikSyncService
                     ];
                 }
 
-                GuruPendidik::updateOrCreate(
-                    $matchKey,
-                    [
-                        'satuan_pendidikan_id' => $sekolah->id,
-                        'kecamatan_id' => $sekolah->kecamatan_id,
-                        'nama' => substr($nama, 0, 150),
-                        'nip' => $nip !== '' ? substr($nip, 0, 30) : null,
-                        'nuptk' => $nuptk !== '' ? substr($nuptk, 0, 30) : null,
-                        'jenis_kelamin' => $jk,
-                        'status_kepegawaian' => $status,
-                        'sudah_sertifikasi' => $isSertif,
-                        'bidang_studi' => substr($mapel, 0, 100),
-                    ]
-                );
+                $guruPayload = [
+                    'satuan_pendidikan_id' => $sekolah->id,
+                    'kecamatan_id' => $sekolah->kecamatan_id,
+                    'nama' => substr($nama, 0, 150),
+                    'nip' => $nip !== '' ? substr($nip, 0, 30) : null,
+                    'nuptk' => $nuptk !== '' ? substr($nuptk, 0, 30) : null,
+                    'jenis_kelamin' => $jk,
+                    'status_kepegawaian' => $status,
+                    'sudah_sertifikasi' => $isSertif,
+                    'bidang_studi' => substr($mapel, 0, 100),
+                ];
+                if ($ptkId !== '') {
+                    $guruPayload['ptk_id'] = substr($ptkId, 0, 40);
+                }
+
+                GuruPendidik::updateOrCreate($matchKey, $guruPayload);
 
                 $count++;
             }

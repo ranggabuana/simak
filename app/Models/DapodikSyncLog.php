@@ -20,6 +20,7 @@ class DapodikSyncLog extends Model
         'guru_synced',
         'total_records',
         'semester_id',
+        'purge_dummy',
         'message',
         'user_id',
         'started_at',
@@ -29,6 +30,7 @@ class DapodikSyncLog extends Model
     protected function casts(): array
     {
         return [
+            'purge_dummy' => 'boolean',
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
         ];

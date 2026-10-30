@@ -1,4 +1,8 @@
 @props(['defaultTarget' => 'semua', 'tahun' => 2025])
+@php
+    $hasDummyData = \App\Models\SatuanPendidikan::whereBetween('npsn', ['20300001', '20300500'])->exists()
+        || \App\Models\GuruPendidik::where('nama', 'like', 'Guru %')->exists();
+@endphp
 
 <div x-show="dapodikModal" 
      x-cloak 
@@ -8,6 +12,7 @@
         target: '{{ $defaultTarget }}',
         entityFile: '{{ $defaultTarget === 'semua' ? 'sekolah' : $defaultTarget }}',
         tahunTarget: {{ (int) $tahun }},
+        purgeDummy: {{ $hasDummyData ? 'true' : 'false' }},
         syncing: false,
         taskId: null,
         status: '',
@@ -25,7 +30,7 @@
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ target: this.target, semester_id: '20261' })
+                body: JSON.stringify({ target: this.target, semester_id: '20261', purge_dummy: this.purgeDummy })
             })
             .then(r => r.json())
             .then(data => {
@@ -124,6 +129,16 @@
                 </select>
             </div>
 
+            @if($hasDummyData)
+            <label class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+                <input type="checkbox" x-model="purgeDummy" :disabled="syncing" class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                <span class="text-[11px] text-slate-700 leading-snug">
+                    <strong class="font-bold text-slate-900">Bersihkan data dummy bawaan seeder sebelum sinkronisasi</strong>
+                    <span class="block text-[10px] text-slate-500">Menghapus sekolah dummy (NPSN 20300001..20300500) & guru dummy agar tidak tercampur dengan data riil Dapodik.</span>
+                </span>
+            </label>
+            @endif
+
             <!-- Panel Status Live Polling -->
             <div x-show="status !== ''" class="p-4 rounded-2xl border space-y-3"
                  :class="{
@@ -199,6 +214,16 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih File CSV / TXT Hasil Ekspor SSMS</label>
                 <input type="file" name="file_dapodik" accept=".csv,.txt,.tsv" required class="w-full text-xs text-slate-700 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-slate-200 rounded-xl p-1.5">
             </div>
+
+            @if($hasDummyData)
+            <label class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+                <input type="checkbox" name="purge_dummy" value="1" checked class="mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                <span class="text-[11px] text-slate-700 leading-snug">
+                    <strong class="font-bold text-slate-900">Bersihkan data dummy bawaan seeder sebelum sinkronisasi</strong>
+                    <span class="block text-[10px] text-slate-500">Menghapus sekolah & guru dummy bawaan awal agar tidak tercampur dengan data riil Dapodik.</span>
+                </span>
+            </label>
+            @endif
 
             <div class="flex items-center justify-end gap-2.5 pt-2">
                 <button type="button" @click="dapodikModal = false" class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">

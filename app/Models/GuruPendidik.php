@@ -13,6 +13,7 @@ class GuruPendidik extends Model
     protected $table = 'guru_pendidik';
 
     protected $fillable = [
+        'ptk_id',
         'satuan_pendidikan_id',
         'kecamatan_id',
         'nama',
