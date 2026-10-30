@@ -31,6 +31,7 @@
         <div class="font-medium text-slate-700">{{ $s->kepala_sekolah ?: '-' }}</div>
         <div class="text-[11px] text-slate-400 truncate max-w-[200px]">{{ $s->alamat ?: '-' }}</div>
     </td>
+    @if(false)
     <td class="py-3.5 px-4 text-center">
         @php
             $rowJson = json_encode($s->only(['id', 'npsn', 'nama_sekolah', 'jenjang', 'status', 'akreditasi', 'kecamatan_id', 'alamat', 'kepala_sekolah', 'telepon', 'latitude', 'longitude']));
@@ -54,9 +55,10 @@
             </button>
         </div>
     </td>
+    @endif
 </tr>
 @empty
 <tr>
-    <td colspan="8" class="text-center py-10 text-slate-400">Belum ada data satuan pendidikan yang sesuai filter atau pencarian.</td>
+    <td colspan="7" class="text-center py-10 text-slate-400">Belum ada data satuan pendidikan yang sesuai filter atau pencarian.</td>
 </tr>
 @endforelse

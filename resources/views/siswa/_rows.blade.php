@@ -70,6 +70,7 @@
     <td class="py-3.5 px-4 text-center font-bold text-slate-700">
         {{ $row->jumlah_rombel }}
     </td>
+    @if(false)
     <td class="py-3.5 px-4 text-center">
         <div class="flex items-center justify-center gap-1.5">
             <button type="button" 
@@ -90,9 +91,10 @@
             </button>
         </div>
     </td>
+    @endif
 </tr>
 @empty
 <tr>
-    <td colspan="10" class="text-center py-10 text-slate-400">Belum ada data partisipasi siswa yang sesuai filter atau pencarian.</td>
+    <td colspan="9" class="text-center py-10 text-slate-400">Belum ada data partisipasi siswa yang sesuai filter atau pencarian.</td>
 </tr>
 @endforelse

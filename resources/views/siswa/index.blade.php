@@ -14,6 +14,8 @@
         
         <!-- Action Row (1 Row) -->
         <div class="flex items-center gap-2.5 shrink-0 flex-nowrap overflow-x-auto pb-1 xl:pb-0">
+            {{-- Tombol Tambah & Import disembunyikan karena data dialirkan otomatis melalui Sinkronisasi Dapodik --}}
+            @if(false)
             <button type="button" 
                     @click="importModal = true" 
                     class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-500/20 transition whitespace-nowrap shrink-0 cursor-pointer">
@@ -31,6 +33,14 @@
                 </svg>
                 <span>Tambah Data Siswa</span>
             </button>
+            @endif
+
+            <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Sumber: Sinkronisasi Dapodik
+            </span>
 
             <a href="{{ route('export.siswa', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
                class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-2xs transition whitespace-nowrap shrink-0">
@@ -210,7 +220,9 @@
                         <th class="py-3.5 px-4 text-right" data-column="siswa_usia_sesuai">Usia Sesuai</th>
                         <th class="py-3.5 px-4 text-right" data-sortable="false">Rasio (%)</th>
                         <th class="py-3.5 px-4 text-center" data-column="jumlah_rombel">Rombel</th>
+                        @if(false)
                         <th class="py-3.5 px-4 text-center" data-sortable="false">Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">

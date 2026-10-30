@@ -39,6 +39,7 @@
             </span>
         @endif
     </td>
+    @if(false)
     <td class="py-3.5 px-4 text-center">
         @php
             $rowJson = json_encode($g->only(['id', 'satuan_pendidikan_id', 'nama', 'nuptk', 'nip', 'jenis_kelamin', 'status_kepegawaian', 'sudah_sertifikasi', 'bidang_studi']));
@@ -62,9 +63,10 @@
             </button>
         </div>
     </td>
+    @endif
 </tr>
 @empty
 <tr>
-    <td colspan="8" class="text-center py-10 text-slate-400">Belum ada data tenaga pendidik yang cocok dengan filter atau pencarian.</td>
+    <td colspan="7" class="text-center py-10 text-slate-400">Belum ada data tenaga pendidik yang cocok dengan filter atau pencarian.</td>
 </tr>
 @endforelse
