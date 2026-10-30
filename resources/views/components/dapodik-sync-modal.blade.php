@@ -63,16 +63,23 @@
                     if (data.status === 'completed') {
                         clearInterval(this.pollTimer);
                         this.syncing = false;
-                        setTimeout(() => window.location.reload(), 1500);
                     } else if (data.status === 'failed') {
                         clearInterval(this.pollTimer);
                         this.syncing = false;
                     }
                 });
             }, 2500);
+        },
+        closeModal() {
+            if (this.syncing) return;
+            if (this.status === 'completed') {
+                window.location.reload();
+            } else {
+                dapodikModal = false;
+            }
         }
      }">
-    <div @click.away="if (!syncing) dapodikModal = false" 
+    <div @click.away="closeModal()" 
          class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 overflow-hidden">
         
         <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
@@ -87,7 +94,7 @@
                     <p class="text-[11px] text-slate-500">Sumber: SQL Server Datamart Kominfo (`kode_kabupaten = 030400`)</p>
                 </div>
             </div>
-            <button type="button" @click="if (!syncing) dapodikModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <button type="button" @click="closeModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -168,10 +175,9 @@
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-2">
-                <button type="button" @click="dapodikModal = false" :disabled="syncing" class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
-                    Tutup
+                <button type="button" @click="closeModal()" :disabled="syncing" class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer" x-text="status === 'completed' ? 'Selesai & Muat Ulang Halaman' : 'Tutup'">
                 </button>
-                <button type="button" @click="triggerAgentSync()" :disabled="syncing" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold shadow-sm cursor-pointer">
+                <button type="button" x-show="status !== 'completed'" @click="triggerAgentSync()" :disabled="syncing" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-bold shadow-sm cursor-pointer">
                     <svg x-show="syncing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
