@@ -113,7 +113,7 @@
         <!-- TAB 1: REVERSE PUSH AGENT KOMINFO -->
         <div x-show="tab === 'agent'" class="space-y-4">
             <div class="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-100 text-xs text-slate-700 space-y-1">
-                <p class="font-bold text-indigo-950">Mode Reverse Push / Polling Agent (Opsi 3)</p>
+                <p class="font-bold text-indigo-950">Mode Reverse Push / Polling Agent</p>
                 <p class="text-[11px] text-slate-600 leading-relaxed">
                     Saat tombol diklik, SIMAK membuat antrean tugas. Skrip PowerShell (`dapodik_agent.ps1`) di Windows Server Kominfo akan mengeksekusi View SQL Server (`v_simak_*_bna`) dan mengirim datanya ke SIMAK secara bertahap.
                 </p>

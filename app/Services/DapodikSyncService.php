@@ -378,19 +378,6 @@ class DapodikSyncService
                     $mapel = 'Guru Kelas/Mapel';
                 }
 
-                if ($ptkId !== '') {
-                    $matchKey = ['ptk_id' => substr($ptkId, 0, 40)];
-                } elseif ($nuptk !== '') {
-                    $matchKey = ['nuptk' => substr($nuptk, 0, 30)];
-                } elseif ($nip !== '') {
-                    $matchKey = ['nip' => substr($nip, 0, 30)];
-                } else {
-                    $matchKey = [
-                        'nama' => substr($nama, 0, 150),
-                        'satuan_pendidikan_id' => $sekolah->id,
-                    ];
-                }
-
                 $guruPayload = [
                     'satuan_pendidikan_id' => $sekolah->id,
                     'kecamatan_id' => $sekolah->kecamatan_id,
@@ -406,7 +393,27 @@ class DapodikSyncService
                     $guruPayload['ptk_id'] = substr($ptkId, 0, 40);
                 }
 
-                GuruPendidik::updateOrCreate($matchKey, $guruPayload);
+                $existingGuru = null;
+                if ($ptkId !== '') {
+                    $existingGuru = GuruPendidik::where('ptk_id', substr($ptkId, 0, 40))->first();
+                }
+                if (! $existingGuru && $nuptk !== '') {
+                    $existingGuru = GuruPendidik::where('nuptk', substr($nuptk, 0, 30))->first();
+                }
+                if (! $existingGuru && $nip !== '') {
+                    $existingGuru = GuruPendidik::where('nip', substr($nip, 0, 30))->first();
+                }
+                if (! $existingGuru) {
+                    $existingGuru = GuruPendidik::where('satuan_pendidikan_id', $sekolah->id)
+                        ->where('nama', substr($nama, 0, 150))
+                        ->first();
+                }
+
+                if ($existingGuru) {
+                    $existingGuru->update($guruPayload);
+                } else {
+                    GuruPendidik::create($guruPayload);
+                }
 
                 $count++;
             }
