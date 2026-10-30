@@ -6,6 +6,7 @@ use App\Models\PartisipasiSiswa;
 use App\Models\SatuanPendidikan;
 use App\Models\WilayahKecamatan;
 use App\Services\ActivityLogger;
+use App\Services\DapodikSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -309,123 +310,24 @@ class PartisipasiSiswaController extends Controller
         return back()->with('success', "Data partisipasi peserta didik {$nama} berhasil dihapus.");
     }
 
-    public function import(Request $request): RedirectResponse
+    public function import(Request $request, DapodikSyncService $syncService): RedirectResponse
     {
         $user = auth()->user();
         $request->validate([
-            'file_siswa' => 'required|file|max:20480',
+            'file_siswa' => 'required|file|max:51200',
             'tahun' => 'required|integer|min:2020|max:2035',
         ]);
 
         $file = $request->file('file_siswa');
         $tahunDefault = (int) $request->input('tahun');
+        $rows = $syncService->parseDelimitedFile($file->getRealPath());
 
-        $handle = fopen($file->getRealPath(), 'r');
-        if (! $handle) {
-            return back()->withErrors(['file_siswa' => 'Gagal membaca file CSV.']);
-        }
-
-        // BOM detection
-        $bom = fread($handle, 3);
-        if ($bom !== "\xEF\xBB\xBF") {
-            rewind($handle);
-        }
-
-        $header = fgetcsv($handle, 0, ',');
-        $delimiter = ',';
-        if (! $header || count($header) < 3) {
-            rewind($handle);
-            $header = fgetcsv($handle, 0, ';');
-            $delimiter = ';';
-        }
-
-        if (! $header) {
-            fclose($handle);
-
+        if (empty($rows)) {
             return back()->withErrors(['file_siswa' => 'Header CSV tidak valid atau file kosong.']);
         }
 
-        $headerMap = [];
-        foreach ($header as $idx => $col) {
-            $clean = strtolower(trim($col));
-            $clean = str_replace([' ', '-', '_'], '', $clean);
-            $headerMap[$clean] = $idx;
-        }
-
-        $count = 0;
-        $allSekolah = SatuanPendidikan::all();
-
-        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-            if (empty($row) || count($row) < 3) {
-                continue;
-            }
-
-            $npsn = trim($row[$headerMap['npsn'] ?? 0] ?? '');
-            $namaSekolah = trim($row[$headerMap['namasekolah'] ?? $headerMap['nama'] ?? 1] ?? '');
-
-            $sekolah = null;
-            if (! empty($npsn)) {
-                $sekolah = $allSekolah->firstWhere('npsn', $npsn);
-            }
-            if (! $sekolah && ! empty($namaSekolah)) {
-                $sekolah = $allSekolah->first(function ($s) use ($namaSekolah) {
-                    return strcasecmp($s->nama_sekolah, $namaSekolah) === 0 || stripos($s->nama_sekolah, $namaSekolah) !== false;
-                });
-            }
-
-            if (! $sekolah) {
-                continue;
-            }
-
-            // Scoping check for operator
-            if ($user && $user->role === 'operator' && $user->kecamatan_id && $sekolah->kecamatan_id !== $user->kecamatan_id) {
-                continue;
-            }
-
-            $ta = trim($row[$headerMap['tahunajaran'] ?? $headerMap['ta'] ?? 2] ?? '2024/2025');
-            $rowTahun = isset($headerMap['tahun']) ? (int) ($row[$headerMap['tahun']] ?? $tahunDefault) : $tahunDefault;
-            if ($rowTahun <= 0) {
-                $rowTahun = $tahunDefault;
-            }
-
-            $totalSiswa = (int) ($row[$headerMap['totalsiswa'] ?? $headerMap['totalsiswasemuausia'] ?? $headerMap['jumlahsiswa'] ?? 3] ?? 0);
-            $siswaSesuai = (int) ($row[$headerMap['siswasesuai'] ?? $headerMap['siswausiasesuai'] ?? 4] ?? (int) ($totalSiswa * 0.94));
-            $siswaSesuai = min($siswaSesuai, $totalSiswa);
-
-            $rombel = isset($headerMap['rombel']) || isset($headerMap['jumlahrombel'])
-                ? (int) ($row[$headerMap['rombel'] ?? $headerMap['jumlahrombel']] ?? max(1, (int) ($totalSiswa / 28)))
-                : max(1, (int) ($totalSiswa / 28));
-
-            $jenjang = $sekolah->jenjang;
-            $u5_6 = ($jenjang === 'PAUD' || $jenjang === 'TK') ? $siswaSesuai : 0;
-            $u7_12 = ($jenjang === 'SD' || $jenjang === 'MI') ? $siswaSesuai : 0;
-            $u13_15 = ($jenjang === 'SMP' || $jenjang === 'MTS') ? $siswaSesuai : 0;
-            $u16_18 = ($jenjang === 'SMA' || $jenjang === 'SMK' || $jenjang === 'MA') ? $siswaSesuai : 0;
-
-            PartisipasiSiswa::updateOrCreate(
-                [
-                    'satuan_pendidikan_id' => $sekolah->id,
-                    'tahun_ajaran' => $ta,
-                ],
-                [
-                    'kecamatan_id' => $sekolah->kecamatan_id,
-                    'tahun' => $rowTahun,
-                    'jenjang' => $jenjang,
-                    'total_siswa_semua_usia' => $totalSiswa,
-                    'siswa_usia_sesuai' => $siswaSesuai,
-                    'siswa_usia_5_6' => $u5_6,
-                    'siswa_usia_7_12' => $u7_12,
-                    'siswa_usia_13_15' => $u13_15,
-                    'siswa_usia_16_18' => $u16_18,
-                    'siswa_usia_lainnya' => max(0, $totalSiswa - $siswaSesuai),
-                    'jumlah_rombel' => $rombel,
-                ]
-            );
-
-            $count++;
-        }
-
-        fclose($handle);
+        $scopedKecamatanId = ($user && $user->role === 'operator' && $user->kecamatan_id) ? (int) $user->kecamatan_id : null;
+        $count = $syncService->syncSiswaBatch($rows, $tahunDefault, $scopedKecamatanId);
 
         if ($count === 0) {
             return back()->with('info', 'File berhasil diproses, namun tidak ada baris data siswa yang cocok dengan sekolah terdaftar.');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SatuanPendidikan;
 use App\Models\WilayahKecamatan;
 use App\Services\ActivityLogger;
+use App\Services\DapodikSyncService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -204,121 +205,28 @@ class SatuanPendidikanController extends Controller
         return back()->with('success', "Satuan Pendidikan {$nama} berhasil dihapus.");
     }
 
-    public function import(Request $request): RedirectResponse
+    public function import(Request $request, DapodikSyncService $syncService): RedirectResponse
     {
         $user = auth()->user();
         $request->validate([
-            'file_sekolah' => 'required|file|max:20480',
+            'file_sekolah' => 'required|file|max:51200',
         ]);
 
         $file = $request->file('file_sekolah');
-        $handle = fopen($file->getRealPath(), 'r');
-        if (! $handle) {
-            return back()->withErrors(['file_sekolah' => 'Gagal membuka file. Pastikan format file berupa CSV yang valid.']);
-        }
+        $rows = $syncService->parseDelimitedFile($file->getRealPath());
 
-        // Check BOM
-        $bom = fread($handle, 3);
-        if ($bom !== "\xEF\xBB\xBF") {
-            rewind($handle);
-        }
-
-        $header = fgetcsv($handle, 0, ',');
-        $delimiter = ',';
-        if (! $header || count($header) < 4) {
-            rewind($handle);
-            $header = fgetcsv($handle, 0, ';');
-            $delimiter = ';';
-        }
-
-        if (! $header) {
-            fclose($handle);
-
+        if (empty($rows)) {
             return back()->withErrors(['file_sekolah' => 'Header CSV tidak valid atau file kosong.']);
         }
 
-        $headerMap = [];
-        foreach ($header as $idx => $col) {
-            $clean = strtolower(trim($col));
-            $clean = str_replace([' ', '-', '_'], '', $clean);
-            $headerMap[$clean] = $idx;
-        }
-
-        $count = 0;
-        $allKecamatan = WilayahKecamatan::all();
-
-        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-            if (empty($row) || count($row) < 3) {
-                continue;
-            }
-
-            $npsn = trim($row[$headerMap['npsn'] ?? 0] ?? '');
-            $nama = trim($row[$headerMap['namasekolah'] ?? $headerMap['nama'] ?? 1] ?? '');
-
-            if (empty($npsn) || empty($nama)) {
-                continue;
-            }
-
-            // Find kecamatan
-            $kecVal = trim($row[$headerMap['kecamatan'] ?? $headerMap['kodekecamatan'] ?? $headerMap['namakecamatan'] ?? 5] ?? '');
-            $kecamatan = $allKecamatan->first(function ($k) use ($kecVal) {
-                return $k->kode === $kecVal || strcasecmp($k->nama, $kecVal) === 0 || stripos($k->nama, $kecVal) !== false;
-            }) ?? $allKecamatan->first();
-
-            // Scope kecamatan for operator
-            if ($user && $user->role === 'operator' && $user->kecamatan_id) {
-                $kecId = $user->kecamatan_id;
-            } else {
-                $kecId = $kecamatan->id;
-            }
-
-            $jenjang = strtoupper(trim($row[$headerMap['jenjang'] ?? 2] ?? 'SD'));
-            if (! in_array($jenjang, ['PAUD', 'TK', 'SD', 'MI', 'SMP', 'MTS', 'SMA', 'SMK', 'MA', 'PKBM'])) {
-                $jenjang = 'SD';
-            }
-
-            $status = ucwords(strtolower(trim($row[$headerMap['status'] ?? 3] ?? 'Negeri')));
-            if (! in_array($status, ['Negeri', 'Swasta'])) {
-                $status = 'Negeri';
-            }
-
-            $akrRaw = strtoupper(trim($row[$headerMap['akreditasi'] ?? 4] ?? 'Belum Terakreditasi'));
-            if (in_array($akrRaw, ['A', 'B', 'C'])) {
-                $akreditasi = $akrRaw;
-            } else {
-                $akreditasi = 'Belum Terakreditasi';
-            }
-
-            $alamat = isset($headerMap['alamat']) ? trim($row[$headerMap['alamat']] ?? '') : null;
-            $kepsek = isset($headerMap['kepalasekolah']) ? trim($row[$headerMap['kepalasekolah']] ?? '') : (isset($headerMap['kepsek']) ? trim($row[$headerMap['kepsek']] ?? '') : null);
-            $telepon = isset($headerMap['telepon']) ? trim($row[$headerMap['telepon']] ?? '') : null;
-
-            SatuanPendidikan::updateOrCreate(
-                ['npsn' => $npsn],
-                [
-                    'nama_sekolah' => $nama,
-                    'jenjang' => $jenjang,
-                    'status' => $status,
-                    'akreditasi' => $akreditasi,
-                    'kecamatan_id' => $kecId,
-                    'alamat' => $alamat ?: 'Banjarnegara',
-                    'kepala_sekolah' => $kepsek ?: '-',
-                    'telepon' => $telepon ?: null,
-                    'latitude' => $kecamatan->latitude,
-                    'longitude' => $kecamatan->longitude,
-                ]
-            );
-
-            $count++;
-        }
-
-        fclose($handle);
+        $scopedKecamatanId = ($user && $user->role === 'operator' && $user->kecamatan_id) ? (int) $user->kecamatan_id : null;
+        $count = $syncService->syncSekolahBatch($rows, $scopedKecamatanId);
 
         if ($count === 0) {
-            return back()->with('info', 'File berhasil diproses, namun tidak ada baris data sekolah yang valid. Periksa format kolom template CSV.');
+            return back()->with('info', 'File berhasil diproses, namun tidak ada baris data sekolah yang valid. Periksa format kolom CSV.');
         }
 
-        ActivityLogger::log('IMPORT', 'sekolah', "Mengimpor dan memperbarui {$count} data satuan pendidikan dari CSV");
+        ActivityLogger::log('IMPORT', 'sekolah', "Mengimpor dan memperbarui {$count} data satuan pendidikan dari CSV/Dapodik");
 
         return back()->with('success', "Berhasil mengimpor dan memperbarui {$count} data Satuan Pendidikan.");
     }

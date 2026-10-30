@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'dapodik' => [
+        'sync_secret' => env('DAPODIK_SYNC_SECRET', 'SIMAK_BANJARNEGARA_DAPODIK_SECRET_2026'),
+        'kode_kabupaten' => env('DAPODIK_KODE_KABUPATEN', '030400'),
+        'semester_default' => env('DAPODIK_SEMESTER_DEFAULT', '20261'),
+        'sql_database' => env('DAPODIK_SQL_DATABASE', 'Datamart'),
+    ],
+
 ];

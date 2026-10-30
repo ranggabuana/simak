@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'menu' => CheckMenuAccess::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'api/dapodik-sync/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuditTrailController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DapodikSyncController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\GuruPendidikController;
@@ -140,4 +141,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
         Route::post('/permissions', [UserController::class, 'updatePermissions'])->name('permissions.update');
     });
+
+    // Sinkronisasi Data Dapodik (UI Trigger & Upload SQL View)
+    Route::prefix('dapodik-sync')->name('dapodik.')->group(function () {
+        Route::post('/trigger', [DapodikSyncController::class, 'trigger'])->name('trigger');
+        Route::get('/status/{id}', [DapodikSyncController::class, 'status'])->name('status');
+        Route::post('/import-view', [DapodikSyncController::class, 'importViewFile'])->name('import_view');
+    });
+});
+
+// Endpoint API Khusus Agen PowerShell Windows Server Kominfo (Dilindungi Bearer Token)
+Route::prefix('api/dapodik-sync')->name('api.dapodik.')->group(function () {
+    Route::get('/check-task', [DapodikSyncController::class, 'checkTask'])->name('check_task');
+    Route::post('/receive-data', [DapodikSyncController::class, 'receiveData'])->name('receive_data');
 });
