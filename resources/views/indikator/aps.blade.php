@@ -203,20 +203,45 @@
         </div>
     </div>
 
-    <!-- Chart 3: Distribusi Sebaran APS 7-12 & 13-15 Th 20 Kecamatan -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+    <!-- Chart 3: Distribusi Sebaran APS 20 Kecamatan dengan Filter Kelompok Usia -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4" x-data="{ activeFilter: 'all' }">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
-                <h3 class="text-sm font-bold text-slate-900">Sebaran APS Usia 7–12 Th & 13–15 Th di 20 Kecamatan</h3>
-                <p class="text-xs text-slate-500">Visualisasi komparasi capaian partisipasi sekolah usia wajib belajar dasar per kecamatan</p>
+                <h3 class="text-sm font-bold text-slate-900">Sebaran APS per Kelompok Usia di 20 Kecamatan Banjarnegara</h3>
+                <p class="text-xs text-slate-500">Visualisasi komparasi capaian angka partisipasi sekolah per kecamatan</p>
             </div>
-            <div class="flex items-center gap-3 text-xs font-medium">
-                <span class="inline-flex items-center gap-1.5 text-emerald-600 font-bold">
-                    <span class="w-3 h-3 rounded bg-emerald-600 inline-block"></span> APS 7–12 Th (SD)
-                </span>
-                <span class="inline-flex items-center gap-1.5 text-teal-600 font-bold">
-                    <span class="w-3 h-3 rounded bg-teal-500 inline-block"></span> APS 13–15 Th (SMP)
-                </span>
+            <!-- Switcher Kelompok Usia Pill -->
+            <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-2xl self-start sm:self-auto">
+                <button type="button" 
+                        @click="activeFilter = 'all'; updateApsChart('all')" 
+                        :class="activeFilter === 'all' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    Semua Usia
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'paud'; updateApsChart('paud')" 
+                        :class="activeFilter === 'paud' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    5–6 Th
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'sd'; updateApsChart('sd')" 
+                        :class="activeFilter === 'sd' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    7–12 Th (SD)
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'smp'; updateApsChart('smp')" 
+                        :class="activeFilter === 'smp' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    13–15 Th (SMP)
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'sma'; updateApsChart('sma')" 
+                        :class="activeFilter === 'sma' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    16–18 Th (SMA)
+                </button>
             </div>
         </div>
         <div class="relative h-72 sm:h-80 w-full">
@@ -611,37 +636,63 @@
             });
         }
 
-        // 3. Chart Sebaran APS 20 Kecamatan
+        // 3. Chart Sebaran APS 20 Kecamatan dengan Switcher Kelompok Usia
         const ctxKec = document.getElementById('apsKecamatanChart')?.getContext('2d');
         if (ctxKec) {
             const kecLabels = {!! json_encode($kecamatanList->pluck('nama')) !!};
+            const apsPaudData = {!! json_encode($kecamatanList->pluck('aps.paud')) !!};
             const apsSdData = {!! json_encode($kecamatanList->pluck('aps.sd')) !!};
             const apsSmpData = {!! json_encode($kecamatanList->pluck('aps.smp')) !!};
+            const apsSmaData = {!! json_encode($kecamatanList->pluck('aps.sma')) !!};
 
-            new Chart(ctxKec, {
+            const dsPaud = {
+                label: 'APS 5–6 Th (%)',
+                data: apsPaudData,
+                backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                borderRadius: 4
+            };
+            const dsSd = {
+                label: 'APS 7–12 Th (%)',
+                data: apsSdData,
+                backgroundColor: 'rgba(5, 150, 105, 0.85)',
+                borderRadius: 4
+            };
+            const dsSmp = {
+                label: 'APS 13–15 Th (%)',
+                data: apsSmpData,
+                backgroundColor: 'rgba(13, 148, 136, 0.85)',
+                borderRadius: 4
+            };
+            const dsSma = {
+                label: 'APS 16–18 Th (%)',
+                data: apsSmaData,
+                backgroundColor: 'rgba(14, 165, 233, 0.85)',
+                borderRadius: 4
+            };
+
+            const datasetsMap = {
+                all: [dsPaud, dsSd, dsSmp, dsSma],
+                paud: [dsPaud],
+                sd: [dsSd],
+                smp: [dsSmp],
+                sma: [dsSma]
+            };
+
+            const apsKecChart = new Chart(ctxKec, {
                 type: 'bar',
                 data: {
                     labels: kecLabels,
-                    datasets: [
-                        {
-                            label: 'APS 7-12 Th (%)',
-                            data: apsSdData,
-                            backgroundColor: 'rgba(5, 150, 105, 0.85)',
-                            borderRadius: 5
-                        },
-                        {
-                            label: 'APS 13-15 Th (%)',
-                            data: apsSmpData,
-                            backgroundColor: 'rgba(20, 184, 166, 0.85)',
-                            borderRadius: 5
-                        }
-                    ]
+                    datasets: datasetsMap.all
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             padding: 10,
@@ -670,6 +721,12 @@
                     }
                 }
             });
+
+            window.updateApsChart = function (jenjang) {
+                apsKecChart.data.datasets = datasetsMap[jenjang] || datasetsMap.all;
+                apsKecChart.options.plugins.legend.display = (jenjang === 'all');
+                apsKecChart.update();
+            };
         }
     });
 </script>

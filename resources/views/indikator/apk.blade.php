@@ -203,20 +203,45 @@
         </div>
     </div>
 
-    <!-- Chart 3: Distribusi Sebaran APK SD & SMP 20 Kecamatan -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+    <!-- Chart 3: Distribusi Sebaran APK 20 Kecamatan dengan Filter Jenjang -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4" x-data="{ activeFilter: 'all' }">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
-                <h3 class="text-sm font-bold text-slate-900">Sebaran APK SD & SMP di 20 Kecamatan Banjarnegara</h3>
-                <p class="text-xs text-slate-500">Visualisasi komparasi capaian partisipasi kasar pendidikan dasar per kecamatan</p>
+                <h3 class="text-sm font-bold text-slate-900">Sebaran APK per Jenjang di 20 Kecamatan Banjarnegara</h3>
+                <p class="text-xs text-slate-500">Visualisasi komparasi capaian angka partisipasi kasar per kecamatan</p>
             </div>
-            <div class="flex items-center gap-3 text-xs font-medium">
-                <span class="inline-flex items-center gap-1.5 text-blue-600 font-bold">
-                    <span class="w-3 h-3 rounded bg-blue-600 inline-block"></span> APK SD/MI
-                </span>
-                <span class="inline-flex items-center gap-1.5 text-indigo-600 font-bold">
-                    <span class="w-3 h-3 rounded bg-indigo-500 inline-block"></span> APK SMP/MTs
-                </span>
+            <!-- Switcher Jenjang Pill -->
+            <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-2xl self-start sm:self-auto">
+                <button type="button" 
+                        @click="activeFilter = 'all'; updateApkChart('all')" 
+                        :class="activeFilter === 'all' ? 'bg-white text-blue-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    Semua Jenjang
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'paud'; updateApkChart('paud')" 
+                        :class="activeFilter === 'paud' ? 'bg-white text-blue-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    PAUD
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'sd'; updateApkChart('sd')" 
+                        :class="activeFilter === 'sd' ? 'bg-white text-blue-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    SD/MI
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'smp'; updateApkChart('smp')" 
+                        :class="activeFilter === 'smp' ? 'bg-white text-blue-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    SMP/MTs
+                </button>
+                <button type="button" 
+                        @click="activeFilter = 'sma'; updateApkChart('sma')" 
+                        :class="activeFilter === 'sma' ? 'bg-white text-blue-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                    SMA/SMK
+                </button>
             </div>
         </div>
         <div class="relative h-72 sm:h-80 w-full">
@@ -695,37 +720,63 @@
             });
         }
 
-        // 3. Chart Sebaran APK 20 Kecamatan
+        // 3. Chart Sebaran APK 20 Kecamatan dengan Switcher Jenjang
         const ctxKec = document.getElementById('apkKecamatanChart')?.getContext('2d');
         if (ctxKec) {
             const kecLabels = {!! json_encode($kecamatanList->pluck('nama')) !!};
+            const apkPaudData = {!! json_encode($kecamatanList->pluck('apk.paud')) !!};
             const apkSdData = {!! json_encode($kecamatanList->pluck('apk.sd')) !!};
             const apkSmpData = {!! json_encode($kecamatanList->pluck('apk.smp')) !!};
+            const apkSmaData = {!! json_encode($kecamatanList->pluck('apk.sma')) !!};
 
-            new Chart(ctxKec, {
+            const dsPaud = {
+                label: 'APK PAUD (%)',
+                data: apkPaudData,
+                backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                borderRadius: 4
+            };
+            const dsSd = {
+                label: 'APK SD/MI (%)',
+                data: apkSdData,
+                backgroundColor: 'rgba(37, 99, 235, 0.85)',
+                borderRadius: 4
+            };
+            const dsSmp = {
+                label: 'APK SMP/MTs (%)',
+                data: apkSmpData,
+                backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                borderRadius: 4
+            };
+            const dsSma = {
+                label: 'APK SMA/SMK (%)',
+                data: apkSmaData,
+                backgroundColor: 'rgba(168, 85, 247, 0.85)',
+                borderRadius: 4
+            };
+
+            const datasetsMap = {
+                all: [dsPaud, dsSd, dsSmp, dsSma],
+                paud: [dsPaud],
+                sd: [dsSd],
+                smp: [dsSmp],
+                sma: [dsSma]
+            };
+
+            const apkKecChart = new Chart(ctxKec, {
                 type: 'bar',
                 data: {
                     labels: kecLabels,
-                    datasets: [
-                        {
-                            label: 'APK SD/MI (%)',
-                            data: apkSdData,
-                            backgroundColor: 'rgba(37, 99, 235, 0.85)',
-                            borderRadius: 5
-                        },
-                        {
-                            label: 'APK SMP/MTs (%)',
-                            data: apkSmpData,
-                            backgroundColor: 'rgba(99, 102, 241, 0.85)',
-                            borderRadius: 5
-                        }
-                    ]
+                    datasets: datasetsMap.all
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
                         tooltip: {
                             backgroundColor: '#0f172a',
                             padding: 10,
@@ -753,6 +804,12 @@
                     }
                 }
             });
+
+            window.updateApkChart = function (jenjang) {
+                apkKecChart.data.datasets = datasetsMap[jenjang] || datasetsMap.all;
+                apkKecChart.options.plugins.legend.display = (jenjang === 'all');
+                apkKecChart.update();
+            };
         }
     });
 </script>
