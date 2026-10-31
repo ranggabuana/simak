@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-50">
+<html lang="id" class="h-full bg-slate-50 overflow-x-hidden">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,12 +23,16 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="h-full antialiased text-slate-800 flex bg-slate-50/80" x-data="{ sidebarOpen: false, profileOpen: false, profileModal: false, settingsModal: false, exportModal: false, dapodikModal: false }">
+<body class="min-h-full antialiased text-slate-800 flex flex-col lg:flex-row bg-slate-50/80 w-full max-w-full overflow-x-hidden" x-data="{ sidebarOpen: false, profileOpen: false, profileModal: false, settingsModal: false, exportModal: false, dapodikModal: false }">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" 
@@ -434,24 +438,24 @@
     </aside>
 
     <!-- Main Content Area -->
-    <div class="flex-1 lg:pl-72 flex flex-col min-h-screen">
+    <div class="flex-1 lg:pl-72 flex flex-col min-h-screen w-full max-w-full min-w-0 overflow-x-hidden">
         
         <!-- Top Navbar Header (Proportionate 72px) -->
-        <header class="h-[72px] bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 px-6 sm:px-8 flex items-center justify-between transition-all">
-            <div class="flex items-center gap-3.5">
-                <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+        <header class="h-[72px] bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 px-3 sm:px-6 lg:px-8 flex items-center justify-between transition-all w-full max-w-full min-w-0 gap-2">
+            <div class="flex items-center gap-2 sm:gap-3.5 min-w-0 flex-1">
+                <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer shrink-0">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <div>
-                    <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">{{ $title ?? 'Sistem Informasi Akuntabilitas Kinerja Pendidikan' }}</h1>
-                    <p class="text-[11px] text-slate-500 hidden sm:block font-medium">Dinas Pendidikan, Kepemudaan dan Olahraga Kab. Banjarnegara</p>
+                <div class="min-w-0 flex-1">
+                    <h1 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight leading-tight truncate">{{ $title ?? 'Sistem Informasi Akuntabilitas Kinerja Pendidikan' }}</h1>
+                    <p class="text-[11px] text-slate-500 hidden sm:block font-medium truncate">Dinas Pendidikan, Kepemudaan dan Olahraga Kab. Banjarnegara</p>
                 </div>
             </div>
 
             <!-- Header Quick Actions & User Profile Dropdown -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <!-- Tahun Anggaran Selector -->
                 <form method="GET" action="{{ url()->current() }}" class="flex items-center gap-2">
                     @foreach(request()->except('tahun') as $key => $val)
@@ -629,13 +633,13 @@
         @endif
 
         <!-- Page Dynamic Content -->
-        <main class="flex-1 p-6 sm:p-8">
+        <main class="flex-1 p-3 sm:p-6 lg:p-8 w-full max-w-full min-w-0 overflow-x-hidden">
             {{ $slot ?? '' }}
             @yield('content')
         </main>
 
         <!-- Footer -->
-        <footer class="px-6 sm:px-8 py-5 border-t border-slate-200 bg-white text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <footer class="px-4 sm:px-6 lg:px-8 py-5 border-t border-slate-200 bg-white text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3 w-full max-w-full min-w-0 overflow-x-hidden">
             <p>&copy; {{ date('Y') }} <strong class="text-slate-700">SIMAK Pendidikan</strong> &mdash; Dinas Pendidikan, Kepemudaan dan Olahraga Kab. Banjarnegara. Dibuat oleh <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">Exadata</a></p>
             <div class="flex items-center gap-4">
                 <span>Standar SAKIP & Permendikbudristek SPM</span>

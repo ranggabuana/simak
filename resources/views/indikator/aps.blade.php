@@ -1,10 +1,10 @@
 @extends('layouts.app', ['title' => 'Angka Partisipasi Sekolah (APS)'])
 
 @section('content')
-<div class="space-y-8" x-data="{ infoModal: false }">
+<div class="space-y-8 w-full max-w-full min-w-0 overflow-x-hidden" x-data="{ infoModal: false }">
 
     <!-- Formula Reference Banner (Compact with Modal Trigger) -->
-    <div class="p-5 sm:p-6 rounded-3xl bg-emerald-50/70 border border-emerald-200 text-emerald-950 shadow-sm space-y-4">
+    <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-emerald-50/70 border border-emerald-200 text-emerald-950 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
         <!-- Formula Header & Action Button -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="space-y-1">
@@ -20,7 +20,7 @@
             <!-- Tombol Buka Popup Modal Info Rumus -->
             <button type="button" 
                     @click="infoModal = true"
-                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-emerald-300 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0 cursor-pointer">
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 hover:text-emerald-800 border border-emerald-300 font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto shrink-0 cursor-pointer">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -33,7 +33,7 @@
         <div class="p-3 bg-white/95 rounded-2xl border border-emerald-100 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs text-slate-700">
             <div class="flex items-center gap-2 font-mono flex-wrap">
                 <span class="px-2 py-0.5 rounded-md bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold uppercase">Rumus</span>
-                <span>APS = (<strong class="text-emerald-700">Data A: Anak Usia Kelompok Bersekolah di Semua Jenjang</strong> / <strong class="text-teal-700">Data B: Penduduk Usia Kelompok</strong>) &times; 100%</span>
+                <span class="break-words">APS = (<strong class="text-emerald-700">Data A: Anak Usia Kelompok Bersekolah di Semua Jenjang</strong> / <strong class="text-teal-700">Data B: Penduduk Usia Kelompok</strong>) &times; 100%</span>
             </div>
             <div class="text-[11px] text-slate-500 flex items-center gap-2 shrink-0">
                 <span>Data A: Dapodik</span>
@@ -47,31 +47,31 @@
 
         <!-- Dedicated Action Toolbar (Divider + Filter Gender Left + Unduh Excel Right) -->
         <div class="pt-3.5 border-t border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+            <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
+                <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
                     <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
                     Filter Gender:
                 </span>
-                <div class="inline-flex items-center p-1 bg-white rounded-2xl border border-emerald-200 text-xs font-semibold shadow-2xs">
+                <div class="inline-flex items-center p-1 bg-white rounded-2xl border border-emerald-200 text-xs font-semibold shadow-2xs w-full sm:w-auto justify-between sm:justify-start">
                     <a href="{{ route('indikator.aps', array_merge(request()->query(), ['gender' => ''])) }}" 
-                       class="px-3.5 py-1.5 rounded-xl transition {{ empty($gender) ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="flex-1 sm:flex-none text-center px-3 py-1.5 rounded-xl transition {{ empty($gender) ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                         Semua
                     </a>
                     <a href="{{ route('indikator.aps', array_merge(request()->query(), ['gender' => 'L'])) }}" 
-                       class="px-3.5 py-1.5 rounded-xl transition {{ $gender === 'L' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="flex-1 sm:flex-none text-center px-3 py-1.5 rounded-xl transition {{ $gender === 'L' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                         ♂ Laki-laki
                     </a>
                     <a href="{{ route('indikator.aps', array_merge(request()->query(), ['gender' => 'P'])) }}" 
-                       class="px-3.5 py-1.5 rounded-xl transition {{ $gender === 'P' ? 'bg-pink-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="flex-1 sm:flex-none text-center px-3 py-1.5 rounded-xl transition {{ $gender === 'P' ? 'bg-pink-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                         ♀ Perempuan
                     </a>
                 </div>
             </div>
 
             <a href="{{ route('export.kecamatan', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-emerald-700 hover:text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0">
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-emerald-700 hover:text-emerald-800 border border-emerald-200 font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -81,7 +81,7 @@
     </div>
 
     <!-- 4 Age Breakdown Cards (5-6, 7-12, 13-15, 16-18) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full max-w-full min-w-0">
         <!-- 5 - 6 Tahun (PAUD) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
@@ -164,15 +164,15 @@
     </div>
 
     <!-- Interactive Visual Analytics (Charts Section) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 w-full max-w-full min-w-0">
         <!-- Chart 1: Perbandingan Capaian APS Kelompok Umur vs Target Renstra (Bar Chart) -->
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="lg:col-span-2 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Perbandingan APS Riil vs Target Renstra</h3>
                     <p class="text-xs text-slate-500">Persentase partisipasi sekolah penduduk usia 5–18 tahun Kabupaten Banjarnegara</p>
                 </div>
-                <div class="flex items-center gap-3 text-xs font-medium">
+                <div class="flex items-center gap-3 text-xs font-medium flex-wrap">
                     <span class="inline-flex items-center gap-1.5 text-emerald-600 font-bold">
                         <span class="w-3 h-3 rounded bg-emerald-600 inline-block"></span> Capaian Riil
                     </span>
@@ -181,13 +181,13 @@
                     </span>
                 </div>
             </div>
-            <div class="relative h-64 sm:h-72 w-full">
+            <div class="relative h-64 sm:h-72 w-full max-w-full">
                 <canvas id="apsJenjangChart"></canvas>
             </div>
         </div>
 
         <!-- Chart 2: Komparasi Gender APS Tiap Kelompok Usia (L vs P) -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Komparasi APS Gender</h3>
@@ -197,60 +197,73 @@
                     Paritas
                 </span>
             </div>
-            <div class="relative h-64 sm:h-72 w-full">
+            <div class="relative h-64 sm:h-72 w-full max-w-full">
                 <canvas id="apsGenderChart"></canvas>
             </div>
         </div>
     </div>
 
     <!-- Chart 3: Distribusi Sebaran APS 20 Kecamatan dengan Filter Kelompok Usia -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4" x-data="{ activeFilter: 'all' }">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden" x-data="{ activeFilter: 'all' }">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
                 <h3 class="text-sm font-bold text-slate-900">Sebaran APS per Kelompok Usia di 20 Kecamatan Banjarnegara</h3>
                 <p class="text-xs text-slate-500">Visualisasi komparasi capaian angka partisipasi sekolah per kecamatan</p>
             </div>
             <!-- Switcher Kelompok Usia Pill -->
-            <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-2xl self-start sm:self-auto">
+            <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl w-full sm:w-auto overflow-x-auto scrollbar-none shrink-0 max-w-full">
                 <button type="button" 
                         @click="activeFilter = 'all'; updateApsChart('all')" 
                         :class="activeFilter === 'all' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     Semua Usia
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'paud'; updateApsChart('paud')" 
                         :class="activeFilter === 'paud' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     5–6 Th
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'sd'; updateApsChart('sd')" 
                         :class="activeFilter === 'sd' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     7–12 Th (SD)
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'smp'; updateApsChart('smp')" 
                         :class="activeFilter === 'smp' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     13–15 Th (SMP)
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'sma'; updateApsChart('sma')" 
                         :class="activeFilter === 'sma' ? 'bg-white text-emerald-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     16–18 Th (SMA)
                 </button>
             </div>
         </div>
-        <div class="relative h-72 sm:h-80 w-full">
-            <canvas id="apsKecamatanChart"></canvas>
+        <!-- Responsive Horizontal Scroll Wrapper for 20 Kecamatan Chart on Mobile -->
+        <div class="w-full max-w-full overflow-x-auto pb-2 scrollbar-thin">
+            <div class="relative h-72 sm:h-80 w-[700px] sm:w-full min-w-0">
+                <canvas id="apsKecamatanChart"></canvas>
+            </div>
+        </div>
+        <!-- Mobile Scroll Hint -->
+        <div class="flex items-center justify-between text-[11px] text-slate-400 sm:hidden pt-0.5">
+            <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                Geser grafik ke samping untuk melihat seluruh kecamatan
+            </span>
+            <span class="text-emerald-500 font-bold">&rarr;</span>
         </div>
     </div>
 
     <!-- Analisis Paritas Gender APS (Gender Parity Index / GPI) -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
                 <h3 class="text-sm font-bold text-slate-900">Analisis Paritas Gender APS (Gender Parity Index / GPI)</h3>
@@ -337,13 +350,13 @@
     </div>
 
     <!-- Basic Wilayah Table -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200/80 shadow-sm space-y-6 w-full max-w-full overflow-hidden">
         <div class="border-b border-slate-100 pb-4">
             <h3 class="text-base font-bold text-slate-900">Agregat Angka Partisipasi Sekolah per Kecamatan</h3>
             <p class="text-xs text-slate-500">Menghitung seluruh anak usia sekolah yang berpartisipasi pada jenjang formal maupun kesetaraan</p>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="w-full max-w-full overflow-x-auto">
             <table class="w-full text-left text-xs datatable" data-page-size="10">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[11px] border-b border-slate-200">
@@ -509,7 +522,7 @@
             new Chart(ctxJenjang, {
                 type: 'bar',
                 data: {
-                    labels: ['Usia 5-6 Th', 'Usia 7-12 Th', 'Usia 13-15 Th', 'Usia 16-18 Th'],
+                    labels: [['Usia', '5-6 Th'], ['Usia', '7-12 Th'], ['Usia', '13-15 Th'], ['Usia', '16-18 Th']],
                     datasets: [
                         {
                             label: 'Capaian Riil (%)',

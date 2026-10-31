@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Sertifikasi Pendidik'])
 
 @section('content')
-<div class="space-y-8">
+<div class="space-y-8 w-full max-w-full min-w-0 overflow-x-hidden">
 
     <!-- KPI Header Card -->
     <div class="p-6 rounded-3xl bg-purple-50/70 border border-purple-200 text-purple-950 shadow-sm space-y-4">
@@ -121,7 +121,7 @@
     </div>
 
     <!-- Table per Kecamatan -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+    <div class="bg-white rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200/80 shadow-sm space-y-6 w-full max-w-full overflow-hidden">
         <div class="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <h3 class="text-base font-bold text-slate-900">Distribusi Sertifikasi Pendidik per Kecamatan</h3>
@@ -135,7 +135,7 @@
             </a>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="w-full max-w-full overflow-x-auto">
             <table class="w-full text-left text-xs datatable" data-page-size="10">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[11px] border-b border-slate-200">

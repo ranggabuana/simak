@@ -1,10 +1,10 @@
 @extends('layouts.app', ['title' => 'Angka Partisipasi Murni (APM)'])
 
 @section('content')
-<div class="space-y-8" x-data="{ infoModal: false }">
+<div class="space-y-8 w-full max-w-full min-w-0 overflow-x-hidden" x-data="{ infoModal: false }">
 
     <!-- Formula Reference Banner (Compact with Modal Trigger) -->
-    <div class="p-5 sm:p-6 rounded-3xl bg-indigo-50/70 border border-indigo-200 text-indigo-950 shadow-sm space-y-4">
+    <div class="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-indigo-50/70 border border-indigo-200 text-indigo-950 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
         <!-- Formula Header & Action Button -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="space-y-1">
@@ -20,7 +20,7 @@
             <!-- Tombol Buka Popup Modal Info Rumus -->
             <button type="button" 
                     @click="infoModal = true"
-                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 hover:text-indigo-800 border border-indigo-300 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0 cursor-pointer">
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-indigo-50 text-indigo-700 hover:text-indigo-800 border border-indigo-300 font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto shrink-0 cursor-pointer">
                 <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -33,7 +33,7 @@
         <div class="p-3 bg-white/95 rounded-2xl border border-indigo-100 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs text-slate-700">
             <div class="flex items-center gap-2 font-mono flex-wrap">
                 <span class="px-2 py-0.5 rounded-md bg-indigo-100/80 text-indigo-800 text-[10px] font-extrabold uppercase">Rumus</span>
-                <span>APM = (<strong class="text-indigo-700">Data A: Siswa Usia Resmi di Jenjangnya</strong> / <strong class="text-purple-700">Data B: Penduduk Usia Jenjang</strong>) &times; 100%</span>
+                <span class="break-words">APM = (<strong class="text-indigo-700">Data A: Siswa Usia Resmi di Jenjangnya</strong> / <strong class="text-purple-700">Data B: Penduduk Usia Jenjang</strong>) &times; 100%</span>
             </div>
             <div class="text-[11px] text-slate-500 flex items-center gap-2 shrink-0">
                 <span>Data A: Siswa Usia Sesuai</span>
@@ -47,31 +47,31 @@
 
         <!-- Dedicated Action Toolbar (Divider + Filter Gender Left + Unduh Excel Right) -->
         <div class="pt-3.5 border-t border-indigo-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+            <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
+                <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
                     <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
                     Filter Gender:
                 </span>
-                <div class="inline-flex items-center p-1 bg-white rounded-2xl border border-indigo-200 text-xs font-semibold shadow-2xs">
+                <div class="inline-flex items-center p-1 bg-white rounded-2xl border border-indigo-200 text-xs font-semibold shadow-2xs w-full sm:w-auto justify-between sm:justify-start">
                     <a href="{{ route('indikator.apm', array_merge(request()->query(), ['gender' => ''])) }}" 
-                       class="px-3.5 py-1.5 rounded-xl transition {{ empty($gender) ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="flex-1 sm:flex-none text-center px-3 py-1.5 rounded-xl transition {{ empty($gender) ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                         Semua
                     </a>
                     <a href="{{ route('indikator.apm', array_merge(request()->query(), ['gender' => 'L'])) }}" 
-                       class="px-3.5 py-1.5 rounded-xl transition {{ $gender === 'L' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="flex-1 sm:flex-none text-center px-3 py-1.5 rounded-xl transition {{ $gender === 'L' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                         ♂ Laki-laki
                     </a>
                     <a href="{{ route('indikator.apm', array_merge(request()->query(), ['gender' => 'P'])) }}" 
-                       class="px-3.5 py-1.5 rounded-xl transition {{ $gender === 'P' ? 'bg-pink-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="flex-1 sm:flex-none text-center px-3 py-1.5 rounded-xl transition {{ $gender === 'P' ? 'bg-pink-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                         ♀ Perempuan
                     </a>
                 </div>
             </div>
 
             <a href="{{ route('export.kecamatan', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 hover:text-indigo-800 border border-indigo-200 font-bold text-xs shadow-2xs hover:shadow-xs transition shrink-0">
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 hover:text-indigo-800 border border-indigo-200 font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -81,7 +81,7 @@
     </div>
 
     <!-- 4 Age Breakdown Cards (5-6, 7-12, 13-15, 16-18) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full max-w-full min-w-0">
         <!-- 5 - 6 Tahun (PAUD) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
@@ -164,15 +164,15 @@
     </div>
 
     <!-- Interactive Visual Analytics (Charts Section) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 w-full max-w-full min-w-0">
         <!-- Chart 1: Perbandingan Capaian APM per Jenjang vs Target Renstra (Bar Chart) -->
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="lg:col-span-2 bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Perbandingan APM Riil vs Target Renstra</h3>
                     <p class="text-xs text-slate-500">Persentase partisipasi murni usia tepat per jenjang pendidikan Kabupaten Banjarnegara</p>
                 </div>
-                <div class="flex items-center gap-3 text-xs font-medium">
+                <div class="flex items-center gap-3 text-xs font-medium flex-wrap">
                     <span class="inline-flex items-center gap-1.5 text-indigo-600 font-bold">
                         <span class="w-3 h-3 rounded bg-indigo-600 inline-block"></span> Capaian Riil
                     </span>
@@ -181,13 +181,13 @@
                     </span>
                 </div>
             </div>
-            <div class="relative h-64 sm:h-72 w-full">
+            <div class="relative h-64 sm:h-72 w-full max-w-full">
                 <canvas id="apmJenjangChart"></canvas>
             </div>
         </div>
 
         <!-- Chart 2: Komparasi Gender APM Tiap Jenjang (L vs P) -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Komparasi APM Gender</h3>
@@ -197,60 +197,73 @@
                     Paritas
                 </span>
             </div>
-            <div class="relative h-64 sm:h-72 w-full">
+            <div class="relative h-64 sm:h-72 w-full max-w-full">
                 <canvas id="apmGenderChart"></canvas>
             </div>
         </div>
     </div>
 
     <!-- Chart 3: Distribusi Sebaran APM 20 Kecamatan dengan Filter Jenjang -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4" x-data="{ activeFilter: 'all' }">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden" x-data="{ activeFilter: 'all' }">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
                 <h3 class="text-sm font-bold text-slate-900">Sebaran APM per Jenjang di 20 Kecamatan Banjarnegara</h3>
                 <p class="text-xs text-slate-500">Visualisasi komparasi capaian angka partisipasi murni per kecamatan</p>
             </div>
             <!-- Switcher Jenjang Pill -->
-            <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-2xl self-start sm:self-auto">
+            <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl w-full sm:w-auto overflow-x-auto scrollbar-none shrink-0 max-w-full">
                 <button type="button" 
                         @click="activeFilter = 'all'; updateApmChart('all')" 
                         :class="activeFilter === 'all' ? 'bg-white text-indigo-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     Semua Jenjang
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'paud'; updateApmChart('paud')" 
                         :class="activeFilter === 'paud' ? 'bg-white text-indigo-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     PAUD
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'sd'; updateApmChart('sd')" 
                         :class="activeFilter === 'sd' ? 'bg-white text-indigo-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     SD/MI
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'smp'; updateApmChart('smp')" 
                         :class="activeFilter === 'smp' ? 'bg-white text-indigo-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     SMP/MTs
                 </button>
                 <button type="button" 
                         @click="activeFilter = 'sma'; updateApmChart('sma')" 
                         :class="activeFilter === 'sma' ? 'bg-white text-indigo-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-2.5 py-1 text-[11px] rounded-xl transition cursor-pointer">
+                        class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
                     SMA/SMK
                 </button>
             </div>
         </div>
-        <div class="relative h-72 sm:h-80 w-full">
-            <canvas id="apmKecamatanChart"></canvas>
+        <!-- Responsive Horizontal Scroll Wrapper for 20 Kecamatan Chart on Mobile -->
+        <div class="w-full max-w-full overflow-x-auto pb-2 scrollbar-thin">
+            <div class="relative h-72 sm:h-80 w-[700px] sm:w-full min-w-0">
+                <canvas id="apmKecamatanChart"></canvas>
+            </div>
+        </div>
+        <!-- Mobile Scroll Hint -->
+        <div class="flex items-center justify-between text-[11px] text-slate-400 sm:hidden pt-0.5">
+            <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                Geser grafik ke samping untuk melihat seluruh kecamatan
+            </span>
+            <span class="text-indigo-500 font-bold">&rarr;</span>
         </div>
     </div>
 
     <!-- Analisis Paritas Gender APM (Gender Parity Index / GPI) -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200/80 shadow-sm space-y-4 w-full max-w-full overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
                 <h3 class="text-sm font-bold text-slate-900">Analisis Paritas Gender APM (Gender Parity Index / GPI)</h3>
@@ -337,15 +350,15 @@
     </div>
 
     <!-- Dual View Switcher (Basic Wilayah vs Basic Sekolah) -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200/80 shadow-sm space-y-6 w-full max-w-full overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div class="flex items-center gap-2 p-1 rounded-2xl bg-slate-100 max-w-max">
+            <div class="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-100 w-full sm:w-auto">
                 <a href="{{ route('indikator.apm', array_merge(request()->query(), ['tab' => 'wilayah'])) }}" 
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition {{ $tab === 'wilayah' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+                   class="flex-1 sm:flex-none text-center px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $tab === 'wilayah' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
                     Basic Wilayah (20 Kecamatan)
                 </a>
                 <a href="{{ route('indikator.apm', array_merge(request()->query(), ['tab' => 'sekolah'])) }}" 
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition {{ $tab === 'sekolah' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+                   class="flex-1 sm:flex-none text-center px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $tab === 'sekolah' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
                     Basic Sekolah (Satuan Pendidikan)
                 </a>
             </div>
@@ -385,7 +398,7 @@
 
         @if($tab === 'wilayah')
         <!-- Tabel Basic Wilayah -->
-        <div class="overflow-x-auto">
+        <div class="w-full max-w-full overflow-x-auto">
             <table class="w-full text-left text-xs datatable" data-page-size="10">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[11px] border-b border-slate-200">
@@ -595,7 +608,7 @@
             new Chart(ctxJenjang, {
                 type: 'bar',
                 data: {
-                    labels: ['PAUD (5-6 Th)', 'SD/MI (7-12 Th)', 'SMP/MTs (13-15 Th)', 'SMA/SMK (16-18 Th)'],
+                    labels: [['PAUD', '(5-6 Th)'], ['SD/MI', '(7-12 Th)'], ['SMP/MTs', '(13-15 Th)'], ['SMA/SMK', '(16-18 Th)']],
                     datasets: [
                         {
                             label: 'Capaian Riil (%)',
