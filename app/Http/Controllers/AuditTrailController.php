@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Services\ActivityLogger;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
@@ -111,10 +113,12 @@ class AuditTrailController extends Controller
 
             if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
                 foreach (array_reverse($matches) as $match) {
+                    $rawBlock = trim($match[0]);
                     $rawTime = $match[1];
                     $env = $match[2];
                     $level = strtoupper($match[3]);
                     $body = trim($match[4]);
+                    $id = md5($rawTime.$env.$level.substr($body, 0, 80));
 
                     // Ambil baris pertama sebagai pesan singkat
                     $lines = explode("\n", $body);
@@ -129,6 +133,8 @@ class AuditTrailController extends Controller
                     }
 
                     $entries->push([
+                        'id' => $id,
+                        'raw_block' => $rawBlock,
                         'time' => $timeWib,
                         'env' => $env,
                         'level' => $level,
@@ -167,5 +173,71 @@ class AuditTrailController extends Controller
             $page,
             ['path' => $request->url(), 'query' => $request->query(), 'pageName' => 'error_page']
         );
+    }
+
+    /**
+     * Menghapus log error baik satu per satu (single), beberapa (batch), atau sekaligus (clear all).
+     */
+    public function destroyErrors(Request $request): RedirectResponse
+    {
+        $logPath = storage_path('logs/laravel.log');
+
+        if (! File::exists($logPath)) {
+            return redirect()->route('audit.index', ['tab' => 'error'])->with('info', 'Berkas log tidak ditemukan atau sudah kosong.');
+        }
+
+        // 1. Opsi Bersihkan Semua (Clear All)
+        if ($request->boolean('clear_all')) {
+            File::put($logPath, '');
+
+            ActivityLogger::log('DELETE', 'audit', 'Membersihkan seluruh log error aplikasi (laravel.log)');
+
+            return redirect()->route('audit.index', ['tab' => 'error'])->with('success', 'Seluruh catatan log error aplikasi berhasil dibersihkan.');
+        }
+
+        // 2. Opsi Single / Batch Delete berdasarkan list ID
+        $ids = $request->input('ids');
+        if (is_string($ids)) {
+            $ids = explode(',', $ids);
+        }
+        $ids = array_filter((array) $ids);
+
+        if (empty($ids)) {
+            return redirect()->route('audit.index', ['tab' => 'error'])->withErrors(['error_delete' => 'Tidak ada item log error yang dipilih untuk dihapus.']);
+        }
+
+        $content = File::get($logPath);
+        $pattern = '/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+([a-zA-Z0-9_\-]+)\.([A-Z]+):\s+(.*?)(?=\n\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]|\Z)/ms';
+
+        $deletedCount = 0;
+        if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+            $preservedBlocks = [];
+
+            foreach ($matches as $match) {
+                $rawBlock = trim($match[0]);
+                $rawTime = $match[1];
+                $env = $match[2];
+                $level = strtoupper($match[3]);
+                $body = trim($match[4]);
+                $id = md5($rawTime.$env.$level.substr($body, 0, 80));
+
+                if (in_array($id, $ids, true)) {
+                    $deletedCount++;
+                } else {
+                    $preservedBlocks[] = $rawBlock;
+                }
+            }
+
+            $newContent = empty($preservedBlocks) ? '' : implode("\n\n", $preservedBlocks)."\n";
+            File::put($logPath, $newContent);
+        }
+
+        if ($deletedCount > 0) {
+            ActivityLogger::log('DELETE', 'audit', "Menghapus {$deletedCount} catatan log error aplikasi");
+
+            return redirect()->route('audit.index', ['tab' => 'error'])->with('success', "Berhasil menghapus {$deletedCount} catatan log error.");
+        }
+
+        return redirect()->route('audit.index', ['tab' => 'error'])->with('info', 'Catatan log yang dipilih sudah tidak ada di berkas log.');
     }
 }

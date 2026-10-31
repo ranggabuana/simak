@@ -107,6 +107,7 @@ Route::middleware('auth')->group(function () {
 
     // Log System (Audit Trail & Error Log Aplikasi)
     Route::get('/log-system', [AuditTrailController::class, 'index'])->name('audit.index')->middleware('menu:audit');
+    Route::delete('/log-system/errors', [AuditTrailController::class, 'destroyErrors'])->name('audit.errors.destroy')->middleware('menu:audit');
     Route::get('/audit-trail', fn () => redirect()->route('audit.index'));
 
     // Modul Glosarium & SOP Panduan SAKIP

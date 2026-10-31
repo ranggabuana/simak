@@ -4,7 +4,17 @@
 <div class="space-y-6" x-data="{ 
     activeTab: '{{ $tab ?? 'audit' }}',
     detailModal: false,
-    selectedError: null
+    selectedError: null,
+    selectedErrorIds: [],
+    selectAllErrors: false,
+    toggleAllErrors(event, totalOnPage) {
+        if (event.target.checked) {
+            const checkboxes = document.querySelectorAll('.error-item-checkbox');
+            this.selectedErrorIds = Array.from(checkboxes).map(cb => cb.value);
+        } else {
+            this.selectedErrorIds = [];
+        }
+    }
 }">
 
     <!-- Header Banner -->
@@ -184,30 +194,78 @@
 
         <!-- Error Log Table -->
         <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h3 class="text-base font-bold text-slate-900">Rekaman Galat Aplikasi (Application Error Logs)</h3>
                     <p class="text-xs text-slate-500">Mencatat exception, pesan galat, dan stack trace sistem (WIB - Asia/Jakarta)</p>
                 </div>
-                <span class="px-3 py-1 rounded-xl text-xs font-bold {{ $errorLogs->total() > 0 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
-                    Total: {{ number_format($errorLogs->total()) }} Insiden
-                </span>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                    <!-- Tombol Batch Delete Terpilih -->
+                    <form action="{{ route('audit.errors.destroy') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ' + selectedErrorIds.length + ' log error yang dipilih?')">
+                        @csrf
+                        @method('DELETE')
+                        <template x-for="id in selectedErrorIds" :key="id">
+                            <input type="hidden" name="ids[]" :value="id">
+                        </template>
+                        <button type="submit" 
+                                x-show="selectedErrorIds.length > 0"
+                                x-cloak
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm shadow-rose-500/20 transition cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Hapus Terpilih (<span x-text="selectedErrorIds.length"></span>)</span>
+                        </button>
+                    </form>
+
+                    <!-- Tombol Bersihkan Semua Log Error -->
+                    @if($errorLogs->total() > 0)
+                    <form action="{{ route('audit.errors.destroy') }}" method="POST" onsubmit="return confirm('PERINGATAN: Apakah Anda yakin ingin mengosongkan SELURUH berkas log error sistem?')">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="clear_all" value="1">
+                        <button type="submit" 
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs transition cursor-pointer">
+                            <svg class="w-3.5 h-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Bersihkan Seluruh Log</span>
+                        </button>
+                    </form>
+                    @endif
+
+                    <span class="px-3 py-1 rounded-xl text-xs font-bold {{ $errorLogs->total() > 0 ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                        Total: {{ number_format($errorLogs->total()) }} Insiden
+                    </span>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
                     <thead>
                         <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[11px] border-b border-slate-200">
+                            <th class="py-3.5 px-3 w-10 text-center">
+                                <input type="checkbox" 
+                                       @change="toggleAllErrors($event)"
+                                       class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                            </th>
                             <th class="py-3.5 px-4 whitespace-nowrap">Waktu Kejadian (WIB)</th>
                             <th class="py-3.5 px-4 text-center">Level</th>
                             <th class="py-3.5 px-4 text-center">Env</th>
                             <th class="py-3.5 px-4">Pesan Kesalahan (Headline)</th>
-                            <th class="py-3.5 px-4 text-center">Detail Stack</th>
+                            <th class="py-3.5 px-4 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($errorLogs as $err)
-                        <tr class="hover:bg-slate-50 transition">
+                        <tr class="hover:bg-slate-50 transition" :class="selectedErrorIds.includes('{{ $err['id'] }}') ? 'bg-blue-50/50' : ''">
+                            <td class="py-3.5 px-3 text-center">
+                                <input type="checkbox" 
+                                       value="{{ $err['id'] }}" 
+                                       x-model="selectedErrorIds"
+                                       class="error-item-checkbox rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                            </td>
                             <td class="py-3.5 px-4 font-mono text-slate-500 whitespace-nowrap">
                                 {{ $err['time']->format('d/m/Y H:i:s') }} <span class="text-[10px] text-slate-400 font-sans">WIB</span>
                                 <span class="block text-[10px] text-slate-400 font-sans">{{ $err['time']->diffForHumans() }}</span>
@@ -224,17 +282,34 @@
                             <td class="py-3.5 px-4 text-slate-800">
                                 <span class="font-bold block text-slate-900 leading-snug break-all">{{ $err['headline'] }}</span>
                             </td>
-                            <td class="py-3.5 px-4 text-center">
-                                <button type="button" 
-                                        @click="selectedError = {{ json_encode($err) }}; detailModal = true"
-                                        class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition cursor-pointer">
-                                    Lihat Trace
-                                </button>
+                            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <button type="button" 
+                                            @click="selectedError = {{ json_encode($err) }}; detailModal = true"
+                                            class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition cursor-pointer"
+                                            title="Lihat Rincian Stack Trace">
+                                        Trace
+                                    </button>
+
+                                    <!-- Single Delete Form -->
+                                    <form action="{{ route('audit.errors.destroy') }}" method="POST" onsubmit="return confirm('Hapus catatan log error ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="ids[]" value="{{ $err['id'] }}">
+                                        <button type="submit" 
+                                                class="p-1 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                                                title="Hapus Error Ini">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center py-12 text-slate-400">
+                            <td colspan="6" class="text-center py-12 text-slate-400">
                                 <svg class="w-10 h-10 mx-auto text-emerald-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
