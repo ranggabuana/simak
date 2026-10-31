@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
 class AuditTrailController extends Controller
 {
     public function index(Request $request): View|JsonResponse
     {
+        $tab = $request->input('tab', 'audit'); // 'audit' atau 'error'
         $action = $request->input('action');
         $module = $request->input('module');
         $search = $request->input('search');
@@ -57,7 +61,7 @@ class AuditTrailController extends Controller
 
         $logs = $query->paginate($perPage)->withQueryString();
 
-        // Server-Side AJAX JSON Response
+        // Server-Side AJAX JSON Response untuk tabel audit trail
         if ($request->ajax() || $request->wantsJson() || $request->has('serverside')) {
             return response()->json([
                 'html' => view('audit._rows', ['logs' => $logs])->render(),
@@ -79,11 +83,89 @@ class AuditTrailController extends Controller
             'imports' => ActivityLog::where('action', 'IMPORT')->count(),
         ];
 
+        // Parse log error dari storage/logs
+        $errorLogs = $this->getErrorLogs($request);
+
         return view('audit.index', [
+            'tab' => $tab,
             'logs' => $logs,
             'stats' => $stats,
             'filterAction' => $action,
             'filterModule' => $module,
+            'errorLogs' => $errorLogs,
         ]);
+    }
+
+    /**
+     * Membaca dan mem-parsing berkas laravel.log menjadi koleksi error log terstruktur.
+     */
+    protected function getErrorLogs(Request $request): LengthAwarePaginator
+    {
+        $logPath = storage_path('logs/laravel.log');
+        $entries = collect();
+
+        if (File::exists($logPath)) {
+            $content = File::get($logPath);
+            // Pola log: [YYYY-MM-DD HH:MM:SS] environment.LEVEL: message
+            $pattern = '/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+([a-zA-Z0-9_\-]+)\.([A-Z]+):\s+(.*?)(?=\n\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]|\Z)/ms';
+
+            if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+                foreach (array_reverse($matches) as $match) {
+                    $rawTime = $match[1];
+                    $env = $match[2];
+                    $level = strtoupper($match[3]);
+                    $body = trim($match[4]);
+
+                    // Ambil baris pertama sebagai pesan singkat
+                    $lines = explode("\n", $body);
+                    $headline = trim($lines[0] ?? 'Unknown error');
+                    $stackTrace = count($lines) > 1 ? trim(implode("\n", array_slice($lines, 1))) : null;
+
+                    // Konversi waktu ke Asia/Jakarta (WIB)
+                    try {
+                        $timeWib = Carbon::parse($rawTime)->timezone('Asia/Jakarta');
+                    } catch (\Throwable) {
+                        $timeWib = Carbon::now('Asia/Jakarta');
+                    }
+
+                    $entries->push([
+                        'time' => $timeWib,
+                        'env' => $env,
+                        'level' => $level,
+                        'headline' => $headline,
+                        'body' => $body,
+                        'stack' => $stackTrace,
+                    ]);
+                }
+            }
+        }
+
+        // Filter search jika ada di tab error
+        $errorSearch = $request->input('error_search');
+        if ($errorSearch) {
+            $entries = $entries->filter(function ($item) use ($errorSearch) {
+                return str_contains(strtolower($item['headline']), strtolower($errorSearch))
+                    || str_contains(strtolower($item['level']), strtolower($errorSearch))
+                    || str_contains(strtolower($item['env']), strtolower($errorSearch));
+            });
+        }
+
+        $errorLevel = $request->input('error_level');
+        if ($errorLevel) {
+            $entries = $entries->filter(fn ($item) => $item['level'] === strtoupper($errorLevel));
+        }
+
+        // Manual pagination untuk error log
+        $page = (int) $request->input('error_page', 1);
+        $perPage = 15;
+        $items = $entries->slice(($page - 1) * $perPage, $perPage)->values();
+
+        return new LengthAwarePaginator(
+            $items,
+            $entries->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query(), 'pageName' => 'error_page']
+        );
     }
 }

@@ -1,7 +1,7 @@
 @forelse($logs as $log)
 <tr class="hover:bg-slate-50 transition">
     <td class="py-3.5 px-4 font-mono text-slate-500 whitespace-nowrap">
-        {{ $log->created_at->format('d/m/Y H:i:s') }}
+        {{ $log->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }} <span class="text-[10px] text-slate-400 font-sans">WIB</span>
     </td>
     <td class="py-3.5 px-4">
         <span class="font-bold text-slate-900 block">{{ $log->user_name }}</span>

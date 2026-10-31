@@ -105,8 +105,9 @@ Route::middleware('auth')->group(function () {
     // Laporan Kinerja LKjIP Resmi
     Route::get('/laporan/lkjip', [LaporanKinerjaController::class, 'lkjip'])->name('laporan.lkjip')->middleware('menu:laporan_lkjip');
 
-    // Audit Trail / Riwayat Perubahan Data
-    Route::get('/audit-trail', [AuditTrailController::class, 'index'])->name('audit.index')->middleware('menu:audit');
+    // Log System (Audit Trail & Error Log Aplikasi)
+    Route::get('/log-system', [AuditTrailController::class, 'index'])->name('audit.index')->middleware('menu:audit');
+    Route::get('/audit-trail', fn () => redirect()->route('audit.index'));
 
     // Modul Glosarium & SOP Panduan SAKIP
     Route::view('/panduan-sakip', 'panduan.index')->name('panduan.index')->middleware('menu:panduan');
