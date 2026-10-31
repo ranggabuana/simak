@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DapodikSyncLog;
+use App\Models\PartisipasiSiswa;
 use App\Services\ActivityLogger;
 use App\Services\DapodikSyncService;
 use Illuminate\Http\JsonResponse;
@@ -69,6 +70,7 @@ class DapodikSyncController extends Controller
     public function status(int $id): JsonResponse
     {
         $log = DapodikSyncLog::findOrFail($id);
+        $totalSiswaJiwa = (int) PartisipasiSiswa::sum('total_siswa_semua_usia');
 
         return response()->json([
             'id' => $log->id,
@@ -76,6 +78,7 @@ class DapodikSyncController extends Controller
             'status' => $log->status,
             'sekolah_synced' => $log->sekolah_synced,
             'siswa_synced' => $log->siswa_synced,
+            'total_siswa_jiwa' => $totalSiswaJiwa,
             'guru_synced' => $log->guru_synced,
             'total_records' => $log->total_records,
             'message' => $log->message,
@@ -144,10 +147,12 @@ class DapodikSyncController extends Controller
             $task->increment('total_records', $processed);
 
             if ($request->boolean('is_last_batch', false)) {
+                $totalSiswaJiwa = (int) PartisipasiSiswa::sum('total_siswa_semua_usia');
+                $formattedSiswa = number_format($totalSiswaJiwa);
                 $task->update([
                     'status' => 'completed',
                     'completed_at' => now(),
-                    'message' => "Sinkronisasi selesai! Sekolah: {$task->sekolah_synced}, Partisipasi Siswa: {$task->siswa_synced}, Guru: {$task->guru_synced}.",
+                    'message' => "Sinkronisasi selesai! {$task->sekolah_synced} Satuan Pendidikan, {$task->siswa_synced} Rekap Partisipasi Sekolah ({$formattedSiswa} Total Siswa), dan {$task->guru_synced} Guru & Tendik.",
                 ]);
             } else {
                 $task->update([
@@ -205,12 +210,17 @@ class DapodikSyncController extends Controller
         if ($entity === 'sekolah') {
             $count = $this->syncService->syncSekolahBatch($rows, $scopedKecamatanId);
             $label = 'Satuan Pendidikan (v_simak_sekolah_bna)';
+            $detailMsg = "{$count} satuan pendidikan";
         } elseif ($entity === 'siswa') {
             $count = $this->syncService->syncSiswaBatch($rows, $tahunTarget, $scopedKecamatanId);
-            $label = 'Partisipasi Siswa (v_simak_siswa_bna)';
+            $totalJiwa = (int) PartisipasiSiswa::where('tahun', $tahunTarget)->sum('total_siswa_semua_usia');
+            $formattedJiwa = number_format($totalJiwa);
+            $label = "Partisipasi Siswa ({$count} sekolah, total {$formattedJiwa} siswa)";
+            $detailMsg = "{$count} rekapitulasi sekolah ({$formattedJiwa} total siswa)";
         } else {
             $count = $this->syncService->syncGuruBatch($rows, $scopedKecamatanId);
             $label = 'Guru & Tendik (v_simak_guru_bna)';
+            $detailMsg = "{$count} orang guru & tendik";
         }
 
         DapodikSyncLog::create([
@@ -221,14 +231,14 @@ class DapodikSyncController extends Controller
             'guru_synced' => $entity === 'guru' ? $count : 0,
             'total_records' => $count,
             'semester_id' => '20261',
-            'message' => "Sinkronisasi {$count} baris {$label} berhasil.",
+            'message' => "Sinkronisasi {$detailMsg} berhasil.",
             'user_id' => $user?->id,
             'started_at' => now(),
             'completed_at' => now(),
         ]);
 
-        ActivityLogger::log('SYNC', $entity, "Menyinkronkan {$count} baris data Dapodik Banjarnegara ({$label})");
+        ActivityLogger::log('SYNC', $entity, "Menyinkronkan {$detailMsg} Dapodik Banjarnegara");
 
-        return back()->with('success', "Sinkronisasi Dapodik berhasil! {$count} baris data {$label} telah diperbarui ke dalam SIMAK.");
+        return back()->with('success', "Sinkronisasi Dapodik berhasil! Data {$detailMsg} telah diperbarui ke dalam SIMAK.");
     }
 }

@@ -59,6 +59,7 @@
                     this.counts = {
                         sekolah: data.sekolah_synced || 0,
                         siswa: data.siswa_synced || 0,
+                        total_siswa_jiwa: data.total_siswa_jiwa || 0,
                         guru: data.guru_synced || 0,
                         total: data.total_records || 0
                     };
@@ -164,14 +165,17 @@
                     <div class="bg-white/80 rounded-xl p-2 border border-slate-200/60">
                         <div class="text-[10px] text-slate-500 font-semibold">Sekolah</div>
                         <div class="text-sm font-extrabold text-slate-900" x-text="counts.sekolah"></div>
+                        <div class="text-[9px] text-slate-400 font-medium">Satuan Pendidikan</div>
                     </div>
                     <div class="bg-white/80 rounded-xl p-2 border border-slate-200/60">
                         <div class="text-[10px] text-slate-500 font-semibold">Rekap Siswa</div>
                         <div class="text-sm font-extrabold text-slate-900" x-text="counts.siswa"></div>
+                        <div class="text-[9px] text-emerald-700 font-bold" x-text="counts.total_siswa_jiwa ? (counts.total_siswa_jiwa.toLocaleString('id-ID') + ' Murid') : 'Lembaga Sekolah'"></div>
                     </div>
                     <div class="bg-white/80 rounded-xl p-2 border border-slate-200/60">
                         <div class="text-[10px] text-slate-500 font-semibold">Guru & Tendik</div>
                         <div class="text-sm font-extrabold text-slate-900" x-text="counts.guru"></div>
+                        <div class="text-[9px] text-slate-400 font-medium">Orang Guru</div>
                     </div>
                 </div>
             </div>
