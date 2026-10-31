@@ -19,8 +19,15 @@
     <td class="py-3.5 px-4 text-slate-600">
         {{ $log->description }}
     </td>
-    <td class="py-3.5 px-4 font-mono text-slate-400 text-[11px]">
-        {{ $log->ip_address ?: '-' }}
+    <td class="py-3.5 px-4 font-mono text-[11px] whitespace-nowrap">
+        <div class="text-slate-600 font-bold">{{ $log->ip_address ?: '-' }}</div>
+        @if(!empty($log->mac_address))
+            <span class="inline-flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.2 rounded font-mono">
+                MAC: {{ $log->mac_address }}
+            </span>
+        @else
+            <span class="text-[10px] text-slate-400">MAC: -</span>
+        @endif
     </td>
 </tr>
 @empty

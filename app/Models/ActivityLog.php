@@ -20,6 +20,7 @@ class ActivityLog extends Model
         'module',
         'description',
         'ip_address',
+        'mac_address',
         'user_agent',
     ];
 

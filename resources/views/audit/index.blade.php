@@ -143,7 +143,7 @@
                             <th class="py-3.5 px-4 text-center" data-column="action">Aksi</th>
                             <th class="py-3.5 px-4" data-column="module">Modul</th>
                             <th class="py-3.5 px-4" data-column="description">Deskripsi Aktivitas</th>
-                            <th class="py-3.5 px-4 text-slate-400 font-mono" data-sortable="false">IP Address</th>
+                            <th class="py-3.5 px-4 text-slate-500 font-mono" data-sortable="false">IP & MAC Address</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

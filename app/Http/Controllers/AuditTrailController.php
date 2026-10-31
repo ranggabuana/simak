@@ -36,7 +36,8 @@ class AuditTrailController extends Controller
                     ->orWhere('user_role', 'like', "%{$search}%")
                     ->orWhere('module', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhere('ip_address', 'like', "%{$search}%");
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhere('mac_address', 'like', "%{$search}%");
             });
         }
 
