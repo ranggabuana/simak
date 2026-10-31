@@ -163,6 +163,67 @@
         </div>
     </div>
 
+    <!-- Interactive Visual Analytics (Charts Section) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Chart 1: Perbandingan Capaian APM per Jenjang vs Target Renstra (Bar Chart) -->
+        <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Perbandingan APM Riil vs Target Renstra</h3>
+                    <p class="text-xs text-slate-500">Persentase partisipasi murni usia tepat per jenjang pendidikan Kabupaten Banjarnegara</p>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-medium">
+                    <span class="inline-flex items-center gap-1.5 text-indigo-600 font-bold">
+                        <span class="w-3 h-3 rounded bg-indigo-600 inline-block"></span> Capaian Riil
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-amber-500 font-bold">
+                        <span class="w-3 h-3 rounded bg-amber-400 inline-block"></span> Target Renstra
+                    </span>
+                </div>
+            </div>
+            <div class="relative h-64 sm:h-72 w-full">
+                <canvas id="apmJenjangChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Komparasi Gender APM Tiap Jenjang (L vs P) -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Komparasi APM Gender</h3>
+                    <p class="text-xs text-slate-500">Laki-laki (♂) vs Perempuan (♀)</p>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    Paritas
+                </span>
+            </div>
+            <div class="relative h-64 sm:h-72 w-full">
+                <canvas id="apmGenderChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Distribusi Sebaran APM SD & SMP 20 Kecamatan -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">Sebaran APM SD & SMP di 20 Kecamatan Banjarnegara</h3>
+                <p class="text-xs text-slate-500">Visualisasi komparasi capaian partisipasi murni usia sekolah dasar per kecamatan</p>
+            </div>
+            <div class="flex items-center gap-3 text-xs font-medium">
+                <span class="inline-flex items-center gap-1.5 text-indigo-600 font-bold">
+                    <span class="w-3 h-3 rounded bg-indigo-600 inline-block"></span> APM SD/MI
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-purple-600 font-bold">
+                    <span class="w-3 h-3 rounded bg-purple-500 inline-block"></span> APM SMP/MTs
+                </span>
+            </div>
+        </div>
+        <div class="relative h-72 sm:h-80 w-full">
+            <canvas id="apmKecamatanChart"></canvas>
+        </div>
+    </div>
+
     <!-- Analisis Paritas Gender APM (Gender Parity Index / GPI) -->
     <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
@@ -499,3 +560,203 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Chart APM Riil vs Target
+        const ctxJenjang = document.getElementById('apmJenjangChart')?.getContext('2d');
+        if (ctxJenjang) {
+            new Chart(ctxJenjang, {
+                type: 'bar',
+                data: {
+                    labels: ['PAUD (5-6 Th)', 'SD/MI (7-12 Th)', 'SMP/MTs (13-15 Th)', 'SMA/SMK (16-18 Th)'],
+                    datasets: [
+                        {
+                            label: 'Capaian Riil (%)',
+                            data: [
+                                {{ (float) ($kabupaten['apm']['paud'] ?? 0) }},
+                                {{ (float) ($kabupaten['apm']['sd'] ?? 0) }},
+                                {{ (float) ($kabupaten['apm']['smp'] ?? 0) }},
+                                {{ (float) ($kabupaten['apm']['sma'] ?? 0) }}
+                            ],
+                            backgroundColor: 'rgba(79, 70, 229, 0.85)',
+                            borderColor: 'rgb(79, 70, 229)',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.6
+                        },
+                        {
+                            label: 'Target Renstra (%)',
+                            data: [
+                                {{ (float) ($kabupaten['target']?->target_apm_paud ?? 45.0) }},
+                                {{ (float) ($kabupaten['target']?->target_apm_sd ?? 99.2) }},
+                                {{ (float) ($kabupaten['target']?->target_apm_smp ?? 92.5) }},
+                                {{ (float) ($kabupaten['target']?->target_apm_sma ?? 72.5) }}
+                            ],
+                            backgroundColor: 'rgba(251, 191, 36, 0.85)',
+                            borderColor: 'rgb(245, 158, 11)',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            barPercentage: 0.6,
+                            categoryPercentage: 0.6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: ctx => ` ${ctx.dataset.label}: ${Number(ctx.raw).toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 105,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: v => v + '%' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Chart APM Gender (L vs P)
+        const ctxGender = document.getElementById('apmGenderChart')?.getContext('2d');
+        if (ctxGender) {
+            new Chart(ctxGender, {
+                type: 'bar',
+                data: {
+                    labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK'],
+                    datasets: [
+                        {
+                            label: 'Laki-laki (%)',
+                            data: [
+                                {{ (float) ($kabupaten['gender_comparison']['apm_paud_l'] ?? 0) }},
+                                {{ (float) ($kabupaten['gender_comparison']['apm_sd_l'] ?? 0) }},
+                                {{ (float) ($kabupaten['gender_comparison']['apm_smp_l'] ?? 0) }},
+                                {{ (float) ($kabupaten['gender_comparison']['apm_sma_l'] ?? 0) }}
+                            ],
+                            backgroundColor: 'rgba(79, 70, 229, 0.85)',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Perempuan (%)',
+                            data: [
+                                {{ (float) ($kabupaten['gender_comparison']['apm_paud_p'] ?? 0) }},
+                                {{ (float) ($kabupaten['gender_comparison']['apm_sd_p'] ?? 0) }},
+                                {{ (float) ($kabupaten['gender_comparison']['apm_smp_p'] ?? 0) }},
+                                {{ (float) ($kabupaten['gender_comparison']['apm_sma_p'] ?? 0) }}
+                            ],
+                            backgroundColor: 'rgba(236, 72, 153, 0.85)',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: ctx => ` ${ctx.dataset.label}: ${Number(ctx.raw).toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 105,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: v => v + '%' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Chart Sebaran APM 20 Kecamatan
+        const ctxKec = document.getElementById('apmKecamatanChart')?.getContext('2d');
+        if (ctxKec) {
+            const kecLabels = {!! json_encode($kecamatanList->pluck('nama')) !!};
+            const apmSdData = {!! json_encode($kecamatanList->pluck('apm.sd')) !!};
+            const apmSmpData = {!! json_encode($kecamatanList->pluck('apm.smp')) !!};
+
+            new Chart(ctxKec, {
+                type: 'bar',
+                data: {
+                    labels: kecLabels,
+                    datasets: [
+                        {
+                            label: 'APM SD/MI (%)',
+                            data: apmSdData,
+                            backgroundColor: 'rgba(79, 70, 229, 0.85)',
+                            borderRadius: 5
+                        },
+                        {
+                            label: 'APM SMP/MTs (%)',
+                            data: apmSmpData,
+                            backgroundColor: 'rgba(168, 85, 247, 0.85)',
+                            borderRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 10,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: ctx => ` ${ctx.dataset.label}: ${Number(ctx.raw).toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 105,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: v => v + '%' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+@endpush
