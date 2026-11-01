@@ -58,6 +58,9 @@ class ExampleTest extends TestCase
         $this->actingAs($user)->get('/indikator/aps')->assertStatus(200);
         $this->actingAs($user)->get('/indikator/guru')->assertStatus(200);
         $this->actingAs($user)->get('/indikator/paud')->assertStatus(200);
+        $this->actingAs($user)->get('/indikator/laporan/apk')->assertStatus(200);
+        $this->actingAs($user)->get('/indikator/laporan/apm')->assertStatus(200);
+        $this->actingAs($user)->get('/indikator/laporan/aps')->assertStatus(200);
         $this->actingAs($user)->get('/tujuan1/penduduk')->assertStatus(200);
         $this->actingAs($user)->get('/tujuan2/prestasi')->assertStatus(200);
         $this->actingAs($user)->get('/peta-sebaran')->assertStatus(200);

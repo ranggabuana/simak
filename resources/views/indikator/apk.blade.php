@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <!-- Dedicated Action Toolbar (Divider + Filter Gender Left + Unduh Excel Right) -->
+        <!-- Dedicated Action Toolbar (Filter Gender) -->
         <div class="pt-3.5 border-t border-blue-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto">
                 <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
@@ -69,14 +69,6 @@
                     </a>
                 </div>
             </div>
-
-            <a href="{{ route('export.apk', ['tahun' => $tahun]) }}" 
-               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-blue-700 hover:text-blue-800 border border-blue-200 font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Unduh Format Resmi APK.xlsx</span>
-            </a>
         </div>
     </div>
 

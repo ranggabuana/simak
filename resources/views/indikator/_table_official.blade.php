@@ -2,62 +2,121 @@
     Tabel Indikator Resmi (Format Format File XLSX: APK.xlsx, APM.xlsx, APS.xlsx)
     Mencakup 4 Blok Jenjang: PAUD (usia 5-6), SD (usia 7-12), SMP (usia 13-15), dan SMA/SMK (usia 16-18)
 --}}
-<div class="space-y-4 w-full max-w-full overflow-hidden" x-data="{ viewMode: 'all' }">
-    <!-- View Mode Switcher & Quick Information Toolbar -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200">
-        <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5 shrink-0">
+<div class="space-y-4 w-full max-w-full" x-data="{ viewMode: 'all', downloadDropdown: false }">
+    <!-- View Mode Switcher & Compact Download Dropdown Toolbar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-200">
+        
+        <!-- Tab Filter Jenjang -->
+        <div class="flex items-center gap-2 min-w-0 flex-1 overflow-x-auto scrollbar-none py-0.5">
+            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5 shrink-0 hidden sm:flex">
                 <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                 </svg>
-                Tampilan Jenjang:
+                Jenjang:
             </span>
-            <div class="inline-flex items-center p-1 bg-white rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs w-full sm:w-auto overflow-x-auto scrollbar-none">
+            <div class="inline-flex items-center p-1 bg-white rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs shrink-0">
                 <button type="button" 
                         @click="viewMode = 'all'" 
                         :class="viewMode === 'all' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
-                    Semua Jenjang (Format Lengkap XLSX)
+                        class="px-2.5 sm:px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    Semua Jenjang
                 </button>
                 <button type="button" 
                         @click="viewMode = 'paud'" 
                         :class="viewMode === 'paud' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
-                    PAUD Saja
+                        class="px-2.5 sm:px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    PAUD
                 </button>
                 <button type="button" 
                         @click="viewMode = 'sd'" 
                         :class="viewMode === 'sd' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
-                    SD / Sederajat Saja
+                        class="px-2.5 sm:px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    SD
                 </button>
                 <button type="button" 
                         @click="viewMode = 'smp'" 
                         :class="viewMode === 'smp' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
-                    SMP / Sederajat Saja
+                        class="px-2.5 sm:px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    SMP
                 </button>
                 <button type="button" 
                         @click="viewMode = 'sma'" 
                         :class="viewMode === 'sma' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
-                        class="px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
-                    SMA / SMK / Sederajat Saja
+                        class="px-2.5 sm:px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
+                    SMA / SMK
                 </button>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
-            @php
-                $tipeExport = strtolower($officialData['tipe']);
-                $routeExport = in_array($tipeExport, ['apk', 'apm', 'aps']) ? route('export.'.$tipeExport, ['tahun' => $tahun]) : route('export.kecamatan', ['tahun' => $tahun]);
-            @endphp
-            <a href="{{ $routeExport }}" 
-               class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto">
-                <svg class="w-4 h-4 text-emerald-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <!-- Sejajar: Tombol Dropdown Unduh Data -->
+        @php
+            $tipeExport = strtolower($officialData['tipe']);
+            $routeExport = in_array($tipeExport, ['apk', 'apm', 'aps']) ? route('export.'.$tipeExport, ['tahun' => $tahun]) : route('export.kecamatan', ['tahun' => $tahun]);
+            $routeLaporan = route('indikator.laporan', ['tipe' => $tipeExport, 'tahun' => $tahun]);
+        @endphp
+        <div class="relative shrink-0 self-end md:self-auto" @click.away="downloadDropdown = false">
+            <button type="button" 
+                    @click="downloadDropdown = !downloadDropdown" 
+                    class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300 font-bold text-xs shadow-2xs hover:shadow-xs transition cursor-pointer">
+                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                <span>Unduh File Excel {{ strtoupper($officialData['tipe']) }} (.xlsx)</span>
-            </a>
+                <span>Unduh Data</span>
+                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="downloadDropdown ? 'rotate-180 text-blue-600' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Menu Dropdown -->
+            <div x-show="downloadDropdown" 
+                 x-cloak 
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="absolute right-0 mt-1.5 w-72 rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 z-40 divide-y divide-slate-100">
+                
+                {{-- Opsi 1: Unduh Excel (Tabel Saja) --}}
+                <a href="{{ $routeExport }}" 
+                   @click="downloadDropdown = false"
+                   class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition group">
+                    <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition shrink-0 mt-0.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="block text-xs font-bold text-slate-800 group-hover:text-emerald-700 transition">
+                            Unduh Excel (.xlsx)
+                        </span>
+                        <span class="block text-[11px] text-slate-500 leading-tight">
+                            Format tabel resmi multi-blok (PAUD, SD, SMP, SMA/SMK)
+                        </span>
+                    </div>
+                </a>
+
+                {{-- Opsi 2: Unduh Laporan Visual Lengkap (Grafik & Tabel PDF) --}}
+                <a href="{{ $routeLaporan }}" 
+                   target="_blank"
+                   @click="downloadDropdown = false"
+                   class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition group">
+                    <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="block text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition">
+                            Unduh Laporan (Grafik & Tabel)
+                        </span>
+                        <span class="block text-[11px] text-slate-500 leading-tight">
+                            Dokumen resmi A4 lengkap visualisasi grafik & tabel siap cetak/PDF
+                        </span>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 

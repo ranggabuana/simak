@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/aps', [IndikatorKinerjaController::class, 'aps'])->name('aps')->middleware('menu:indikator_aps');
         Route::get('/guru', [IndikatorKinerjaController::class, 'guru'])->name('guru')->middleware('menu:indikator_guru');
         Route::get('/paud', [IndikatorKinerjaController::class, 'paud'])->name('paud')->middleware('menu:indikator_paud');
+        Route::get('/laporan/{tipe}', [IndikatorKinerjaController::class, 'laporanVisual'])->name('laporan');
     });
 
     // Tujuan 1: Penduduk Usia Sekolah per Kecamatan

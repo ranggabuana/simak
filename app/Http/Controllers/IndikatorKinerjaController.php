@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GuruPendidik;
 use App\Models\SatuanPendidikan;
+use App\Models\User;
 use App\Models\WilayahKecamatan;
 use App\Services\KinerjaService;
 use Illuminate\Http\Request;
@@ -152,6 +153,35 @@ class IndikatorKinerjaController extends Controller
             'kecamatanList' => $kecamatanList,
             'paudList' => $paudList,
             'allKecamatan' => WilayahKecamatan::orderBy('nama')->get(),
+        ]);
+    }
+
+    /**
+     * Tampilkan Dokumen Laporan Visual Resmi (Grafik & Tabel Multi-Blok Siap Cetak/Simpan PDF)
+     */
+    public function laporanVisual(Request $request, string $tipe): View
+    {
+        $tipe = strtolower($tipe);
+        abort_unless(in_array($tipe, ['apk', 'apm', 'aps']), 404);
+
+        $tahun = $this->resolveTahun($request);
+        $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun);
+        $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData($tipe, $tahun);
+
+        $pimpinan = User::where('role', 'pimpinan')->first() ?? (object) [
+            'name' => 'Dr. H. Teguh Handoko, S.Sos., M.Si.',
+            'nip' => '196807151992031005',
+            'jabatan' => 'Kepala Dinas Pendidikan, Kepemudaan dan Olahraga',
+        ];
+
+        return view('indikator.laporan', [
+            'tipe' => $tipe,
+            'tahun' => $tahun,
+            'kabupaten' => $kabupaten,
+            'kecamatanList' => $kecamatanList,
+            'officialData' => $officialData,
+            'pimpinan' => $pimpinan,
         ]);
     }
 }
