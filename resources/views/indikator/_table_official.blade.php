@@ -78,7 +78,7 @@
                  x-transition:leave-end="opacity-0 scale-95"
                  class="absolute right-0 mt-1.5 w-72 rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 z-40 divide-y divide-slate-100">
                 
-                {{-- Opsi 1: Unduh Excel (Tabel Saja) --}}
+                {{-- Opsi 1: Unduh Excel (.xlsx) --}}
                 <a href="{{ $routeExport }}" 
                    @click="downloadDropdown = false"
                    class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition group">
@@ -92,7 +92,7 @@
                             Unduh Excel (.xlsx)
                         </span>
                         <span class="block text-[11px] text-slate-500 leading-tight">
-                            Format tabel resmi multi-blok (PAUD, SD, SMP, SMA/SMK)
+                            Format tabel resmi multi-blok (PAUD, SD, SMP, SMA)
                         </span>
                     </div>
                 </a>
@@ -102,17 +102,17 @@
                    target="_blank"
                    @click="downloadDropdown = false"
                    class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition group">
-                    <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition shrink-0 mt-0.5">
+                    <div class="p-2 rounded-xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition shrink-0 mt-0.5">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
                     </div>
                     <div class="space-y-0.5">
-                        <span class="block text-xs font-bold text-slate-800 group-hover:text-indigo-700 transition">
-                            Unduh Laporan (Grafik & Tabel)
+                        <span class="block text-xs font-bold text-slate-800 group-hover:text-blue-700 transition">
+                            Unduh Laporan Visual (PDF)
                         </span>
                         <span class="block text-[11px] text-slate-500 leading-tight">
-                            Dokumen resmi A4 lengkap visualisasi grafik & tabel siap cetak/PDF
+                            Dokumen resmi A4 rapi & minimalis: grafik & tabel lengkap
                         </span>
                     </div>
                 </a>
@@ -146,200 +146,88 @@
                 {{-- Baris 2: Header Kolom Utama --}}
                 <tr class="bg-slate-100 text-slate-700 font-bold uppercase text-[11px] border-b border-slate-200">
                     {{-- Blok PAUD --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['paud_penduduk'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['paud_siswa'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200 bg-blue-50/50 text-blue-900">{{ $officialData['labels']['paud_capaian'] }}</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['paud_penduduk'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['paud_siswa'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200 bg-blue-50/50 text-blue-900">{{ $officialData['labels']['paud_capaian'] }}</th>
 
                     {{-- Separator --}}
                     <th x-show="viewMode === 'all'" rowspan="2" class="w-3 bg-slate-100/50 p-0 border-r border-slate-200"></th>
 
                     {{-- Blok SD --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sd_penduduk'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sd_siswa'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200 bg-indigo-50/50 text-indigo-900">{{ $officialData['labels']['sd_capaian'] }}</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sd_penduduk'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sd_siswa'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200 bg-indigo-50/50 text-indigo-900">{{ $officialData['labels']['sd_capaian'] }}</th>
 
                     {{-- Separator --}}
                     <th x-show="viewMode === 'all'" rowspan="2" class="w-3 bg-slate-100/50 p-0 border-r border-slate-200"></th>
 
                     {{-- Blok SMP --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['smp_penduduk'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['smp_siswa'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200 bg-sky-50/50 text-sky-900">{{ $officialData['labels']['smp_capaian'] }}</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['smp_penduduk'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['smp_siswa'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200 bg-sky-50/50 text-sky-900">{{ $officialData['labels']['smp_capaian'] }}</th>
 
                     {{-- Separator --}}
                     <th x-show="viewMode === 'all'" rowspan="2" class="w-3 bg-slate-100/50 p-0 border-r border-slate-200"></th>
 
                     {{-- Blok SMA / SMK --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sma_penduduk'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sma_siswa'] }}</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th colspan="3" class="py-2 px-2 text-center bg-emerald-50/50 text-emerald-900">{{ $officialData['labels']['sma_capaian'] }}</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" rowspan="2" class="py-3 px-2 text-center border-r border-slate-200 w-10">No</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" rowspan="2" class="py-3 px-3 border-r border-slate-200 min-w-[140px]">Kecamatan</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sma_penduduk'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" colspan="3" class="py-2 px-2 text-center border-r border-slate-200">{{ $officialData['labels']['sma_siswa'] }}</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" colspan="3" class="py-2 px-2 text-center bg-emerald-50/50 text-emerald-900">{{ $officialData['labels']['sma_capaian'] }}</th>
                 </tr>
 
                 {{-- Baris 3: Subheader L, P, Jml --}}
                 <tr class="bg-slate-100/80 text-slate-600 font-bold text-[10px] text-center border-b border-slate-200">
                     {{-- Subheader PAUD --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-blue-50/50">L (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-blue-50/50">P (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'paud'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-blue-50/50">Jml (%)</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200 bg-blue-50/50">L (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200 bg-blue-50/50">P (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'paud'" class="py-1.5 px-2 border-r border-slate-200 bg-blue-50/50">Jml (%)</th>
 
                     {{-- Subheader SD --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-indigo-50/50">L (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-indigo-50/50">P (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sd'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-indigo-50/50">Jml (%)</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200 bg-indigo-50/50">L (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200 bg-indigo-50/50">P (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sd'" class="py-1.5 px-2 border-r border-slate-200 bg-indigo-50/50">Jml (%)</th>
 
                     {{-- Subheader SMP --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-sky-50/50">L (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-sky-50/50">P (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'smp'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-sky-50/50">Jml (%)</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200 bg-sky-50/50">L (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200 bg-sky-50/50">P (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'smp'" class="py-1.5 px-2 border-r border-slate-200 bg-sky-50/50">Jml (%)</th>
 
                     {{-- Subheader SMA / SMK --}}
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">L</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">P</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200">Jml</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-emerald-50/50">L (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 border-r border-slate-200 bg-emerald-50/50">P (%)</th>
-                    </template>
-                    <template x-if="viewMode === 'all' || viewMode === 'sma'">
-                        <th class="py-1.5 px-2 bg-emerald-50/50">Jml (%)</th>
-                    </template>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200">L</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200">P</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200">Jml</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200 bg-emerald-50/50">L (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 border-r border-slate-200 bg-emerald-50/50">P (%)</th>
+                    <th x-show="viewMode === 'all' || viewMode === 'sma'" class="py-1.5 px-2 bg-emerald-50/50">Jml (%)</th>
                 </tr>
             </thead>
 

@@ -172,12 +172,19 @@ class ExcelExporter
         }, 200, $headersResponse);
     }
 
-    protected function getContentTypesXml(): string
+    protected function getContentTypesXml(bool $hasDrawings = false): string
     {
+        $extra = '';
+        if ($hasDrawings) {
+            $extra = '<Default Extension="png" ContentType="image/png"/>'
+                .'<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>';
+        }
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             .'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
             .'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
             .'<Default Extension="xml" ContentType="application/xml"/>'
+            .$extra
             .'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
             .'<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
             .'<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
@@ -454,7 +461,7 @@ class ExcelExporter
      *
      * @param  array<string, mixed>  $officialData
      */
-    public function downloadIndikatorOfficialXlsx(string $filename, array $officialData): StreamedResponse
+    public function downloadIndikatorOfficialXlsx(string $filename, array $officialData, array $chartImages = []): StreamedResponse
     {
         if (! str_ends_with(strtolower($filename), '.xlsx')) {
             $filename .= '.xlsx';
@@ -468,7 +475,7 @@ class ExcelExporter
             'Cache-Control' => 'max-age=0',
         ];
 
-        return response()->stream(function () use ($sheetTitle, $officialData) {
+        return response()->stream(function () use ($sheetTitle, $officialData, $chartImages) {
             $tmpFile = tempnam(sys_get_temp_dir(), 'simak_official_xlsx_');
             $zip = new ZipArchive;
 
@@ -476,8 +483,21 @@ class ExcelExporter
                 return;
             }
 
+            // Validasi & decode chart images (Base64 PNG dari client-side Chart.js)
+            $validImages = [];
+            foreach ($chartImages as $key => $raw) {
+                if (is_string($raw) && str_contains($raw, 'base64,')) {
+                    $parts = explode('base64,', $raw);
+                    $decoded = base64_decode($parts[1] ?? '', true);
+                    if ($decoded !== false && strlen($decoded) > 100) {
+                        $validImages[$key] = $decoded;
+                    }
+                }
+            }
+            $hasDrawings = count($validImages) > 0;
+
             // 1. [Content_Types].xml
-            $zip->addFromString('[Content_Types].xml', $this->getContentTypesXml());
+            $zip->addFromString('[Content_Types].xml', $this->getContentTypesXml($hasDrawings));
 
             // 2. _rels/.rels
             $zip->addFromString('_rels/.rels', $this->getRootRelsXml());
@@ -492,7 +512,21 @@ class ExcelExporter
             $zip->addFromString('xl/styles.xml', $this->getStylesXml());
 
             // 6. xl/worksheets/sheet1.xml
-            $zip->addFromString('xl/worksheets/sheet1.xml', $this->getIndikatorOfficialWorksheetXml($officialData));
+            $zip->addFromString('xl/worksheets/sheet1.xml', $this->getIndikatorOfficialWorksheetXml($officialData, $hasDrawings));
+
+            // 7. Jika terdapat grafik gambar, sematkan drawingML & media PNG ke zip
+            if ($hasDrawings) {
+                $zip->addFromString('xl/worksheets/_rels/sheet1.xml.rels', $this->getSheetDrawingRelsXml());
+
+                $imgIndex = 1;
+                foreach ($validImages as $key => $binary) {
+                    $zip->addFromString("xl/media/image{$imgIndex}.png", $binary);
+                    $imgIndex++;
+                }
+
+                $zip->addFromString('xl/drawings/_rels/drawing1.xml.rels', $this->getDrawingMediaRelsXml(count($validImages)));
+                $zip->addFromString('xl/drawings/drawing1.xml', $this->getDrawingXml($validImages));
+            }
 
             $zip->close();
 
@@ -509,11 +543,11 @@ class ExcelExporter
     }
 
     /**
-     * Bangun XML Worksheet resmi untuk format 3 blok indikator (PAUD, SD, SMP)
+     * Bangun XML Worksheet resmi untuk format 4 blok indikator (PAUD, SD, SMP, SMA)
      *
      * @param  array<string, mixed>  $officialData
      */
-    protected function getIndikatorOfficialWorksheetXml(array $officialData): string
+    protected function getIndikatorOfficialWorksheetXml(array $officialData, bool $hasDrawings = false): string
     {
         $labels = $officialData['labels'];
         $rows = $officialData['rows'];
@@ -894,8 +928,121 @@ class ExcelExporter
         $xml .= '<mergeCell ref="AS4:AU4"/>';
         $xml .= '</mergeCells>';
 
+        if ($hasDrawings) {
+            $xml .= '<drawing r:id="rId_drawing"/>';
+        }
+
         $xml .= '</worksheet>';
 
         return $xml;
+    }
+
+    /**
+     * Relasi drawing pada worksheet
+     */
+    protected function getSheetDrawingRelsXml(): string
+    {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .'<Relationship Id="rId_drawing" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/>'
+            .'</Relationships>';
+    }
+
+    /**
+     * Relasi media gambar pada drawing1.xml
+     */
+    protected function getDrawingMediaRelsXml(int $count): string
+    {
+        $rels = '';
+        for ($i = 1; $i <= $count; $i++) {
+            $rels .= '<Relationship Id="rId_img'.$i.'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image'.$i.'.png"/>';
+        }
+
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            .$rels
+            .'</Relationships>';
+    }
+
+    /**
+     * Bangun XML Drawing (DrawingML) untuk menyematkan grafik gambar ke worksheet Excel
+     *
+     * @param  array<string, string>  $validImages
+     */
+    protected function getDrawingXml(array $validImages): string
+    {
+        $anchors = '';
+        $imgKeys = array_keys($validImages);
+
+        // Chart 1: Jenjang vs Target (Row 29-52, Col A-L => Col 0-11)
+        if (isset($validImages['jenjang'])) {
+            $rId = 'rId_img'.(array_search('jenjang', $imgKeys) + 1);
+            $anchors .= '
+            <xdr:twoCellAnchor editAs="oneCell">
+                <xdr:from><xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>29</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>
+                <xdr:to><xdr:col>11</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>52</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
+                <xdr:pic>
+                    <xdr:nvPicPr>
+                        <xdr:cNvPr id="2" name="Grafik Jenjang vs Target"/>
+                        <xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr>
+                    </xdr:nvPicPr>
+                    <xdr:blipFill>
+                        <a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="'.$rId.'"/>
+                        <a:stretch><a:fillRect/></a:stretch>
+                    </xdr:blipFill>
+                    <xdr:spPr><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
+                </xdr:pic>
+                <xdr:clientData/>
+            </xdr:twoCellAnchor>';
+        }
+
+        // Chart 2: Komparasi Gender (Row 29-52, Col M-X => Col 12-23)
+        if (isset($validImages['gender'])) {
+            $rId = 'rId_img'.(array_search('gender', $imgKeys) + 1);
+            $anchors .= '
+            <xdr:twoCellAnchor editAs="oneCell">
+                <xdr:from><xdr:col>12</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>29</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>
+                <xdr:to><xdr:col>23</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>52</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
+                <xdr:pic>
+                    <xdr:nvPicPr>
+                        <xdr:cNvPr id="3" name="Grafik Komparasi Gender"/>
+                        <xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr>
+                    </xdr:nvPicPr>
+                    <xdr:blipFill>
+                        <a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="'.$rId.'"/>
+                        <a:stretch><a:fillRect/></a:stretch>
+                    </xdr:blipFill>
+                    <xdr:spPr><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
+                </xdr:pic>
+                <xdr:clientData/>
+            </xdr:twoCellAnchor>';
+        }
+
+        // Chart 3: Sebaran 20 Kecamatan (Row 54-78, Col A-AU => Col 0-47)
+        if (isset($validImages['kecamatan'])) {
+            $rId = 'rId_img'.(array_search('kecamatan', $imgKeys) + 1);
+            $anchors .= '
+            <xdr:twoCellAnchor editAs="oneCell">
+                <xdr:from><xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>53</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>
+                <xdr:to><xdr:col>47</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>78</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
+                <xdr:pic>
+                    <xdr:nvPicPr>
+                        <xdr:cNvPr id="4" name="Grafik Sebaran 20 Kecamatan"/>
+                        <xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr>
+                    </xdr:nvPicPr>
+                    <xdr:blipFill>
+                        <a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="'.$rId.'"/>
+                        <a:stretch><a:fillRect/></a:stretch>
+                    </xdr:blipFill>
+                    <xdr:spPr><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
+                </xdr:pic>
+                <xdr:clientData/>
+            </xdr:twoCellAnchor>';
+        }
+
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            .'<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+            .$anchors
+            .'</xdr:wsDr>';
     }
 }

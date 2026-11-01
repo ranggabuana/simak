@@ -432,6 +432,7 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
         @endif
     </div>
 

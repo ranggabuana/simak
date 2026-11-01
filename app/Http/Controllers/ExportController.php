@@ -526,7 +526,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Unduh Rekapitulasi APK (Format Resmi Excel Multi-Blok PAUD, SD, SMP)
+     * Unduh Rekapitulasi APK (Format Resmi Excel Multi-Blok PAUD, SD, SMP, SMA)
      */
     public function unduhApkOfficial(Request $request): StreamedResponse
     {
@@ -538,7 +538,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Unduh Rekapitulasi APM (Format Resmi Excel Multi-Blok PAUD, SD, SMP)
+     * Unduh Rekapitulasi APM (Format Resmi Excel Multi-Blok PAUD, SD, SMP, SMA)
      */
     public function unduhApmOfficial(Request $request): StreamedResponse
     {
@@ -550,7 +550,7 @@ class ExportController extends Controller
     }
 
     /**
-     * Unduh Rekapitulasi APS (Format Resmi Excel Multi-Blok PAUD, SD, SMP)
+     * Unduh Rekapitulasi APS (Format Resmi Excel Multi-Blok PAUD, SD, SMP, SMA)
      */
     public function unduhApsOfficial(Request $request): StreamedResponse
     {

@@ -402,6 +402,24 @@ class ExampleTest extends TestCase
     }
 
     /**
+     * Test official Excel export and Laporan Visual document.
+     */
+    public function test_user_can_export_indikator_official_and_view_laporan(): void
+    {
+        $user = $this->getAdminUser();
+
+        // 1. Official Excel export (GET)
+        $this->actingAs($user)->get('/export/apk')->assertStatus(200);
+        $this->actingAs($user)->get('/export/apm')->assertStatus(200);
+        $this->actingAs($user)->get('/export/aps')->assertStatus(200);
+
+        // 2. Official Visual Report document (A4 Landscape PDF / View)
+        $this->actingAs($user)->get('/indikator/laporan/apk')->assertStatus(200);
+        $this->actingAs($user)->get('/indikator/laporan/apm')->assertStatus(200);
+        $this->actingAs($user)->get('/indikator/laporan/aps')->assertStatus(200);
+    }
+
+    /**
      * Test user can access LKjIP official report, audit trail, and SOP SAKIP guide.
      */
     public function test_user_can_access_new_roadmap_features(): void
