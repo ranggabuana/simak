@@ -115,6 +115,9 @@ Route::middleware('auth')->group(function () {
 
     // Export Excel (.xlsx)
     Route::prefix('export')->name('export.')->middleware('menu:export')->group(function () {
+        Route::get('/apk', [ExportController::class, 'unduhApkOfficial'])->name('apk');
+        Route::get('/apm', [ExportController::class, 'unduhApmOfficial'])->name('apm');
+        Route::get('/aps', [ExportController::class, 'unduhApsOfficial'])->name('aps');
         Route::get('/kecamatan', [ExportController::class, 'unduhKecamatanCsv'])->name('kecamatan');
         Route::get('/penduduk', [ExportController::class, 'unduhPendudukCsv'])->name('penduduk');
         Route::get('/prestasi', [ExportController::class, 'unduhPrestasiCsv'])->name('prestasi');

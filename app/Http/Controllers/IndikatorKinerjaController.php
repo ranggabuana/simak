@@ -25,6 +25,7 @@ class IndikatorKinerjaController extends Controller
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
         $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData('apk', $tahun);
         $sekolahPaginated = $tab === 'sekolah'
             ? $this->kinerjaService->hitungKinerjaSekolah($kecamatanId ? (int) $kecamatanId : null, $jenjang, $tahun)
             : null;
@@ -37,6 +38,7 @@ class IndikatorKinerjaController extends Controller
             'gender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
+            'officialData' => $officialData,
             'sekolahList' => $sekolahPaginated,
             'allKecamatan' => WilayahKecamatan::orderBy('nama')->get(),
         ]);
@@ -52,6 +54,7 @@ class IndikatorKinerjaController extends Controller
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
         $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData('apm', $tahun);
         $sekolahPaginated = $tab === 'sekolah'
             ? $this->kinerjaService->hitungKinerjaSekolah($kecamatanId ? (int) $kecamatanId : null, $jenjang, $tahun)
             : null;
@@ -64,6 +67,7 @@ class IndikatorKinerjaController extends Controller
             'gender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
+            'officialData' => $officialData,
             'sekolahList' => $sekolahPaginated,
             'allKecamatan' => WilayahKecamatan::orderBy('nama')->get(),
         ]);
@@ -79,6 +83,7 @@ class IndikatorKinerjaController extends Controller
 
         $kabupaten = $this->kinerjaService->hitungKinerjaKabupaten($tahun, $gender);
         $kecamatanList = $this->kinerjaService->hitungKinerjaPerKecamatan($tahun, $gender);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData('aps', $tahun);
         $sekolahPaginated = $tab === 'sekolah'
             ? $this->kinerjaService->hitungKinerjaSekolah($kecamatanId ? (int) $kecamatanId : null, $jenjang, $tahun)
             : null;
@@ -91,6 +96,7 @@ class IndikatorKinerjaController extends Controller
             'gender' => $gender,
             'kabupaten' => $kabupaten,
             'kecamatanList' => $kecamatanList,
+            'officialData' => $officialData,
             'sekolahList' => $sekolahPaginated,
             'allKecamatan' => WilayahKecamatan::orderBy('nama')->get(),
         ]);

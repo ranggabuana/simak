@@ -406,7 +406,7 @@ class ExampleTest extends TestCase
         $user = $this->getAdminUser();
 
         $this->actingAs($user)->get('/laporan/lkjip')->assertStatus(200)->assertSee('Laporan Kinerja Instansi Pemerintah (LKjIP)');
-        $this->actingAs($user)->get('/audit-trail')->assertStatus(200)->assertSee('Audit Trail');
+        $this->actingAs($user)->get('/log-system')->assertStatus(200)->assertSee('Audit Trail');
         $this->actingAs($user)->get('/panduan-sakip')->assertStatus(200)->assertSee('Glosarium');
     }
 

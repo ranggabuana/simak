@@ -524,4 +524,40 @@ class ExportController extends Controller
             reportSubtitle: $reportSubtitle
         );
     }
+
+    /**
+     * Unduh Rekapitulasi APK (Format Resmi Excel Multi-Blok PAUD, SD, SMP)
+     */
+    public function unduhApkOfficial(Request $request): StreamedResponse
+    {
+        $tahun = $this->resolveTahun($request);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData('apk', $tahun);
+        $filename = "APK_{$tahun}.xlsx";
+
+        return $this->excelExporter->downloadIndikatorOfficialXlsx($filename, $officialData);
+    }
+
+    /**
+     * Unduh Rekapitulasi APM (Format Resmi Excel Multi-Blok PAUD, SD, SMP)
+     */
+    public function unduhApmOfficial(Request $request): StreamedResponse
+    {
+        $tahun = $this->resolveTahun($request);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData('apm', $tahun);
+        $filename = "APM_{$tahun}.xlsx";
+
+        return $this->excelExporter->downloadIndikatorOfficialXlsx($filename, $officialData);
+    }
+
+    /**
+     * Unduh Rekapitulasi APS (Format Resmi Excel Multi-Blok PAUD, SD, SMP)
+     */
+    public function unduhApsOfficial(Request $request): StreamedResponse
+    {
+        $tahun = $this->resolveTahun($request);
+        $officialData = $this->kinerjaService->getIndikatorOfficialData('aps', $tahun);
+        $filename = "APS_{$tahun}.xlsx";
+
+        return $this->excelExporter->downloadIndikatorOfficialXlsx($filename, $officialData);
+    }
 }

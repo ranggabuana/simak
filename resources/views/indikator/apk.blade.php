@@ -70,12 +70,12 @@
                 </div>
             </div>
 
-            <a href="{{ route('export.kecamatan', array_merge(request()->query(), ['tahun' => $tahun])) }}" 
+            <a href="{{ route('export.apk', ['tahun' => $tahun]) }}" 
                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-blue-700 hover:text-blue-800 border border-blue-200 font-bold text-xs shadow-2xs hover:shadow-xs transition w-full sm:w-auto">
                 <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>Unduh Rekap Excel (.xlsx)</span>
+                <span>Unduh Format Resmi APK.xlsx</span>
             </a>
         </div>
     </div>
@@ -398,37 +398,8 @@
         </div>
 
         @if($tab === 'wilayah')
-        <!-- Tabel Basic Wilayah -->
-        <div class="w-full max-w-full overflow-x-auto">
-            <table class="w-full text-left text-xs datatable" data-page-size="10">
-                <thead>
-                    <tr class="bg-slate-100 text-slate-600 font-bold uppercase text-[11px] border-b border-slate-200">
-                        <th class="py-3.5 px-4">Kode</th>
-                        <th class="py-3.5 px-4">Nama Kecamatan</th>
-                        <th class="py-3.5 px-4 text-center">APK 5–6 Th {{ $gender ? '('.$gender.')' : '(PAUD)' }}</th>
-                        <th class="py-3.5 px-4 text-center">APK 7–12 Th {{ $gender ? '('.$gender.')' : '(SD)' }}</th>
-                        <th class="py-3.5 px-4 text-center">APK 13–15 Th {{ $gender ? '('.$gender.')' : '(SMP)' }}</th>
-                        <th class="py-3.5 px-4 text-center">APK 16–18 Th {{ $gender ? '('.$gender.')' : '(SMA)' }}</th>
-                        <th class="py-3.5 px-4 text-right">Penduduk Sekolah</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @foreach($kecamatanList as $kec)
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3.5 px-4 font-mono text-slate-400">{{ $kec['kode'] }}</td>
-                        <td class="py-3.5 px-4 font-bold text-slate-900">{{ $kec['nama'] }}</td>
-                        <td class="py-3.5 px-4 text-center font-medium">{{ number_format($kec['apk']['paud'], 1) }}%</td>
-                        <td class="py-3.5 px-4 text-center font-bold text-blue-600">{{ number_format($kec['apk']['sd'], 1) }}%</td>
-                        <td class="py-3.5 px-4 text-center font-medium">{{ number_format($kec['apk']['smp'], 1) }}%</td>
-                        <td class="py-3.5 px-4 text-center font-medium">{{ number_format($kec['apk']['sma'], 1) }}%</td>
-                        <td class="py-3.5 px-4 text-right font-medium text-slate-700">
-                            {{ number_format($kec['populasi']['usia_5_6'] + $kec['populasi']['usia_7_12'] + $kec['populasi']['usia_13_15'] + $kec['populasi']['usia_16_18']) }}
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        <!-- Tabel Basic Wilayah (Format Resmi Multi-Blok Sesuai APK.xlsx) -->
+        @include('indikator._table_official', ['officialData' => $officialData])
         @else
         <!-- Tabel Basic Sekolah -->
         <div class="overflow-x-auto">
