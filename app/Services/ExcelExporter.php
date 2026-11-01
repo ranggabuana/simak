@@ -650,7 +650,7 @@ class ExcelExporter
         // Spacer AJ2
         $xml .= '<c r="AJ2"/>';
         // SMA Title
-        $xml .= '<c r="AK2" t="inlineStr" s="11"><is><t>'.htmlspecialchars((string) ($labels['sma_title'] ?? 'SMA/SMK'), ENT_XML1, 'UTF-8').'</t></is></c>';
+        $xml .= '<c r="AK2" t="inlineStr" s="11"><is><t>'.htmlspecialchars((string) ($labels['sma_title'] ?? 'SMA/SMK/MA'), ENT_XML1, 'UTF-8').'</t></is></c>';
         for ($c = 38; $c <= 47; $c++) {
             $xml .= '<c r="'.self::getColumnLetter($c).'2" s="11"/>';
         }
@@ -699,9 +699,9 @@ class ExcelExporter
         $xml .= '<c r="AL4" t="inlineStr" s="10"><is><t>Kecamatan</t></is></c>';
         $xml .= '<c r="AM4" t="inlineStr" s="10"><is><t>'.htmlspecialchars((string) ($labels['sma_penduduk'] ?? 'Penduduk 16-18'), ENT_XML1, 'UTF-8').'</t></is></c>';
         $xml .= '<c r="AN4" s="10"/><c r="AO4" s="10"/>';
-        $xml .= '<c r="AP4" t="inlineStr" s="10"><is><t>'.htmlspecialchars((string) ($labels['sma_siswa'] ?? 'Siswa SMA/SMK'), ENT_XML1, 'UTF-8').'</t></is></c>';
+        $xml .= '<c r="AP4" t="inlineStr" s="10"><is><t>'.htmlspecialchars((string) ($labels['sma_siswa'] ?? 'Siswa SMA/SMK/MA'), ENT_XML1, 'UTF-8').'</t></is></c>';
         $xml .= '<c r="AQ4" s="10"/><c r="AR4" s="10"/>';
-        $xml .= '<c r="AS4" t="inlineStr" s="10"><is><t>'.htmlspecialchars((string) ($labels['sma_capaian'] ?? 'Capaian SMA/SMK'), ENT_XML1, 'UTF-8').'</t></is></c>';
+        $xml .= '<c r="AS4" t="inlineStr" s="10"><is><t>'.htmlspecialchars((string) ($labels['sma_capaian'] ?? 'Capaian SMA/SMK/MA'), ENT_XML1, 'UTF-8').'</t></is></c>';
         $xml .= '<c r="AT4" s="10"/><c r="AU4" s="10"/>';
         $xml .= '</row>';
 

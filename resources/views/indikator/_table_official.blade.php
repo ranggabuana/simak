@@ -1,6 +1,6 @@
 {{-- 
     Tabel Indikator Resmi (Format Format File XLSX: APK.xlsx, APM.xlsx, APS.xlsx)
-    Mencakup 4 Blok Jenjang: PAUD (usia 5-6), SD (usia 7-12), SMP (usia 13-15), dan SMA/SMK (usia 16-18)
+    Mencakup 4 Blok Jenjang: PAUD (usia 5-6), SD (usia 7-12), SMP (usia 13-15), dan SMA/SMK/MA (usia 16-18)
 --}}
 <div class="space-y-4 w-full max-w-full" x-data="{ viewMode: 'all', downloadDropdown: false }">
     <!-- View Mode Switcher & Compact Download Dropdown Toolbar -->
@@ -43,7 +43,7 @@
                         @click="viewMode = 'sma'" 
                         :class="viewMode === 'sma' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
                         class="px-2.5 sm:px-3 py-1.5 rounded-lg whitespace-nowrap transition cursor-pointer">
-                    SMA / SMK
+                    SMA / SMK / MA
                 </button>
             </div>
         </div>

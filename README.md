@@ -53,7 +53,7 @@ Dengan SIMAK, pimpinan, analis perencana, serta operator wilayah dapat memantau 
 
 ### 1. Dashboard Kinerja Eksekutif & Early Warning System (EWS)
 - **Ringkasan Indikator Makro**: Nilai capaian IKK Renstra, Nilai AKIP, Rata-rata Lama Sekolah (RLS), dan Harapan Lama Sekolah (HLS) Kabupaten Banjarnegara.
-- **Grafik Interaktif**: Analisis tren dan komparasi capaian antar-jenjang (PAUD, SD, SMP, SMA/SMK) menggunakan [Chart.js](https://www.chartjs.org/).
+- **Grafik Interaktif**: Analisis tren dan komparasi capaian antar-jenjang (PAUD, SD, SMP, SMA/SMK/MA) menggunakan [Chart.js](https://www.chartjs.org/).
 - **Early Warning System (EWS)**: Deteksi otomatis deviasi capaian riil terhadap target Renstra untuk memetakan kecamatan berstatus *Warning* atau memerlukan intervensi prioritas.
 - **Filter Multi-Tahun**: Navigasi tahun evaluasi dinamis (2024–2029).
 
@@ -68,7 +68,7 @@ Sistem menyediakan modul kalkulasi dan tabulasi rinci untuk indikator-indikator 
 ### 3. Master Data Pendidikan & Wilayah (20 Kecamatan)
 - **Tujuan 1 (Demografi Usia Sekolah)**: Agregat kependudukan usia 0–4 tahun, 5–6 tahun, 7–12 tahun, 13–15 tahun, 16–18 tahun, serta 16–30 tahun untuk 20 kecamatan di Kabupaten Banjarnegara.
 - **Tujuan 2 (Prestasi Siswa)**: Modul pencatatan prestasi akademik, seni budaya, olahraga, sains, teknologi, dan keagamaan dari tingkat Kabupaten, Provinsi, Nasional, hingga Internasional (OSN, FLS2N, O2SN, POPDA, MTQ, Robotik).
-- **Satuan Pendidikan (Sekolah)**: Master data sekolah se-Banjarnegara mencakup NPSN, jenjang (PAUD, SD/MI, SMP/MTs, SMA/SMK), status negeri/swasta, akreditasi (A, B, C, Belum Terakreditasi), data pimpinan sekolah, kontak, dan titik koordinat geografis.
+- **Satuan Pendidikan (Sekolah)**: Master data sekolah se-Banjarnegara mencakup NPSN, jenjang (PAUD, SD/MI, SMP/MTs, SMA/SMK/MA), status negeri/swasta, akreditasi (A, B, C, Belum Terakreditasi), data pimpinan sekolah, kontak, dan titik koordinat geografis.
 - **Partisipasi Siswa (Dapodik)**: Sinkronisasi data rombongan belajar (rombel), usia siswa, dan total daya tampung sekolah per tahun ajaran.
 - **Pendidik & Tenaga Kependidikan (PTK)**: Basis data guru dengan NIP, NUPTK, mata pelajaran/bidang studi, jenis kelamin, serta status sertifikasi profesi.
 
@@ -252,7 +252,7 @@ erDiagram
 ### Penjelasan Entitas Inti:
 1. `wilayah_kecamatan`: Master 20 kecamatan di Kabupaten Banjarnegara beserta kode BPS, luas wilayah, jumlah desa, dan titik koordinat centroid.
 2. `penduduk_usia_sekolah`: Agregat populasi usia sekolah per tahun per kecamatan (rentang usia 0–4, 5–6, 7–12, 13–15, 16–18, 16–30 tahun).
-3. `satuan_pendidikan`: Master sekolah (NPSN unik, jenjang PAUD/SD/SMP/SMA/SMK, status negeri/swasta, predikat akreditasi, koordinat GIS).
+3. `satuan_pendidikan`: Master sekolah (NPSN unik, jenjang PAUD/SD/SMP/SMA/SMK/MA, status negeri/swasta, predikat akreditasi, koordinat GIS).
 4. `partisipasi_siswa`: Data siswa per sekolah per tahun ajaran (total murid, murid usia tepat, distribusi per kelompok umur, jumlah rombel).
 5. `guru_pendidik`: Data guru/tendik per sekolah (NIP, NUPTK, status kepegawaian PNS/PPPK/Honor, bidang studi, status kelulusan sertifikasi).
 6. `prestasi_siswa`: Portofolio raihan medali/kejuaraan siswa (akademik, olahraga, seni, sains) per jenjang dan wilayah.

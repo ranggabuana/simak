@@ -134,10 +134,10 @@
             </div>
         </div>
 
-        <!-- 16 - 18 Tahun (SMA/SMK) -->
+        <!-- 16 - 18 Tahun (SMA/SMK/MA) -->
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 16 – 18 TAHUN (SMA/SMK)</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 16 – 18 TAHUN (SMA/SMK/MA)</span>
                 @if($gender)
                     <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
                         {{ $gender === 'L' ? '♂ L' : '♀ P' }}
@@ -232,7 +232,7 @@
                         @click="activeFilter = 'sma'; updateApmChart('sma')" 
                         :class="activeFilter === 'sma' ? 'bg-white text-indigo-600 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
                         class="px-2.5 py-1 text-[11px] rounded-xl whitespace-nowrap transition cursor-pointer">
-                    SMA/SMK
+                    SMA/SMK/MA
                 </button>
             </div>
         </div>
@@ -322,7 +322,7 @@
             </div>
 
             <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
-                <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] block">SMA/SMK (16-18 Th)</span>
+                <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] block">SMA/SMK/MA (16-18 Th)</span>
                 <div class="flex items-center justify-between">
                     <span class="text-slate-500">Laki-laki:</span>
                     <strong class="text-indigo-700 font-bold">{{ number_format($kabupaten['gender_comparison']['apm_sma_l'] ?? 0, 1) }}%</strong>
@@ -529,7 +529,7 @@
                             </a>
                         </div>
                         <p class="text-[11px] text-slate-600 leading-relaxed">
-                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-purple-900">Master Data &rarr; Tujuan 1: Penduduk Usia Sekolah</strong>. Total data agregat kependudukan Dukcapil Kabupaten Banjarnegara per rentang usia resmi jenjang: <strong>5–6 th</strong> (PAUD), <strong>7–12 th</strong> (SD/MI), <strong>13–15 th</strong> (SMP/MTs), dan <strong>16–18 th</strong> (SMA/SMK).
+                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-purple-900">Master Data &rarr; Tujuan 1: Penduduk Usia Sekolah</strong>. Total data agregat kependudukan Dukcapil Kabupaten Banjarnegara per rentang usia resmi jenjang: <strong>5–6 th</strong> (PAUD), <strong>7–12 th</strong> (SD/MI), <strong>13–15 th</strong> (SMP/MTs), dan <strong>16–18 th</strong> (SMA/SMK/MA).
                         </p>
                     </div>
                 </div>
@@ -572,7 +572,7 @@
             new Chart(ctxJenjang, {
                 type: 'bar',
                 data: {
-                    labels: [['PAUD', '(5-6 Th)'], ['SD/MI', '(7-12 Th)'], ['SMP/MTs', '(13-15 Th)'], ['SMA/SMK', '(16-18 Th)']],
+                    labels: [['PAUD', '(5-6 Th)'], ['SD/MI', '(7-12 Th)'], ['SMP/MTs', '(13-15 Th)'], ['SMA/SMK/MA', '(16-18 Th)']],
                     datasets: [
                         {
                             label: 'Capaian Riil (%)',
@@ -641,7 +641,7 @@
             new Chart(ctxGender, {
                 type: 'bar',
                 data: {
-                    labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK'],
+                    labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK/MA'],
                     datasets: [
                         {
                             label: 'Laki-laki (%)',
@@ -727,7 +727,7 @@
                 borderRadius: 4
             };
             const dsSma = {
-                label: 'APM SMA/SMK (%)',
+                label: 'APM SMA/SMK/MA (%)',
                 data: apmSmaData,
                 backgroundColor: 'rgba(236, 72, 153, 0.85)',
                 borderRadius: 4

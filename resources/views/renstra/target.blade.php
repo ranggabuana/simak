@@ -233,7 +233,7 @@
                             <input type="number" step="0.01" name="target_apk_smp" value="{{ old('target_apk_smp', '98.50') }}" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APK SMA/SMK (%)">APK SMA (%) <span class="text-rose-500">*</span></label>
+                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APK SMA/SMK/MA (%)">APK SMA (%) <span class="text-rose-500">*</span></label>
                             <input type="number" step="0.01" name="target_apk_sma" value="{{ old('target_apk_sma', '88.00') }}" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                     </div>
@@ -262,7 +262,7 @@
                             <input type="number" step="0.01" name="target_apm_smp" value="{{ old('target_apm_smp', '96.50') }}" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APM SMA/SMK (%)">APM SMA (%) <span class="text-rose-500">*</span></label>
+                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APM SMA/SMK/MA (%)">APM SMA (%) <span class="text-rose-500">*</span></label>
                             <input type="number" step="0.01" name="target_apm_sma" value="{{ old('target_apm_sma', '78.50') }}" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                     </div>
@@ -408,7 +408,7 @@
                             <input type="number" step="0.01" name="target_apk_smp" :value="activeTarget.target_apk_smp" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APK SMA/SMK (%)">APK SMA (%)</label>
+                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APK SMA/SMK/MA (%)">APK SMA (%)</label>
                             <input type="number" step="0.01" name="target_apk_sma" :value="activeTarget.target_apk_sma" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                     </div>
@@ -437,7 +437,7 @@
                             <input type="number" step="0.01" name="target_apm_smp" :value="activeTarget.target_apm_smp" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                         <div>
-                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APM SMA/SMK (%)">APM SMA (%)</label>
+                            <label class="block font-medium text-slate-600 text-[11px] mb-1 truncate" title="APM SMA/SMK/MA (%)">APM SMA (%)</label>
                             <input type="number" step="0.01" name="target_apm_sma" :value="activeTarget.target_apm_sma" required class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center font-medium">
                         </div>
                     </div>

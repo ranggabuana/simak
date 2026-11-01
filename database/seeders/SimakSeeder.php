@@ -453,7 +453,7 @@ class SimakSeeder extends Seeder
                 'capaian_hls_prev' => 12.35,
                 'evaluasi_status' => 'Sangat Baik',
                 'catatan_evaluasi' => 'Target AKIP dan RLS tahun 2025 terlampaui. Partisipasi PAUD meningkat 4.2% berkat program PAUD Holistik Integratif.',
-                'rekomendasi' => 'Fokuskan intervensi APM SMA/SMK pada daerah dataran tinggi (Batur, Pejawaran, Wanayasa) melalui fasilitas transportasi sekolah gratis dan PKBM desa.',
+                'rekomendasi' => 'Fokuskan intervensi APM SMA/SMK/MA pada daerah dataran tinggi (Batur, Pejawaran, Wanayasa) melalui fasilitas transportasi sekolah gratis dan PKBM desa.',
             ]
         );
 

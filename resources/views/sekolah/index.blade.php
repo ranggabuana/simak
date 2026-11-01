@@ -45,7 +45,7 @@
         <div class="space-y-1.5 flex-1 min-w-0 pr-2">
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Data Basic Satuan Pendidikan (Sekolah)</h2>
             <p class="text-xs text-slate-600 leading-relaxed">
-                Kelola data pokok sekolah, NPSN resmi, jenjang (PAUD s.d. SMA/SMK), status kelembagaan, peringkat akreditasi BAN-PDM, dan wilayah kerja kecamatan di Kabupaten Banjarnegara.
+                Kelola data pokok sekolah, NPSN resmi, jenjang (PAUD s.d. SMA/SMK/MA), status kelembagaan, peringkat akreditasi BAN-PDM, dan wilayah kerja kecamatan di Kabupaten Banjarnegara.
             </p>
         </div>
         

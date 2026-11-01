@@ -110,7 +110,7 @@
                             <option value="PAUD">PAUD / TK</option>
                             <option value="SD">SD / MI</option>
                             <option value="SMP">SMP / MTs</option>
-                            <option value="SMA">SMA / SMK</option>
+                            <option value="SMA">SMA / SMK / MA</option>
                         </select>
                     </div>
 
@@ -177,7 +177,7 @@
                         <span class="flex items-center gap-1 text-[10px]"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white"></span> PAUD/TK</span>
                         <span class="flex items-center gap-1 text-[10px]"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-white"></span> SD/MI</span>
                         <span class="flex items-center gap-1 text-[10px]"><span class="w-2.5 h-2.5 rounded-full bg-indigo-600 ring-2 ring-white"></span> SMP/MTs</span>
-                        <span class="flex items-center gap-1 text-[10px]"><span class="w-2.5 h-2.5 rounded-full bg-purple-600 ring-2 ring-white"></span> SMA/SMK</span>
+                        <span class="flex items-center gap-1 text-[10px]"><span class="w-2.5 h-2.5 rounded-full bg-purple-600 ring-2 ring-white"></span> SMA/SMK/MA</span>
                     </div>
                 </div>
             </div>

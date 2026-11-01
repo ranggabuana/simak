@@ -8,7 +8,7 @@
         <div class="space-y-1.5 flex-1 min-w-0 pr-2">
             <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">Data Penduduk Usia Sekolah per Kecamatan (Tahun {{ $tahun }})</h2>
             <p class="text-xs text-slate-600 leading-relaxed">
-                Kelompok umur usia sekolah: 5–6 tahun (PAUD), 7–12 tahun (SD/MI), 13–15 tahun (SMP/MTs), 16–18 tahun (SMA/SMK), dan 18 tahun ke atas per kecamatan se-Kabupaten Banjarnegara.
+                Kelompok umur usia sekolah: 5–6 tahun (PAUD), 7–12 tahun (SD/MI), 13–15 tahun (SMP/MTs), 16–18 tahun (SMA/SMK/MA), dan 18 tahun ke atas per kecamatan se-Kabupaten Banjarnegara.
             </p>
         </div>
         
@@ -364,7 +364,7 @@
                     <!-- 16 - 18 Tahun (SMA) -->
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-800">16 – 18 Tahun (SMA/SMK) <span class="text-rose-500">*</span></span>
+                            <span class="text-xs font-bold text-slate-800">16 – 18 Tahun (SMA/SMK/MA) <span class="text-rose-500">*</span></span>
                             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">SMA</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
@@ -530,7 +530,7 @@
                     <!-- 16 - 18 Tahun (SMA) -->
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-800">16 – 18 Tahun (SMA/SMK) <span class="text-rose-500">*</span></span>
+                            <span class="text-xs font-bold text-slate-800">16 – 18 Tahun (SMA/SMK/MA) <span class="text-rose-500">*</span></span>
                             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">SMA</span>
                         </div>
                         <div class="grid grid-cols-2 gap-2">

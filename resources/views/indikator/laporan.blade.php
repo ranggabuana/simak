@@ -257,7 +257,7 @@
                 </div>
 
                 <div class="report-card">
-                    <span style="font-size: 7pt; font-weight: 700; text-transform: uppercase; color: #64748b; display: block;">SMA / SMK (16–18 Th)</span>
+                    <span style="font-size: 7pt; font-weight: 700; text-transform: uppercase; color: #64748b; display: block;">SMA / SMK / MA (16–18 Th)</span>
                     <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 2px;">
                         <span class="font-mono" style="font-size: 14pt; font-weight: 900; color: #0f172a;">{{ number_format($capaianSma, 2) }}%</span>
                         <span style="font-size: 7.5pt; font-weight: 600; color: #64748b;">Target: {{ number_format($targetSma, 1) }}%</span>
@@ -320,7 +320,7 @@
                         <th style="text-align: right;">PAUD / TK (5–6 Th)</th>
                         <th style="text-align: right;">SD / Sederajat (7–12 Th)</th>
                         <th style="text-align: right;">SMP / Sederajat (13–15 Th)</th>
-                        <th style="text-align: right;">SMA / SMK (16–18 Th)</th>
+                        <th style="text-align: right;">SMA / SMK / MA (16–18 Th)</th>
                         <th style="text-align: right;">Rata-rata Capaian</th>
                         <th style="width: 100px; text-align: center;">Status SPM</th>
                     </tr>
@@ -526,11 +526,11 @@
             </div>
         </div>
 
-        <!-- ==================== HALAMAN 4: TABEL RINCIAN PENDUDUK & SISWA (SMP & SMA/SMK) ==================== -->
+        <!-- ==================== HALAMAN 4: TABEL RINCIAN PENDUDUK & SISWA (SMP & SMA/SMK/MA) ==================== -->
         <div class="page-break space-y-4">
             <div style="border-bottom: 1.5px solid #cbd5e1; padding-bottom: 6px;">
                 <h3 style="font-size: 9.5pt; font-weight: 900; text-transform: uppercase; margin: 0; color: #0f172a;">
-                    3. Rincian Data Kependudukan & Partisipasi Siswa: SMP & SMA/SMK
+                    3. Rincian Data Kependudukan & Partisipasi Siswa: SMP & SMA/SMK/MA
                 </h3>
                 <div style="font-size: 7.5pt; color: #64748b;">Rincian agregat penduduk Dukcapil, siswa aktif Dapodik/EMIS, dan rasio capaian gender (L, P, Jumlah)</div>
             </div>
@@ -596,10 +596,10 @@
                 </table>
             </div>
 
-            <!-- SUB-TABEL SMA / SMK -->
+            <!-- SUB-TABEL SMA / SMK / MA -->
             <div class="avoid-break space-y-1">
                 <div style="font-size: 8pt; font-weight: 800; color: #065f46; text-transform: uppercase; background: #ecfdf5; padding: 4px 8px; border-radius: 6px; border: 1px solid #a7f3d0;">
-                    B. {{ $officialData['labels']['sma_title'] ?? 'SMA / SMK (Usia 16–18 Tahun)' }}
+                    B. {{ $officialData['labels']['sma_title'] ?? 'SMA / SMK / MA (Usia 16–18 Tahun)' }}
                 </div>
                 <table class="report-table">
                     <thead>
@@ -607,8 +607,8 @@
                             <th rowspan="2" style="width: 28px; text-align: center;">No</th>
                             <th rowspan="2" style="width: 140px; text-align: left;">Kecamatan</th>
                             <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sma_penduduk'] ?? 'Penduduk (16–18 Th)' }}</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sma_siswa'] ?? 'Siswa SMA/SMK' }}</th>
-                            <th colspan="3" style="text-align: center; background: #d1fae5; color: #065f46;">{{ $officialData['labels']['sma_capaian'] ?? 'Capaian SMA/SMK (%)' }}</th>
+                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sma_siswa'] ?? 'Siswa SMA/SMK/MA' }}</th>
+                            <th colspan="3" style="text-align: center; background: #d1fae5; color: #065f46;">{{ $officialData['labels']['sma_capaian'] ?? 'Capaian SMA/SMK/MA (%)' }}</th>
                         </tr>
                         <tr style="background: #f8fafc; font-size: 7pt;">
                             <th style="text-align: right;">L</th>
@@ -682,7 +682,7 @@
                 chartInstanceJenjang = new Chart(ctxJenjang, {
                     type: 'bar',
                     data: {
-                        labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK'],
+                        labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK/MA'],
                         datasets: [
                             {
                                 label: 'Capaian Riil (%)',
@@ -731,7 +731,7 @@
                 chartInstanceGender = new Chart(ctxGender, {
                     type: 'bar',
                     data: {
-                        labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK'],
+                        labels: ['PAUD', 'SD/MI', 'SMP/MTs', 'SMA/SMK/MA'],
                         datasets: [
                             {
                                 label: 'Laki-laki ♂ (%)',
