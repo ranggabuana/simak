@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Data Partisipasi Siswa (Dapodik)'])
 
 @section('content')
-<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, importModal: false, activeRow: {} }">
+<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, detailModal: false, importModal: false, activeRow: {} }">
 
     <!-- Header Banner -->
     <div class="p-6 rounded-3xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-white text-slate-900 flex flex-col xl:flex-row xl:items-center justify-between gap-5 shadow-xs border border-blue-200/60">
@@ -220,9 +220,7 @@
                         <th class="py-3.5 px-4 text-right" data-column="siswa_usia_sesuai">Usia Sesuai</th>
                         <th class="py-3.5 px-4 text-right" data-sortable="false">Rasio (%)</th>
                         <th class="py-3.5 px-4 text-center" data-column="jumlah_rombel">Rombel</th>
-                        @if(false)
                         <th class="py-3.5 px-4 text-center" data-sortable="false">Aksi</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -438,6 +436,126 @@
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm">Mulai Import Data</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: Detail Partisipasi Siswa -->
+    <div x-show="detailModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="detailModal = false">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
+             @click.away="detailModal = false">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900" x-text="activeRow.nama_sekolah"></h3>
+                        <p class="text-xs text-slate-500 font-mono">
+                            NPSN: <span class="font-bold text-blue-700" x-text="activeRow.npsn"></span> &bull; 
+                            Tahun Ajaran: <span class="font-bold text-slate-800" x-text="activeRow.tahun_ajaran"></span>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" @click="detailModal = false" class="text-slate-400 hover:text-slate-600 text-2xl font-bold cursor-pointer leading-none">&times;</button>
+            </div>
+
+            <!-- Badges Row -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200" x-text="'Jenjang: ' + (activeRow.jenjang || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200" x-text="'Kec. ' + (activeRow.kecamatan_nama || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" x-text="'Tahun Anggaran ' + (activeRow.tahun || '-')"></span>
+            </div>
+
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100">
+                    <span class="font-bold text-blue-900 uppercase text-[10px] tracking-wider block">Total Murid</span>
+                    <div class="text-2xl font-black text-blue-950 mt-1" x-text="Number(activeRow.total_siswa_semua_usia || 0).toLocaleString('id-ID')"></div>
+                    <span class="text-[10px] text-blue-600 mt-0.5 block">Seluruh usia terdaftar</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100">
+                    <span class="font-bold text-emerald-900 uppercase text-[10px] tracking-wider block">Usia Sesuai Jenjang</span>
+                    <div class="text-2xl font-black text-emerald-950 mt-1" x-text="Number(activeRow.siswa_usia_sesuai || 0).toLocaleString('id-ID')"></div>
+                    <span class="text-[10px] text-emerald-700 font-bold mt-0.5 block" x-text="'Rasio: ' + (activeRow.rasio || 0) + '%'"></span>
+                </div>
+                <div class="p-4 rounded-2xl bg-purple-50/70 border border-purple-100">
+                    <span class="font-bold text-purple-900 uppercase text-[10px] tracking-wider block">Rombongan Belajar</span>
+                    <div class="text-2xl font-black text-purple-950 mt-1" x-text="(activeRow.jumlah_rombel || 0) + ' Rombel'"></div>
+                    <span class="text-[10px] text-purple-600 mt-0.5 block" x-text="'Rata-rata: ' + (activeRow.avg_rombel || 0) + ' siswa/kelas'"></span>
+                </div>
+            </div>
+
+            <!-- Komposisi Gender Siswa -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3 text-xs">
+                <span class="font-bold text-slate-800 uppercase text-[11px] tracking-wider block">Komparasi Gender Siswa</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="p-3 bg-white rounded-xl border border-blue-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] font-bold text-blue-900 block">Laki-laki (L)</span>
+                            <span class="text-xs text-slate-500">Usia Sesuai: <strong class="text-slate-800" x-text="Number(activeRow.siswa_usia_sesuai_l || 0).toLocaleString('id-ID')"></strong></span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-base font-black text-blue-700" x-text="Number(activeRow.siswa_l || 0).toLocaleString('id-ID')"></span>
+                            <span class="text-[10px] text-slate-400 block">Siswa</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-white rounded-xl border border-pink-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] font-bold text-pink-900 block">Perempuan (P)</span>
+                            <span class="text-xs text-slate-500">Usia Sesuai: <strong class="text-slate-800" x-text="Number(activeRow.siswa_usia_sesuai_p || 0).toLocaleString('id-ID')"></strong></span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-base font-black text-pink-700" x-text="Number(activeRow.siswa_p || 0).toLocaleString('id-ID')"></span>
+                            <span class="text-[10px] text-slate-400 block">Siswi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breakdown Kelompok Usia Dapodik -->
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3 text-xs">
+                <span class="font-bold text-slate-800 uppercase text-[11px] tracking-wider block">Sebaran Kelompok Usia (Indikator APK / APM / APS)</span>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                    <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+                        <span class="text-[10px] text-slate-400 font-bold block">Usia 5–6 Th</span>
+                        <div class="text-sm font-extrabold text-slate-900 mt-0.5" x-text="Number(activeRow.siswa_usia_5_6 || 0).toLocaleString('id-ID')"></div>
+                        <span class="text-[9px] text-slate-400">PAUD / TK</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+                        <span class="text-[10px] text-slate-400 font-bold block">Usia 7–12 Th</span>
+                        <div class="text-sm font-extrabold text-slate-900 mt-0.5" x-text="Number(activeRow.siswa_usia_7_12 || 0).toLocaleString('id-ID')"></div>
+                        <span class="text-[9px] text-slate-400">SD / MI</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+                        <span class="text-[10px] text-slate-400 font-bold block">Usia 13–15 Th</span>
+                        <div class="text-sm font-extrabold text-slate-900 mt-0.5" x-text="Number(activeRow.siswa_usia_13_15 || 0).toLocaleString('id-ID')"></div>
+                        <span class="text-[9px] text-slate-400">SMP / MTs</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-white border border-slate-200">
+                        <span class="text-[10px] text-slate-400 font-bold block">Usia 16–18 Th</span>
+                        <div class="text-sm font-extrabold text-slate-900 mt-0.5" x-text="Number(activeRow.siswa_usia_16_18 || 0).toLocaleString('id-ID')"></div>
+                        <span class="text-[9px] text-slate-400">SMA / SMK / MA</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-white border border-slate-200 col-span-2 sm:col-span-1">
+                        <span class="text-[10px] text-slate-400 font-bold block">Usia Lainnya</span>
+                        <div class="text-sm font-extrabold text-slate-900 mt-0.5" x-text="Number(activeRow.siswa_usia_lainnya || 0).toLocaleString('id-ID')"></div>
+                        <span class="text-[9px] text-slate-400">&lt;5 atau &gt;18</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" 
+                        @click="detailModal = false" 
+                        class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 

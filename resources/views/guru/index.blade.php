@@ -1,7 +1,7 @@
 @extends('layouts.app', ['title' => 'Data Guru & Sertifikasi Pendidik'])
 
 @section('content')
-<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, importModal: false, activeRow: {} }">
+<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, detailModal: false, importModal: false, activeRow: {} }">
 
     <!-- Header Banner -->
     <div class="p-6 rounded-3xl bg-gradient-to-r from-purple-50/80 via-slate-50 to-white text-slate-900 flex flex-col xl:flex-row xl:items-center justify-between gap-5 shadow-xs border border-purple-200/60">
@@ -197,9 +197,7 @@
                         <th class="py-3.5 px-4 text-center" data-column="status_kepegawaian">Status</th>
                         <th class="py-3.5 px-4" data-column="bidang_studi">Bidang Studi</th>
                         <th class="py-3.5 px-4 text-center" data-column="sudah_sertifikasi">Sertifikasi</th>
-                        @if(false)
                         <th class="py-3.5 px-4 text-center" data-sortable="false">Aksi</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -435,6 +433,89 @@
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm">Mulai Import Data</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: Detail Data Guru & Tendik -->
+    <div x-show="detailModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="detailModal = false">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
+             @click.away="detailModal = false">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900" x-text="activeRow.nama"></h3>
+                        <p class="text-xs text-slate-500 font-mono">
+                            NUPTK: <span class="font-bold text-blue-700" x-text="activeRow.nuptk || '-'"></span> &bull; 
+                            NIP: <span class="font-bold text-slate-700" x-text="activeRow.nip || '-'"></span>
+                        </p>
+                    </div>
+                </div>
+                <button type="button" @click="detailModal = false" class="text-slate-400 hover:text-slate-600 text-2xl font-bold cursor-pointer leading-none">&times;</button>
+            </div>
+
+            <!-- Badges Row -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold border"
+                      :class="activeRow.sudah_sertifikasi ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-100 text-slate-600 border-slate-200'"
+                      x-text="activeRow.sudah_sertifikasi ? '✓ Bersertifikat Pendidik' : 'Belum Bersertifikasi'">
+                </span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200" x-text="'Status: ' + (activeRow.status_kepegawaian || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200" x-text="'JK: ' + (activeRow.jenis_kelamin_label || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200" x-text="'Kec. ' + (activeRow.kecamatan_nama || '-')"></span>
+            </div>
+
+            <!-- Detail Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Satuan Pendidikan Induk</span>
+                    <div class="font-extrabold text-slate-900 text-sm" x-text="activeRow.satuan_pendidikan_nama || '-'"></div>
+                    <span class="text-[10px] text-slate-400 font-mono block" x-text="'NPSN: ' + (activeRow.satuan_pendidikan_npsn || '-') + ' (' + (activeRow.satuan_pendidikan_jenjang || '-') + ')'"></span>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Bidang Studi / Mata Pelajaran</span>
+                    <div class="font-bold text-slate-800 text-sm" x-text="activeRow.bidang_studi || 'Guru Kelas / Mapel'"></div>
+                    <span class="text-[10px] text-slate-400 block">Kategori Penugasan GTK</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Nomor Unik Pendidik (NUPTK)</span>
+                    <div class="font-mono font-bold text-blue-700 text-sm" x-text="activeRow.nuptk || '-'"></div>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Nomor Induk Pegawai (NIP)</span>
+                    <div class="font-mono font-bold text-slate-800 text-sm" x-text="activeRow.nip || '-'"></div>
+                </div>
+            </div>
+
+            <!-- Sertifikasi Banner Info -->
+            <div class="p-4 rounded-2xl border text-xs space-y-1"
+                 :class="activeRow.sudah_sertifikasi ? 'bg-purple-50/70 border-purple-200 text-purple-950' : 'bg-slate-50 border-slate-200 text-slate-700'">
+                <div class="flex items-center gap-2 font-bold text-[11px] uppercase tracking-wider"
+                     :class="activeRow.sudah_sertifikasi ? 'text-purple-900' : 'text-slate-700'">
+                    <span class="w-2 h-2 rounded-full" :class="activeRow.sudah_sertifikasi ? 'bg-purple-600' : 'bg-slate-400'"></span>
+                    <span x-text="activeRow.sudah_sertifikasi ? 'Kualifikasi Sertifikasi Pendidik Terpenuhi' : 'Belum Memiliki Sertifikat Pendidik'"></span>
+                </div>
+                <p class="text-[11px] leading-relaxed"
+                   x-text="activeRow.sudah_sertifikasi 
+                        ? 'Guru telah lulus sertifikasi profesional dan tercatat sebagai pemegang Sertifikat Pendidik resmi pada dapodik/SIMPATIKA sesuai standar Renstra DINDIKPORA.'
+                        : 'Guru belum memiliki sertifikat pendidik profesi dan menjadi sasaran pembinaan / program PPG keprofesian berkelanjutan.'">
+                </p>
+            </div>
+
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" 
+                        @click="detailModal = false" 
+                        class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 

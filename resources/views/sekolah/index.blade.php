@@ -6,6 +6,7 @@
         createModal: false, 
         editModal: false, 
         deleteModal: false, 
+        detailModal: false, 
         importModal: false, 
         activeRow: {} 
      }"
@@ -26,6 +27,15 @@
                         window.editSchoolPicker.open(activeRow?.latitude, activeRow?.longitude, activeRow?.kecamatan_id);
                     }
                 }, 150);
+            }
+        });
+        $watch('detailModal', val => {
+            if (val) {
+                setTimeout(() => {
+                    if (window.detailSchoolMap) {
+                        window.detailSchoolMap.show(activeRow?.latitude, activeRow?.longitude, activeRow?.nama_sekolah, activeRow?.npsn, activeRow?.alamat, activeRow?.jenjang);
+                    }
+                }, 180);
             }
         });
      ">
@@ -186,9 +196,7 @@
                         <th class="py-3.5 px-4 text-center" data-column="akreditasi">Akreditasi</th>
                         <th class="py-3.5 px-4" data-sortable="false">Kecamatan</th>
                         <th class="py-3.5 px-4" data-sortable="false">Kepala Sekolah / Alamat</th>
-                        @if(false)
                         <th class="py-3.5 px-4 text-center" data-sortable="false">Aksi</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -689,6 +697,108 @@
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm">Mulai Import Data</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL 5: Detail Satuan Pendidikan -->
+    <div x-show="detailModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="detailModal = false">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
+             @click.away="detailModal = false">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900" x-text="activeRow.nama_sekolah"></h3>
+                        <p class="text-xs text-slate-500 font-mono">NPSN: <span class="font-bold text-blue-700" x-text="activeRow.npsn"></span></p>
+                    </div>
+                </div>
+                <button type="button" @click="detailModal = false" class="text-slate-400 hover:text-slate-600 text-2xl font-bold cursor-pointer leading-none">&times;</button>
+            </div>
+
+            <!-- Badges Row -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200" x-text="'Jenjang: ' + (activeRow.jenjang || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-bold" 
+                      :class="activeRow.status === 'Negeri' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200'"
+                      x-text="'Status: ' + (activeRow.status || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-800 border border-amber-200" x-text="'Akreditasi: ' + (activeRow.akreditasi || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200" x-text="'Kec. ' + (activeRow.kecamatan_nama || '-')"></span>
+            </div>
+
+            <!-- Detail Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Kepala Sekolah</span>
+                    <div class="font-extrabold text-slate-900 text-sm" x-text="activeRow.kepala_sekolah || '-'"></div>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Nomor Telepon</span>
+                    <div class="font-bold text-slate-800 text-sm font-mono" x-text="activeRow.telepon || '-'"></div>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1 sm:col-span-2">
+                    <span class="font-bold text-slate-500 uppercase text-[10px] tracking-wider block">Alamat Satuan Pendidikan</span>
+                    <div class="font-medium text-slate-800 text-xs leading-relaxed" x-text="activeRow.alamat || '-'"></div>
+                </div>
+            </div>
+
+            <!-- Peta & Titik Lokasi Satuan Pendidikan (Leaflet GIS) -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Peta & Titik Lokasi Sekolah</h4>
+                    </div>
+                    <template x-if="activeRow.latitude && activeRow.longitude && activeRow.latitude != 0">
+                        <a :href="'https://www.google.com/maps?q=' + activeRow.latitude + ',' + activeRow.longitude" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="text-blue-600 hover:text-blue-800 font-bold text-xs inline-flex items-center gap-1.5 transition">
+                            <span>Buka di Google Maps</span>
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </a>
+                    </template>
+                </div>
+
+                <!-- Container Leaflet Map -->
+                <div class="relative w-full h-72 sm:h-80 rounded-2xl border border-slate-200 overflow-hidden shadow-inner bg-slate-100">
+                    <div id="mapDetailView" class="w-full h-full z-0"></div>
+                    <template x-if="!activeRow.latitude || !activeRow.longitude || activeRow.latitude == 0">
+                        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-2xs flex flex-col items-center justify-center text-white p-4 text-center z-10 pointer-events-none">
+                            <svg class="w-8 h-8 text-amber-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span class="font-bold text-sm">Titik Koordinat Belum Ditentukan</span>
+                            <span class="text-xs text-slate-200 mt-1 max-w-sm">Sekolah ini belum memiliki titik koordinat presisi di Dapodik/SIMAK. Peta menampilkan area Kabupaten Banjarnegara.</span>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-slate-500 pt-0.5">
+                    <div>
+                        Koordinat: <span class="font-mono font-bold text-slate-800" x-text="(activeRow.latitude && activeRow.longitude && activeRow.latitude != 0) ? (activeRow.latitude + ', ' + activeRow.longitude) : 'Belum terekam'"></span>
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                        * Gunakan tombol layer (pojok kanan atas) untuk beralih antara Peta Jalan & Citra Satelit
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" 
+                        @click="detailModal = false" 
+                        class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition cursor-pointer">
+                    Tutup
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1325,8 +1435,111 @@
         }
     }
 
+    class SimakDetailSchoolMap {
+        constructor(containerId) {
+            this.containerId = containerId;
+            this.map = null;
+            this.marker = null;
+        }
+
+        initMap() {
+            if (this.map) {
+                this.map.invalidateSize();
+                return;
+            }
+
+            const container = document.getElementById(this.containerId);
+            if (!container) return;
+
+            this.map = L.map(this.containerId, {
+                center: BANJARNEGARA_CENTER,
+                zoom: 13,
+                zoomControl: true,
+                scrollWheelZoom: true
+            });
+
+            const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19
+            }).addTo(this.map);
+
+            const esriLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri',
+                maxZoom: 19
+            });
+
+            L.control.layers({
+                'Peta Jalan': osmLayer,
+                'Citra Satelit': esriLayer
+            }, null, { position: 'topright' }).addTo(this.map);
+        }
+
+        createPinIcon() {
+            return L.divIcon({
+                className: 'simak-school-pin',
+                html: `
+                    <div style="position: relative; width: 34px; height: 42px; transform: translate(-50%, -100%); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.35));">
+                        <svg viewBox="0 0 24 24" fill="none" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C7.58 2 4 5.58 4 10C4 15.25 12 22 12 22C12 22 20 15.25 20 10C20 5.58 16.42 2 12 2Z" fill="#2563EB" stroke="#FFFFFF" stroke-width="2"/>
+                            <circle cx="12" cy="10" r="3.5" fill="#FFFFFF"/>
+                        </svg>
+                    </div>
+                `,
+                iconSize: [0, 0],
+                iconAnchor: [0, 0],
+                popupAnchor: [0, -38]
+            });
+        }
+
+        show(lat, lng, schoolName, npsn, alamat, jenjang) {
+            this.initMap();
+            if (!this.map) return;
+
+            setTimeout(() => {
+                this.map.invalidateSize();
+
+                const latNum = parseFloat(lat);
+                const lngNum = parseFloat(lng);
+                const hasValidCoords = !isNaN(latNum) && !isNaN(lngNum) && latNum !== 0 && lngNum !== 0 && latNum >= -90 && latNum <= 90;
+
+                if (this.marker) {
+                    this.map.removeLayer(this.marker);
+                    this.marker = null;
+                }
+
+                if (hasValidCoords) {
+                    this.marker = L.marker([latNum, lngNum], {
+                        icon: this.createPinIcon()
+                    }).addTo(this.map);
+
+                    const safeName = (schoolName || 'Satuan Pendidikan').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const safeNpsn = (npsn || '-').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const safeAlamat = (alamat || '-').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const safeJenjang = (jenjang || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    const popupHtml = `
+                        <div style="min-width: 170px; max-width: 250px; font-family: inherit; font-size: 11px;">
+                            <span style="display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: bold; background: #EFF6FF; color: #1D4ED8; margin-bottom: 4px;">
+                                ${safeJenjang}
+                            </span>
+                            <div style="font-weight: bold; color: #0F172A; font-size: 12px; margin-bottom: 2px; line-height: 1.3;">${safeName}</div>
+                            <div style="font-family: monospace; font-size: 11px; color: #2563EB; margin-bottom: 4px;">NPSN: ${safeNpsn}</div>
+                            <div style="color: #64748B; line-height: 1.3;">${safeAlamat}</div>
+                        </div>
+                    `;
+
+                    this.marker.bindPopup(popupHtml).openPopup();
+                    this.map.setView([latNum, lngNum], 16);
+                } else {
+                    this.map.setView(BANJARNEGARA_CENTER, 11);
+                }
+            }, 150);
+        }
+    }
+
     function initSchoolPickers() {
         if (window.L) {
+            window.detailSchoolMap = new SimakDetailSchoolMap('mapDetailView');
             window.createSchoolPicker = new SimakSchoolMapPicker({
                 containerId: 'mapCreatePicker',
                 latInputId: 'create_latitude',
