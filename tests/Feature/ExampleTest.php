@@ -117,6 +117,20 @@ class ExampleTest extends TestCase
     }
 
     /**
+     * Test user can access settings page.
+     */
+    public function test_user_can_access_settings_page(): void
+    {
+        $user = $this->getAdminUser();
+
+        $response = $this->actingAs($user)->get('/settings');
+
+        $response->assertOk();
+        $response->assertSee('Pengaturan Aplikasi SIMAK');
+        $response->assertSee('Identitas');
+    }
+
+    /**
      * Test user can update application settings.
      */
     public function test_user_can_update_settings(): void
@@ -127,11 +141,24 @@ class ExampleTest extends TestCase
             'nama_instansi' => 'DINDIKPORA Banjarnegara',
             'periode_renstra' => '2025–2029',
             'tahun_evaluasi' => 2025,
-            'rumus_apk_mode' => 'resmi_kemendikbud',
+            'tahun_anggaran_default' => 2025,
+            'kepala_dinas_nama' => 'Dr. H. Teguh Handoko, S.Sos., M.Si.',
+            'kepala_dinas_nip' => '196807151992031005',
+            'ambang_batas_spm' => 90.00,
+            'banner_aktif' => '1',
+            'banner_pesan' => 'Uji Coba Pengumuman SIMAK',
         ]);
 
         $response->assertSessionHas('success');
         $response->assertSessionHas('app_settings');
+        $this->assertDatabaseHas('settings', [
+            'key' => 'nama_instansi',
+            'value' => 'DINDIKPORA Banjarnegara',
+        ]);
+        $this->assertDatabaseHas('settings', [
+            'key' => 'ambang_batas_spm',
+            'value' => '90',
+        ]);
     }
 
     /**

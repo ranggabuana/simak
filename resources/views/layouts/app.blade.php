@@ -32,7 +32,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="min-h-full antialiased text-slate-800 flex flex-col lg:flex-row bg-slate-50/80 w-full max-w-full overflow-x-hidden" x-data="{ sidebarOpen: false, profileOpen: false, profileModal: false, settingsModal: false, exportModal: false, dapodikModal: false }">
+<body class="min-h-full antialiased text-slate-800 flex flex-col lg:flex-row bg-slate-50/80 w-full max-w-full overflow-x-hidden" x-data="{ sidebarOpen: false, profileOpen: false, profileModal: false, exportModal: false, dapodikModal: false }">
 
     <!-- Mobile Sidebar Backdrop -->
     <div x-show="sidebarOpen" 
@@ -229,7 +229,7 @@
                         <svg class="w-5 h-5 {{ request()->routeIs('renstra.target') ? 'text-blue-600' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
-                        <span>Target Renstra (2025–2029)</span>
+                        <span>Target Renstra ({{ $appSettings['periode_renstra'] ?? '2025–2029' }})</span>
                     </a>
                     @endif
 
@@ -349,14 +349,13 @@
                              x-transition:leave-end="opacity-0 -translate-y-2"
                              class="mt-1 pl-3.5 ml-4 border-l-2 border-slate-200/80 space-y-1 py-1">
                             
-                            <!-- 1. Pengaturan Aplikasi Modal -->
+                            <!-- 1. Pengaturan Aplikasi -->
                             @if(auth()->user()->canAccessMenu('pengaturan'))
-                            <button type="button" 
-                                    @click="settingsModal = true" 
-                                    class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 transition text-left cursor-pointer group">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-blue-600 transition-colors"></span>
+                            <a href="{{ route('settings.index') }}" 
+                               class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition {{ request()->routeIs('settings.*') ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/60 shadow-2xs' : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ request()->routeIs('settings.*') ? 'bg-blue-600 ring-2 ring-blue-300' : 'bg-slate-300' }}"></span>
                                 <span>Pengaturan Aplikasi</span>
-                            </button>
+                            </a>
                             @endif
 
                             <!-- 2. Manajemen Pengguna -->
@@ -571,6 +570,27 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </button>
+
+                            @if(auth()->user()->canAccessMenu('pengaturan'))
+                            <!-- Menu 2: Pengaturan Aplikasi Halaman -->
+                            <a href="{{ route('settings.index') }}" 
+                               @click="profileOpen = false"
+                               class="w-full flex items-center gap-3 px-4 py-2.5 text-left text-slate-700 hover:text-blue-700 hover:bg-blue-50/70 transition group cursor-pointer">
+                                <div class="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-blue-100 group-hover:text-blue-700 flex items-center justify-center text-slate-500 transition">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold text-slate-800 group-hover:text-blue-700">Pengaturan Aplikasi</p>
+                                    <p class="text-[11px] text-slate-400 group-hover:text-slate-500 truncate">Parameter dinas, SPM & sistem</p>
+                                </div>
+                                <svg class="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                            @endif
                         </div>
 
                         <!-- Menu 3: Logout -->
@@ -629,6 +649,35 @@
                         <li>{{ $err }}</li>
                     @endforeach
                 </ul>
+            </div>
+        @endif
+
+        <!-- Announcement Banner (jika diaktifkan via Pengaturan) -->
+        @if(($appSettings['banner_aktif'] ?? '0') === '1' && !empty($appSettings['banner_pesan']))
+            @php
+                $bType = $appSettings['banner_tipe'] ?? 'info';
+                $bClasses = match($bType) {
+                    'warning' => 'bg-amber-500/10 text-amber-900 border-amber-300 ring-amber-400/20',
+                    'danger' => 'bg-rose-500/10 text-rose-900 border-rose-300 ring-rose-400/20',
+                    'success' => 'bg-emerald-500/10 text-emerald-900 border-emerald-300 ring-emerald-400/20',
+                    default => 'bg-blue-500/10 text-blue-900 border-blue-300 ring-blue-400/20',
+                };
+                $bBadge = match($bType) {
+                    'warning' => 'bg-amber-500 text-white',
+                    'danger' => 'bg-rose-600 text-white',
+                    'success' => 'bg-emerald-600 text-white',
+                    default => 'bg-blue-600 text-white',
+                };
+            @endphp
+            <div class="px-3 sm:px-6 lg:px-8 pt-4 no-print">
+                <div class="rounded-2xl border px-4 py-3 flex items-start gap-3 shadow-xs {{ $bClasses }}">
+                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider shrink-0 {{ $bBadge }}">
+                        Pengumuman
+                    </span>
+                    <div class="flex-1 text-xs font-semibold leading-relaxed">
+                        {{ $appSettings['banner_pesan'] }}
+                    </div>
+                </div>
             </div>
         @endif
 
@@ -785,123 +834,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                             <span>Simpan Perubahan</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Pengaturan Aplikasi -->
-    <div x-show="settingsModal" 
-         x-cloak
-         class="fixed inset-0 z-50 overflow-y-auto"
-         role="dialog" 
-         aria-modal="true">
-        <!-- Backdrop -->
-        <div x-show="settingsModal"
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
-             @click="settingsModal = false"></div>
-
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div x-show="settingsModal"
-                 x-transition:enter="ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave="ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl border border-slate-200">
-                
-                <!-- Modal Header -->
-                <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-600 px-6 py-5 text-white flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-bold text-white">Pengaturan Aplikasi SIMAK</h3>
-                            <p class="text-xs text-indigo-100">Konfigurasi parameter umum sistem akuntabilitas kinerja</p>
-                        </div>
-                    </div>
-                    <button type="button" @click="settingsModal = false" class="text-white/80 hover:text-white rounded-xl p-1.5 hover:bg-white/10 transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Modal Body Form -->
-                <form action="{{ route('settings.update') }}" method="POST" class="p-6 space-y-4">
-                    @csrf
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Instansi / Dinas <span class="text-rose-500">*</span></label>
-                        <input type="text" 
-                               name="nama_instansi" 
-                               required 
-                               value="{{ session('app_settings.nama_instansi', 'Dinas Pendidikan, Kepemudaan dan Olahraga Kab. Banjarnegara') }}" 
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Periode Renstra <span class="text-rose-500">*</span></label>
-                            <input type="text" 
-                                   name="periode_renstra" 
-                                   required 
-                                   value="{{ session('app_settings.periode_renstra', '2025–2029') }}" 
-                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tahun Kinerja Acuan <span class="text-rose-500">*</span></label>
-                            <input type="number" 
-                                   name="tahun_evaluasi" 
-                                   required 
-                                   min="2020" 
-                                   max="2035" 
-                                   value="{{ session('app_settings.tahun_evaluasi', 2025) }}" 
-                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Metode Perhitungan Indikator APK <span class="text-rose-500">*</span></label>
-                        <select name="rumus_apk_mode" 
-                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                            <option value="resmi_kemendikbud" {{ session('app_settings.rumus_apk_mode') === 'resmi_kemendikbud' ? 'selected' : '' }}>
-                                Resmi Kemendikbudristek (Siswa Jenjang / Penduduk Usia Resmi × 100%)
-                            </option>
-                            <option value="agregat_total" {{ session('app_settings.rumus_apk_mode') === 'agregat_total' ? 'selected' : '' }}>
-                                Agregat Total Wilayah (Total Partisipasi Semua Wilayah)
-                            </option>
-                        </select>
-                        <p class="text-[11px] text-slate-500 mt-1">Standar resmi memperhitungkan siswa dari usia di luar kelompok resmi (inklusi APK).</p>
-                    </div>
-
-                    <!-- Modal Actions -->
-                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-                        <button type="button" 
-                                @click="settingsModal = false" 
-                                class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs font-bold transition cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="submit" 
-                                class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition flex items-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>Simpan Pengaturan</span>
                         </button>
                     </div>
                 </form>

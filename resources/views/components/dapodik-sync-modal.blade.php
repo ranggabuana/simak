@@ -14,6 +14,7 @@
         target: '{{ $defaultTarget }}',
         entityFile: '{{ $defaultTarget === 'semua' ? 'sekolah' : $defaultTarget }}',
         tahunTarget: {{ $resolvedTahun }},
+        semesterId: '{{ $resolvedTahun }}1',
         purgeDummy: {{ $hasDummyData ? 'true' : 'false' }},
         syncing: false,
         taskId: null,
@@ -32,7 +33,7 @@
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify({ target: this.target, semester_id: '20261', purge_dummy: this.purgeDummy })
+                body: JSON.stringify({ target: this.target, semester_id: this.semesterId, purge_dummy: this.purgeDummy })
             })
             .then(r => r.json())
             .then(data => {
@@ -129,14 +130,26 @@
                 </p>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Cakupan Data yang Disinkronkan</label>
-                <select x-model="target" :disabled="syncing" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="semua">Semua Data Dapodik (Sekolah + Partisipasi Siswa + Guru)</option>
-                    <option value="sekolah">Hanya Satuan Pendidikan (dbo.v_simak_sekolah_bna)</option>
-                    <option value="siswa">Hanya Partisipasi Siswa (dbo.v_simak_siswa_bna)</option>
-                    <option value="guru">Hanya Data Guru & Sertifikasi (dbo.v_simak_guru_bna)</option>
-                </select>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Cakupan Data</label>
+                    <select x-model="target" :disabled="syncing" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="semua">Semua Data Dapodik (Sekolah + Siswa + Guru)</option>
+                        <option value="sekolah">Hanya Satuan Pendidikan</option>
+                        <option value="siswa">Hanya Partisipasi Siswa</option>
+                        <option value="guru">Hanya Data Guru & Tendik</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Tahun / Semester Target</label>
+                    <select x-model="semesterId" :disabled="syncing" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        @foreach([2027, 2026, 2025, 2024] as $th)
+                            <option value="{{ $th }}1">Tahun {{ $th }} (T.A {{ $th }}/{{ $th + 1 }} Ganjil)</option>
+                            <option value="{{ $th }}2">Tahun {{ $th }} (T.A {{ $th }}/{{ $th + 1 }} Genap)</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             @if($hasDummyData)

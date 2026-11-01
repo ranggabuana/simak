@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\PartisipasiSiswa;
 use App\Models\PendudukUsiaSekolah;
 use App\Models\RealisasiKinerja;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 abstract class Controller
 {
     /**
-     * Ambil tahun anggaran/kinerja default secara dinamis (tanpa hardcode 2025).
+     * Ambil tahun anggaran/kinerja default secara dinamis (mengacu pada Pengaturan Aplikasi jika diset).
      */
     public static function defaultTahun(): int
     {
-        return (int) date('Y');
+        return (int) Setting::get('tahun_anggaran_default', (int) date('Y'));
     }
 
     /**

@@ -89,7 +89,7 @@ class RoleMenuPermission extends Model
             'pengaturan_sistem' => [
                 'label' => 'Pengaturan & Tata Kelola',
                 'menus' => [
-                    'pengaturan' => ['name' => 'Pengaturan Aplikasi', 'route' => 'settings.update', 'desc' => 'Konfigurasi parameter sistem, instansi & Renstra'],
+                    'pengaturan' => ['name' => 'Pengaturan Aplikasi', 'route' => 'settings.index', 'desc' => 'Konfigurasi parameter sistem, instansi & Renstra'],
                     'manajemen_pengguna' => ['name' => 'Manajemen Pengguna & Hak Akses', 'route' => 'users.index', 'desc' => 'Kelola akun pengguna dan matriks hak akses menu'],
                     'audit' => ['name' => 'Log System (Audit Trail & Error)', 'route' => 'audit.index', 'desc' => 'Catatan jejak rekam digital perubahan data & log error aplikasi'],
                     'panduan' => ['name' => 'Panduan & SOP SAKIP', 'route' => 'panduan.index', 'desc' => 'Manual book, SOP dan glosarium teknis SAKIP'],

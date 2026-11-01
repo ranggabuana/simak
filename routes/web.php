@@ -14,6 +14,7 @@ use App\Http\Controllers\PetaSebaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RenstraAkipController;
 use App\Http\Controllers\SatuanPendidikanController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TujuanDuaController;
 use App\Http\Controllers\TujuanSatuController;
 use App\Http\Controllers\UserController;
@@ -135,9 +136,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/template/{type}', [ImportController::class, 'downloadTemplate'])->name('template');
     });
 
-    // Profil & Pengaturan Aplikasi
+    // Profil Pengguna
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::post('/settings', [ProfileController::class, 'updateSettings'])->name('settings.update')->middleware('menu:pengaturan');
+
+    // Pengaturan Aplikasi SIMAK (Halaman Khusus)
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index')->middleware('menu:pengaturan');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update')->middleware('menu:pengaturan');
 
     // Manajemen Pengguna & Matriks Hak Akses Menu
     Route::prefix('manajemen-pengguna')->name('users.')->middleware('menu:manajemen_pengguna')->group(function () {

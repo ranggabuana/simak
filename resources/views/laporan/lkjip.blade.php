@@ -98,7 +98,7 @@
                 Laporan Kinerja Instansi Pemerintah (LKjIP)
             </h3>
             <p class="text-xs font-bold text-slate-600">
-                Tahun Anggaran {{ $tahun }} &bull; Periode Evaluasi Renstra 2025–2029
+                Tahun Anggaran {{ $tahun }} &bull; Periode Evaluasi Renstra {{ $appSettings['periode_renstra'] ?? '2025–2029' }}
             </p>
         </div>
 
@@ -266,10 +266,10 @@
         <!-- LEMBAR PENGESAHAN KEPALA DINAS -->
         <footer class="pt-8 text-xs flex justify-end">
             <div class="text-center w-72 space-y-1">
-                <p>Banjarnegara, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
+                <p>{{ $appSettings['kota_dokumen'] ?? 'Banjarnegara' }}, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
                 <p class="font-bold text-slate-800">Mengetahui & Menyetujui,</p>
                 <p class="font-bold uppercase text-slate-900 leading-tight">
-                    Kepala Dinas Pendidikan, Kepemudaan dan Olahraga Kabupaten Banjarnegara
+                    {{ $appSettings['kepala_dinas_jabatan'] ?? 'Kepala Dinas Pendidikan, Kepemudaan dan Olahraga' }}
                 </p>
                 
                 <!-- Ruang Tanda Tangan -->
@@ -278,13 +278,13 @@
                 </div>
 
                 <p class="font-extrabold text-slate-950 underline text-sm">
-                    {{ $pimpinan->name }}
+                    {{ $appSettings['kepala_dinas_nama'] ?? ($pimpinan->name ?? 'Dr. H. Teguh Handoko, S.Sos., M.Si.') }}
                 </p>
                 <p class="text-[11px] text-slate-600 font-mono">
-                    NIP. {{ $pimpinan->nip }}
+                    NIP. {{ $appSettings['kepala_dinas_nip'] ?? ($pimpinan->nip ?? '196807151992031005') }}
                 </p>
                 <p class="text-[10px] text-slate-500 font-bold uppercase">
-                    Pembina Utama Muda (IV/c)
+                    {{ $appSettings['kepala_dinas_pangkat'] ?? 'Pembina Utama Muda (IV/c)' }}
                 </p>
             </div>
         </footer>

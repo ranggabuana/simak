@@ -38,7 +38,7 @@
                 <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span>Renstra 2025–2029</span>
+                <span>Renstra {{ $appSettings['periode_renstra'] ?? '2025–2029' }}</span>
             </div>
         </div>
     </div>
@@ -60,7 +60,7 @@
                             Skor Kesehatan: {{ $ewsData['summary']['indeks_kesehatan_kinerja'] }}%
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500">Deteksi deviasi capaian riil terhadap target Renstra 2025–2029 untuk mitigasi dini</p>
+                    <p class="text-[11px] text-slate-500">Deteksi deviasi capaian riil terhadap target Renstra {{ $appSettings['periode_renstra'] ?? '2025–2029' }} untuk mitigasi dini</p>
                 </div>
             </div>
 
@@ -349,7 +349,7 @@
         <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
             <div class="flex items-center justify-between flex-wrap gap-2">
                 <div>
-                    <h3 class="font-bold text-base text-slate-900">Tren Capaian vs Target Renstra (2025–2029)</h3>
+                    <h3 class="font-bold text-base text-slate-900">Tren Capaian vs Target Renstra ({{ $appSettings['periode_renstra'] ?? '2025–2029' }})</h3>
                     <p class="text-xs text-slate-500">Proyeksi target dan realisasi Capaian IKK Renstra Pendidikan</p>
                 </div>
                 <div class="flex items-center gap-2">

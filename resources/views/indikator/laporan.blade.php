@@ -193,9 +193,9 @@
                          height="60">
                     <div style="line-height: 1.25; color: #0f172a;">
                         <div style="font-size: 8.5pt; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #475569;">Pemerintah Kabupaten Banjarnegara</div>
-                        <div style="font-size: 12.5pt; font-weight: 900; letter-spacing: 0.02em; text-transform: uppercase; color: #020617;">Dinas Pendidikan, Kepemudaan dan Olahraga</div>
-                        <div style="font-size: 7.5pt; color: #475569;">Jalan Mayjend Soetojo No. 51 Banjarnegara 53412 &bull; Telp. (0286) 591244</div>
-                        <div style="font-size: 7pt; font-family: 'JetBrains Mono', monospace; color: #64748b;">Laman: dindikpora.banjarnegarakab.go.id &bull; Pos-el: dindikpora@banjarnegarakab.go.id</div>
+                        <div style="font-size: 12.5pt; font-weight: 900; letter-spacing: 0.02em; text-transform: uppercase; color: #020617;">{{ $appSettings['nama_instansi'] ?? 'Dinas Pendidikan, Kepemudaan dan Olahraga' }}</div>
+                        <div style="font-size: 7.5pt; color: #475569;">{{ $appSettings['alamat_instansi'] ?? 'Jalan Mayjend Soetojo No. 51 Banjarnegara 53412' }} &bull; Telp. {{ $appSettings['telepon_instansi'] ?? '(0286) 591244' }}</div>
+                        <div style="font-size: 7pt; font-family: 'JetBrains Mono', monospace; color: #64748b;">Laman: {{ $appSettings['website_instansi'] ?? 'dindikpora.banjarnegarakab.go.id' }} &bull; Pos-el: {{ $appSettings['email_instansi'] ?? 'dindikpora@banjarnegarakab.go.id' }}</div>
                     </div>
                 </div>
                 <div style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; color: #475569;">
@@ -338,7 +338,8 @@
                             $cSma = (float) ($r['sma']['capaian']['jml'] ?? 0);
                             $avg = ($cPaud + $cSd + $cSmp + $cSma) / 4;
                             $totalRata += $avg;
-                            $isTuntas = $avg >= 85.0;
+                            $ambangSpm = (float) ($appSettings['ambang_batas_spm'] ?? 85.0);
+                            $isTuntas = $avg >= $ambangSpm;
                         @endphp
                         <tr>
                             <td style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #64748b;">{{ $r['no'] }}</td>
@@ -377,18 +378,18 @@
             <div class="avoid-break" style="display: flex; justify-content: space-between; padding-top: 18px;">
                 <div style="width: 280px; text-align: center; font-size: 7.5pt; color: #1e293b; line-height: 1.4;">
                     <div>Mengetahui,</div>
-                    <div style="font-weight: 800; text-transform: uppercase;">Kasubbag Program & Evaluasi</div>
+                    <div style="font-weight: 800; text-transform: uppercase;">{{ $appSettings['perencana_jabatan'] ?? 'Kasubbag Program & Evaluasi' }}</div>
                     <div style="height: 50px;"></div>
-                    <div style="font-weight: 800; text-decoration: underline;">SUBBAG PERENCANAAN</div>
-                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #64748b;">NIP. 19790512 200501 1 008</div>
+                    <div style="font-weight: 800; text-decoration: underline;">{{ $appSettings['perencana_nama'] ?? 'SUBBAG PERENCANAAN' }}</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #64748b;">NIP. {{ $appSettings['perencana_nip'] ?? '19790512 200501 1 008' }}</div>
                 </div>
 
                 <div style="width: 300px; text-align: center; font-size: 7.5pt; color: #1e293b; line-height: 1.4;">
-                    <div>Banjarnegara, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>
-                    <div style="font-weight: 800; text-transform: uppercase;">Kepala Dinas Pendidikan, Kepemudaan dan Olahraga</div>
+                    <div>{{ $appSettings['kota_dokumen'] ?? 'Banjarnegara' }}, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</div>
+                    <div style="font-weight: 800; text-transform: uppercase;">{{ $appSettings['kepala_dinas_jabatan'] ?? 'Kepala Dinas Pendidikan, Kepemudaan dan Olahraga' }}</div>
                     <div style="height: 50px;"></div>
-                    <div style="font-weight: 800; text-decoration: underline;">Dr. H. TEGUH HANDOKO, S.Sos., M.Si.</div>
-                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #64748b;">Pembina Utama Muda / IV c &bull; NIP. 19680815 199303 1 007</div>
+                    <div style="font-weight: 800; text-decoration: underline;">{{ $appSettings['kepala_dinas_nama'] ?? 'Dr. H. TEGUH HANDOKO, S.Sos., M.Si.' }}</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #64748b;">{{ $appSettings['kepala_dinas_pangkat'] ?? 'Pembina Utama Muda / IV c' }} &bull; NIP. {{ $appSettings['kepala_dinas_nip'] ?? '19680815 199303 1 007' }}</div>
                 </div>
             </div>
         </div>

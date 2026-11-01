@@ -59,7 +59,7 @@
         <div class="p-3 bg-white/95 rounded-2xl border border-blue-100 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 text-xs text-slate-700">
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="px-2 py-0.5 rounded-md bg-blue-100/80 text-blue-800 text-[10px] font-extrabold uppercase">Titik Tolok Ukur (Benchmark)</span>
-                <span>Target Renstra menjadi acuan resmi sasaran kinerja (2025–2029) untuk komparasi capaian riil pada menu <strong>Indikator (APK, APM, APS)</strong>, <strong>Dashboard</strong>, dan dokumen <strong>LKjIP</strong>.</span>
+                <span>Target Renstra menjadi acuan resmi sasaran kinerja ({{ $appSettings['periode_renstra'] ?? '2025–2029' }}) untuk komparasi capaian riil pada menu <strong>Indikator (APK, APM, APS)</strong>, <strong>Dashboard</strong>, dan dokumen <strong>LKjIP</strong>.</span>
             </div>
             <div class="text-[11px] text-slate-500 flex items-center gap-2 shrink-0">
                 <span>8 Indikator Renstra</span>

@@ -230,7 +230,7 @@ class DapodikSyncController extends Controller
             'siswa_synced' => $entity === 'siswa' ? $count : 0,
             'guru_synced' => $entity === 'guru' ? $count : 0,
             'total_records' => $count,
-            'semester_id' => '20261',
+            'semester_id' => $tahunTarget ? "{$tahunTarget}1" : '20261',
             'message' => "Sinkronisasi {$detailMsg} berhasil.",
             'user_id' => $user?->id,
             'started_at' => now(),
