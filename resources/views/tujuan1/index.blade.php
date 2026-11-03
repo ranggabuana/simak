@@ -610,7 +610,7 @@
                         </a>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed">
-                        Urutan kolom: <code class="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200">kode_kecamatan, nama_kecamatan, tahun, usia_0_4, usia_5_6, usia_7_12, usia_13_15, usia_16_18, usia_18_plus</code>
+                        Urutan kolom (terpisah L & P): <code class="font-mono text-emerald-700 bg-white px-1.5 py-0.5 rounded border border-emerald-200">kode_kecamatan, nama_kecamatan, tahun, usia_0_4_l, usia_0_4_p, usia_5_6_l, usia_5_6_p, usia_7_12_l, usia_7_12_p, usia_13_15_l, usia_13_15_p, usia_16_18_l, usia_16_18_p, usia_18_plus_l, usia_18_plus_p</code>
                     </p>
                 </div>
 

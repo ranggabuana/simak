@@ -93,12 +93,18 @@ class ImportController extends Controller
                 'kode_kecamatan',
                 'nama_kecamatan',
                 'tahun',
-                'usia_0_4',
-                'usia_5_6',
-                'usia_7_12',
-                'usia_13_15',
-                'usia_16_18',
-                'usia_18_plus',
+                'usia_0_4_l',
+                'usia_0_4_p',
+                'usia_5_6_l',
+                'usia_5_6_p',
+                'usia_7_12_l',
+                'usia_7_12_p',
+                'usia_13_15_l',
+                'usia_13_15_p',
+                'usia_16_18_l',
+                'usia_16_18_p',
+                'usia_18_plus_l',
+                'usia_18_plus_p',
             ];
 
             $kecamatan = WilayahKecamatan::orderBy('kode')->get();
@@ -114,12 +120,18 @@ class ImportController extends Controller
                     $k->kode,
                     $k->nama,
                     $tahunAktif,
-                    $existing ? $existing->usia_0_4_total : rand(3000, 4500),
-                    $existing ? $existing->usia_5_6_total : rand(1200, 2000),
-                    $existing ? $existing->usia_7_12_total : rand(3800, 5200),
-                    $existing ? $existing->usia_13_15_total : rand(2000, 2800),
-                    $existing ? $existing->usia_16_18_total : rand(1800, 2600),
-                    $existing ? $existing->usia_18_plus_total : rand(18000, 32000),
+                    $existing ? $existing->usia_0_4_l : rand(1500, 2300),
+                    $existing ? $existing->usia_0_4_p : rand(1500, 2200),
+                    $existing ? $existing->usia_5_6_l : rand(600, 1000),
+                    $existing ? $existing->usia_5_6_p : rand(600, 1000),
+                    $existing ? $existing->usia_7_12_l : rand(1900, 2600),
+                    $existing ? $existing->usia_7_12_p : rand(1900, 2600),
+                    $existing ? $existing->usia_13_15_l : rand(1000, 1400),
+                    $existing ? $existing->usia_13_15_p : rand(1000, 1400),
+                    $existing ? $existing->usia_16_18_l : rand(900, 1300),
+                    $existing ? $existing->usia_16_18_p : rand(900, 1300),
+                    $existing ? $existing->usia_18_plus_l : rand(9000, 16000),
+                    $existing ? $existing->usia_18_plus_p : rand(9000, 16000),
                 ];
             }
 
@@ -400,12 +412,49 @@ class ImportController extends Controller
                 $rowTahun = $tahun;
             }
 
-            $u0_4 = (int) ($row[$headerMap['usia_0_4'] ?? 3] ?? 0);
-            $u5_6 = (int) ($row[$headerMap['usia_5_6'] ?? 4] ?? 0);
-            $u7_12 = (int) ($row[$headerMap['usia_7_12'] ?? 5] ?? 0);
-            $u13_15 = (int) ($row[$headerMap['usia_13_15'] ?? 6] ?? 0);
-            $u16_18 = (int) ($row[$headerMap['usia_16_18'] ?? 7] ?? 0);
-            $u18_plus = (int) ($row[$headerMap['usia_18_plus'] ?? 8] ?? 0);
+            $hasGenderCols = isset($headerMap['usia_7_12_l']) || isset($headerMap['usia_0_4_l']) || isset($headerMap['7_12_l']) || isset($headerMap['sd_l']);
+
+            if ($hasGenderCols) {
+                $u0_4_l = (int) ($row[$headerMap['usia_0_4_l'] ?? ($headerMap['0_4_l'] ?? -1)] ?? 0);
+                $u0_4_p = (int) ($row[$headerMap['usia_0_4_p'] ?? ($headerMap['0_4_p'] ?? -1)] ?? 0);
+                $u5_6_l = (int) ($row[$headerMap['usia_5_6_l'] ?? ($headerMap['5_6_l'] ?? ($headerMap['paud_l'] ?? -1))] ?? 0);
+                $u5_6_p = (int) ($row[$headerMap['usia_5_6_p'] ?? ($headerMap['5_6_p'] ?? ($headerMap['paud_p'] ?? -1))] ?? 0);
+                $u7_12_l = (int) ($row[$headerMap['usia_7_12_l'] ?? ($headerMap['7_12_l'] ?? ($headerMap['sd_l'] ?? -1))] ?? 0);
+                $u7_12_p = (int) ($row[$headerMap['usia_7_12_p'] ?? ($headerMap['7_12_p'] ?? ($headerMap['sd_p'] ?? -1))] ?? 0);
+                $u13_15_l = (int) ($row[$headerMap['usia_13_15_l'] ?? ($headerMap['13_15_l'] ?? ($headerMap['smp_l'] ?? -1))] ?? 0);
+                $u13_15_p = (int) ($row[$headerMap['usia_13_15_p'] ?? ($headerMap['13_15_p'] ?? ($headerMap['smp_p'] ?? -1))] ?? 0);
+                $u16_18_l = (int) ($row[$headerMap['usia_16_18_l'] ?? ($headerMap['16_18_l'] ?? ($headerMap['sma_l'] ?? -1))] ?? 0);
+                $u16_18_p = (int) ($row[$headerMap['usia_16_18_p'] ?? ($headerMap['16_18_p'] ?? ($headerMap['sma_p'] ?? -1))] ?? 0);
+                $u18p_l = (int) ($row[$headerMap['usia_18_plus_l'] ?? ($headerMap['18_plus_l'] ?? ($headerMap['18p_l'] ?? -1))] ?? 0);
+                $u18p_p = (int) ($row[$headerMap['usia_18_plus_p'] ?? ($headerMap['18_plus_p'] ?? ($headerMap['18p_p'] ?? -1))] ?? 0);
+
+                $u0_4 = $u0_4_l + $u0_4_p;
+                $u5_6 = $u5_6_l + $u5_6_p;
+                $u7_12 = $u7_12_l + $u7_12_p;
+                $u13_15 = $u13_15_l + $u13_15_p;
+                $u16_18 = $u16_18_l + $u16_18_p;
+                $u18_plus = $u18p_l + $u18p_p;
+            } else {
+                $u0_4 = (int) ($row[$headerMap['usia_0_4'] ?? 3] ?? 0);
+                $u5_6 = (int) ($row[$headerMap['usia_5_6'] ?? 4] ?? 0);
+                $u7_12 = (int) ($row[$headerMap['usia_7_12'] ?? 5] ?? 0);
+                $u13_15 = (int) ($row[$headerMap['usia_13_15'] ?? 6] ?? 0);
+                $u16_18 = (int) ($row[$headerMap['usia_16_18'] ?? 7] ?? 0);
+                $u18_plus = (int) ($row[$headerMap['usia_18_plus'] ?? 8] ?? 0);
+
+                $u0_4_l = (int) round($u0_4 * 0.51);
+                $u0_4_p = $u0_4 - $u0_4_l;
+                $u5_6_l = (int) round($u5_6 * 0.51);
+                $u5_6_p = $u5_6 - $u5_6_l;
+                $u7_12_l = (int) round($u7_12 * 0.51);
+                $u7_12_p = $u7_12 - $u7_12_l;
+                $u13_15_l = (int) round($u13_15 * 0.51);
+                $u13_15_p = $u13_15 - $u13_15_l;
+                $u16_18_l = (int) round($u16_18 * 0.51);
+                $u16_18_p = $u16_18 - $u16_18_l;
+                $u18p_l = (int) round($u18_plus * 0.51);
+                $u18p_p = $u18_plus - $u18p_l;
+            }
 
             $total = $u0_4 + $u5_6 + $u7_12 + $u13_15 + $u16_18 + $u18_plus;
 
@@ -415,11 +464,23 @@ class ImportController extends Controller
                     'tahun' => $rowTahun,
                 ],
                 [
+                    'usia_0_4_l' => $u0_4_l,
+                    'usia_0_4_p' => $u0_4_p,
                     'usia_0_4_total' => $u0_4,
+                    'usia_5_6_l' => $u5_6_l,
+                    'usia_5_6_p' => $u5_6_p,
                     'usia_5_6_total' => $u5_6,
+                    'usia_7_12_l' => $u7_12_l,
+                    'usia_7_12_p' => $u7_12_p,
                     'usia_7_12_total' => $u7_12,
+                    'usia_13_15_l' => $u13_15_l,
+                    'usia_13_15_p' => $u13_15_p,
                     'usia_13_15_total' => $u13_15,
+                    'usia_16_18_l' => $u16_18_l,
+                    'usia_16_18_p' => $u16_18_p,
                     'usia_16_18_total' => $u16_18,
+                    'usia_18_plus_l' => $u18p_l,
+                    'usia_18_plus_p' => $u18p_p,
                     'usia_18_plus_total' => $u18_plus,
                     'total_penduduk' => $total,
                 ]
@@ -473,8 +534,9 @@ class ImportController extends Controller
                 if (empty($headerColMap)) {
                     $possibleHeader = false;
                     foreach ($rData as $colLetter => $val) {
-                        $clean = strtolower(trim($val));
-                        if (in_array($clean, ['kode_kecamatan', 'nama_kecamatan', 'usia_7_12', 'usia_0_4', 'kecamatan'])) {
+                        $clean = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', trim($val)));
+                        $clean = trim(preg_replace('/_+/', '_', $clean), '_');
+                        if (in_array($clean, ['kode_kecamatan', 'nama_kecamatan', 'usia_7_12', 'usia_7_12_l', 'usia_0_4', 'usia_0_4_l', 'kecamatan'])) {
                             $possibleHeader = true;
                             break;
                         }
@@ -482,7 +544,8 @@ class ImportController extends Controller
 
                     if ($possibleHeader) {
                         foreach ($rData as $colLetter => $val) {
-                            $clean = strtolower(trim($val));
+                            $clean = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', trim($val)));
+                            $clean = trim(preg_replace('/_+/', '_', $clean), '_');
                             $headerColMap[$clean] = $colLetter;
                         }
 
@@ -516,12 +579,54 @@ class ImportController extends Controller
                         $rowTahun = $tahun;
                     }
 
-                    $u0_4 = (int) ($rData[$headerColMap['usia_0_4'] ?? ''] ?? 0);
-                    $u5_6 = (int) ($rData[$headerColMap['usia_5_6'] ?? ''] ?? 0);
-                    $u7_12 = (int) ($rData[$headerColMap['usia_7_12'] ?? ''] ?? 0);
-                    $u13_15 = (int) ($rData[$headerColMap['usia_13_15'] ?? ''] ?? 0);
-                    $u16_18 = (int) ($rData[$headerColMap['usia_16_18'] ?? ''] ?? 0);
-                    $u18_plus = (int) ($rData[$headerColMap['usia_18_plus'] ?? ''] ?? 0);
+                    $hasGenderCols = isset($headerColMap['usia_7_12_l']) || isset($headerColMap['usia_0_4_l']) || isset($headerColMap['7_12_l']) || isset($headerColMap['sd_l']);
+
+                    if ($hasGenderCols) {
+                        $u0_4_l = (int) ($rData[$headerColMap['usia_0_4_l'] ?? ($headerColMap['0_4_l'] ?? '')] ?? 0);
+                        $u0_4_p = (int) ($rData[$headerColMap['usia_0_4_p'] ?? ($headerColMap['0_4_p'] ?? '')] ?? 0);
+
+                        $u5_6_l = (int) ($rData[$headerColMap['usia_5_6_l'] ?? ($headerColMap['5_6_l'] ?? ($headerColMap['paud_l'] ?? ''))] ?? 0);
+                        $u5_6_p = (int) ($rData[$headerColMap['usia_5_6_p'] ?? ($headerColMap['5_6_p'] ?? ($headerColMap['paud_p'] ?? ''))] ?? 0);
+
+                        $u7_12_l = (int) ($rData[$headerColMap['usia_7_12_l'] ?? ($headerColMap['7_12_l'] ?? ($headerColMap['sd_l'] ?? ''))] ?? 0);
+                        $u7_12_p = (int) ($rData[$headerColMap['usia_7_12_p'] ?? ($headerColMap['7_12_p'] ?? ($headerColMap['sd_p'] ?? ''))] ?? 0);
+
+                        $u13_15_l = (int) ($rData[$headerColMap['usia_13_15_l'] ?? ($headerColMap['13_15_l'] ?? ($headerColMap['smp_l'] ?? ''))] ?? 0);
+                        $u13_15_p = (int) ($rData[$headerColMap['usia_13_15_p'] ?? ($headerColMap['13_15_p'] ?? ($headerColMap['smp_p'] ?? ''))] ?? 0);
+
+                        $u16_18_l = (int) ($rData[$headerColMap['usia_16_18_l'] ?? ($headerColMap['16_18_l'] ?? ($headerColMap['sma_l'] ?? ''))] ?? 0);
+                        $u16_18_p = (int) ($rData[$headerColMap['usia_16_18_p'] ?? ($headerColMap['16_18_p'] ?? ($headerColMap['sma_p'] ?? ''))] ?? 0);
+
+                        $u18p_l = (int) ($rData[$headerColMap['usia_18_plus_l'] ?? ($headerColMap['18_plus_l'] ?? ($headerColMap['18p_l'] ?? ''))] ?? 0);
+                        $u18p_p = (int) ($rData[$headerColMap['usia_18_plus_p'] ?? ($headerColMap['18_plus_p'] ?? ($headerColMap['18p_p'] ?? ''))] ?? 0);
+
+                        $u0_4 = $u0_4_l + $u0_4_p;
+                        $u5_6 = $u5_6_l + $u5_6_p;
+                        $u7_12 = $u7_12_l + $u7_12_p;
+                        $u13_15 = $u13_15_l + $u13_15_p;
+                        $u16_18 = $u16_18_l + $u16_18_p;
+                        $u18_plus = $u18p_l + $u18p_p;
+                    } else {
+                        $u0_4 = (int) ($rData[$headerColMap['usia_0_4'] ?? ''] ?? 0);
+                        $u5_6 = (int) ($rData[$headerColMap['usia_5_6'] ?? ''] ?? 0);
+                        $u7_12 = (int) ($rData[$headerColMap['usia_7_12'] ?? ''] ?? 0);
+                        $u13_15 = (int) ($rData[$headerColMap['usia_13_15'] ?? ''] ?? 0);
+                        $u16_18 = (int) ($rData[$headerColMap['usia_16_18'] ?? ''] ?? 0);
+                        $u18_plus = (int) ($rData[$headerColMap['usia_18_plus'] ?? ''] ?? 0);
+
+                        $u0_4_l = (int) round($u0_4 * 0.51);
+                        $u0_4_p = $u0_4 - $u0_4_l;
+                        $u5_6_l = (int) round($u5_6 * 0.51);
+                        $u5_6_p = $u5_6 - $u5_6_l;
+                        $u7_12_l = (int) round($u7_12 * 0.51);
+                        $u7_12_p = $u7_12 - $u7_12_l;
+                        $u13_15_l = (int) round($u13_15 * 0.51);
+                        $u13_15_p = $u13_15 - $u13_15_l;
+                        $u16_18_l = (int) round($u16_18 * 0.51);
+                        $u16_18_p = $u16_18 - $u16_18_l;
+                        $u18p_l = (int) round($u18_plus * 0.51);
+                        $u18p_p = $u18_plus - $u18p_l;
+                    }
 
                     $total = $u0_4 + $u5_6 + $u7_12 + $u13_15 + $u16_18 + $u18_plus;
 
@@ -531,11 +636,23 @@ class ImportController extends Controller
                             'tahun' => $rowTahun,
                         ],
                         [
+                            'usia_0_4_l' => $u0_4_l,
+                            'usia_0_4_p' => $u0_4_p,
                             'usia_0_4_total' => $u0_4,
+                            'usia_5_6_l' => $u5_6_l,
+                            'usia_5_6_p' => $u5_6_p,
                             'usia_5_6_total' => $u5_6,
+                            'usia_7_12_l' => $u7_12_l,
+                            'usia_7_12_p' => $u7_12_p,
                             'usia_7_12_total' => $u7_12,
+                            'usia_13_15_l' => $u13_15_l,
+                            'usia_13_15_p' => $u13_15_p,
                             'usia_13_15_total' => $u13_15,
+                            'usia_16_18_l' => $u16_18_l,
+                            'usia_16_18_p' => $u16_18_p,
                             'usia_16_18_total' => $u16_18,
+                            'usia_18_plus_l' => $u18p_l,
+                            'usia_18_plus_p' => $u18p_p,
                             'usia_18_plus_total' => $u18_plus,
                             'total_penduduk' => $total,
                         ]
@@ -571,6 +688,8 @@ class ImportController extends Controller
                         $totUsiaSekolah = ($p0_4_l + $p0_4_p) + ($p5_6_l + $p5_6_p) + ($p7_12_l + $p7_12_p) + ($p13_15_l + $p13_15_p) + ($p16_18_l + $p16_18_p);
                         $estTotal = (int) ($totUsiaSekolah * 3.4);
                         $est18Plus = max(0, $estTotal - $totUsiaSekolah);
+                        $est18PlusL = (int) round($est18Plus * 0.505);
+                        $est18PlusP = $est18Plus - $est18PlusL;
 
                         PendudukUsiaSekolah::updateOrCreate(
                             [
@@ -578,11 +697,23 @@ class ImportController extends Controller
                                 'tahun' => $tahun,
                             ],
                             [
+                                'usia_0_4_l' => $p0_4_l,
+                                'usia_0_4_p' => $p0_4_p,
                                 'usia_0_4_total' => $p0_4_l + $p0_4_p,
+                                'usia_5_6_l' => $p5_6_l,
+                                'usia_5_6_p' => $p5_6_p,
                                 'usia_5_6_total' => $p5_6_l + $p5_6_p,
+                                'usia_7_12_l' => $p7_12_l,
+                                'usia_7_12_p' => $p7_12_p,
                                 'usia_7_12_total' => $p7_12_l + $p7_12_p,
+                                'usia_13_15_l' => $p13_15_l,
+                                'usia_13_15_p' => $p13_15_p,
                                 'usia_13_15_total' => $p13_15_l + $p13_15_p,
+                                'usia_16_18_l' => $p16_18_l,
+                                'usia_16_18_p' => $p16_18_p,
                                 'usia_16_18_total' => $p16_18_l + $p16_18_p,
+                                'usia_18_plus_l' => $est18PlusL,
+                                'usia_18_plus_p' => $est18PlusP,
                                 'usia_18_plus_total' => $est18Plus,
                                 'total_penduduk' => $estTotal,
                             ]

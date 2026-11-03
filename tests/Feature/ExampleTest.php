@@ -298,9 +298,17 @@ class ExampleTest extends TestCase
         $res = $exporter->downloadXlsx(
             'test_penduduk.xlsx',
             'Template Penduduk',
-            ['kode_kecamatan', 'nama_kecamatan', 'tahun', 'usia_0_4', 'usia_5_6', 'usia_7_12', 'usia_13_15', 'usia_16_18', 'usia_18_plus'],
             [
-                [$kec->kode, $kec->nama, 2034, 2100, 1600, 4300, 2200, 2000, 26000],
+                'kode_kecamatan', 'nama_kecamatan', 'tahun',
+                'usia_0_4_l', 'usia_0_4_p',
+                'usia_5_6_l', 'usia_5_6_p',
+                'usia_7_12_l', 'usia_7_12_p',
+                'usia_13_15_l', 'usia_13_15_p',
+                'usia_16_18_l', 'usia_16_18_p',
+                'usia_18_plus_l', 'usia_18_plus_p',
+            ],
+            [
+                [$kec->kode, $kec->nama, 2034, 1100, 1000, 800, 800, 2200, 2100, 1100, 1100, 1000, 1000, 13000, 13000],
             ]
         );
 
@@ -320,6 +328,8 @@ class ExampleTest extends TestCase
         $this->assertDatabaseHas('penduduk_usia_sekolah', [
             'kecamatan_id' => $kec->id,
             'tahun' => 2034,
+            'usia_7_12_l' => 2200,
+            'usia_7_12_p' => 2100,
             'usia_7_12_total' => 4300,
         ]);
 
