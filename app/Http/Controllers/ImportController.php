@@ -6,13 +6,19 @@ use App\Models\PendudukUsiaSekolah;
 use App\Models\PrestasiSiswa;
 use App\Models\SatuanPendidikan;
 use App\Models\WilayahKecamatan;
+use App\Services\ExcelExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipArchive;
 
 class ImportController extends Controller
 {
+    public function __construct(
+        protected ExcelExporter $excelExporter
+    ) {}
+
     /**
      * Dialihkan ke Tujuan 1 (Penduduk) karena menu dan form import telah diintegrasikan langsung ke masing-masing halaman tujuan.
      */
@@ -24,7 +30,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Import Data Kependudukan (Excel .xlsx atau .csv)
+     * Import Data Kependudukan (Excel .xlsx saja)
      */
     public function importPenduduk(Request $request): RedirectResponse
     {
@@ -36,25 +42,22 @@ class ImportController extends Controller
         $file = $request->file('file_penduduk');
         $tahun = (int) $request->input('tahun');
         $extension = strtolower($file->getClientOriginalExtension());
-        $count = 0;
 
-        if ($extension === 'csv' || $extension === 'txt') {
-            $count = $this->parseCsvPenduduk($file->getRealPath(), $tahun);
-        } elseif ($extension === 'xlsx') {
-            $count = $this->parseXlsxPenduduk($file->getRealPath(), $tahun);
-        } else {
-            return back()->withErrors(['file_penduduk' => 'Format file harus berupa Excel (.xlsx) atau CSV (.csv).']);
+        if ($extension !== 'xlsx') {
+            return back()->withErrors(['file_penduduk' => 'Format file tidak didukung. Modul ini hanya menerima file Microsoft Excel (.xlsx).']);
         }
 
+        $count = $this->parseXlsxPenduduk($file->getRealPath(), $tahun);
+
         if ($count === 0) {
-            return back()->with('info', 'File berhasil diproses, namun tidak ada baris data kecamatan yang cocok untuk tahun '.$tahun.'. Pastikan format kolom sesuai dengan template.');
+            return back()->with('info', 'File berhasil diproses, namun tidak ada baris data kecamatan yang cocok untuk tahun '.$tahun.'. Pastikan format kolom sesuai dengan template Excel.');
         }
 
         return back()->with('success', "Berhasil mengimpor data kependudukan untuk {$count} kecamatan pada Tahun Kinerja {$tahun}.");
     }
 
     /**
-     * Import Data Prestasi Siswa (CSV atau XLSX)
+     * Import Data Prestasi Siswa (Excel .xlsx saja)
      */
     public function importPrestasi(Request $request): RedirectResponse
     {
@@ -66,26 +69,120 @@ class ImportController extends Controller
         $file = $request->file('file_prestasi');
         $tahunDefault = (int) $request->input('tahun');
         $extension = strtolower($file->getClientOriginalExtension());
-        $count = 0;
 
-        if ($extension === 'csv' || $extension === 'txt') {
-            $count = $this->parseCsvPrestasi($file->getRealPath(), $tahunDefault);
-        } else {
-            return back()->withErrors(['file_prestasi' => 'Format file prestasi saat ini mendukung CSV (.csv). Silakan gunakan template CSV yang telah disediakan.']);
+        if ($extension !== 'xlsx') {
+            return back()->withErrors(['file_prestasi' => 'Format file tidak didukung. Modul ini hanya menerima file Microsoft Excel (.xlsx). Silakan gunakan template Excel yang telah disediakan.']);
         }
 
+        $count = $this->parseXlsxPrestasi($file->getRealPath(), $tahunDefault);
+
         if ($count === 0) {
-            return back()->with('info', 'Tidak ada baris data prestasi yang berhasil diimpor. Periksa kembali struktur kolom pada file.');
+            return back()->with('info', 'Tidak ada baris data prestasi yang berhasil diimpor. Periksa kembali struktur kolom pada file Excel.');
         }
 
         return back()->with('success', "Berhasil mengimpor {$count} data prestasi siswa.");
     }
 
     /**
-     * Unduh Template CSV Siap Pakai
+     * Unduh Template Excel (.xlsx) atau CSV Siap Pakai
      */
     public function downloadTemplate(string $type): StreamedResponse
     {
+        if ($type === 'penduduk') {
+            $headers = [
+                'kode_kecamatan',
+                'nama_kecamatan',
+                'tahun',
+                'usia_0_4',
+                'usia_5_6',
+                'usia_7_12',
+                'usia_13_15',
+                'usia_16_18',
+                'usia_18_plus',
+            ];
+
+            $kecamatan = WilayahKecamatan::orderBy('kode')->get();
+            $tahunAktif = (int) date('Y');
+            $rows = [];
+
+            foreach ($kecamatan as $k) {
+                $existing = PendudukUsiaSekolah::where('kecamatan_id', $k->id)
+                    ->where('tahun', $tahunAktif)
+                    ->first();
+
+                $rows[] = [
+                    $k->kode,
+                    $k->nama,
+                    $tahunAktif,
+                    $existing ? $existing->usia_0_4_total : rand(3000, 4500),
+                    $existing ? $existing->usia_5_6_total : rand(1200, 2000),
+                    $existing ? $existing->usia_7_12_total : rand(3800, 5200),
+                    $existing ? $existing->usia_13_15_total : rand(2000, 2800),
+                    $existing ? $existing->usia_16_18_total : rand(1800, 2600),
+                    $existing ? $existing->usia_18_plus_total : rand(18000, 32000),
+                ];
+            }
+
+            return $this->excelExporter->downloadXlsx(
+                'template_penduduk_usia_sekolah_banjarnegara.xlsx',
+                'Template Penduduk',
+                $headers,
+                $rows
+            );
+        }
+
+        if ($type === 'prestasi') {
+            $headers = [
+                'nama_siswa',
+                'nisn',
+                'jenis_kelamin',
+                'nama_kejuaraan',
+                'bidang',
+                'tingkat',
+                'peringkat',
+                'tahun',
+                'nama_sekolah',
+                'penyelenggara',
+                'keterangan',
+            ];
+
+            $rows = [
+                [
+                    'Budi Santoso',
+                    '0081234567',
+                    'L',
+                    'Olimpiade Sains Nasional (OSN) Matematika',
+                    'Sains & Akademik',
+                    'Kabupaten',
+                    'Juara 1',
+                    (int) date('Y'),
+                    'SMP Negeri 1 Banjarnegara',
+                    'Balai Pengembangan Talenta Indonesia',
+                    'Maju ke tingkat Provinsi',
+                ],
+                [
+                    'Siti Aisyah',
+                    '0097654321',
+                    'P',
+                    'Festival Lomba Seni Siswa Nasional (FLS2N) Tari Tradisional',
+                    'Seni & Budaya',
+                    'Provinsi',
+                    'Juara 2',
+                    (int) date('Y'),
+                    'SD Negeri 1 Krandegan',
+                    'Dinas Pendidikan Provinsi Jawa Tengah',
+                    'Piala & Piagam Penghargaan',
+                ],
+            ];
+
+            return $this->excelExporter->downloadXlsx(
+                'template_prestasi_siswa_banjarnegara.xlsx',
+                'Template Prestasi',
+                $headers,
+                $rows
+            );
+        }
+
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
@@ -93,43 +190,7 @@ class ImportController extends Controller
             'Expires' => '0',
         ];
 
-        if ($type === 'penduduk') {
-            $filename = 'template_penduduk_usia_sekolah_banjarnegara.csv';
-            $callback = function () {
-                $output = fopen('php://output', 'w');
-                // UTF-8 BOM for Excel compatibility
-                fwrite($output, "\xEF\xBB\xBF");
-
-                fputcsv($output, [
-                    'kode_kecamatan',
-                    'nama_kecamatan',
-                    'tahun',
-                    'usia_0_4',
-                    'usia_5_6',
-                    'usia_7_12',
-                    'usia_13_15',
-                    'usia_16_18',
-                    'usia_18_plus',
-                ]);
-
-                $kecamatan = WilayahKecamatan::orderBy('kode')->get();
-                foreach ($kecamatan as $k) {
-                    fputcsv($output, [
-                        $k->kode,
-                        $k->nama,
-                        date('Y'),
-                        rand(3000, 4500),
-                        rand(1200, 2000),
-                        rand(3800, 5200),
-                        rand(2000, 2800),
-                        rand(1800, 2600),
-                        rand(18000, 32000),
-                    ]);
-                }
-
-                fclose($output);
-            };
-        } elseif ($type === 'sekolah') {
+        if ($type === 'sekolah') {
             $filename = 'template_satuan_pendidikan_banjarnegara.csv';
             $callback = function () {
                 $output = fopen('php://output', 'w');
@@ -221,7 +282,7 @@ class ImportController extends Controller
 
                 fclose($output);
             };
-        } elseif ($type === 'guru') {
+        } else {
             $filename = 'template_guru_pendidik_banjarnegara.csv';
             $callback = function () {
                 $output = fopen('php://output', 'w');
@@ -271,56 +332,6 @@ class ImportController extends Controller
                     'GTT',
                     'Tidak',
                     'Informatika',
-                ]);
-
-                fclose($output);
-            };
-        } else {
-            $filename = 'template_prestasi_siswa_banjarnegara.csv';
-            $callback = function () {
-                $output = fopen('php://output', 'w');
-                fwrite($output, "\xEF\xBB\xBF");
-
-                fputcsv($output, [
-                    'nama_siswa',
-                    'nisn',
-                    'jenis_kelamin',
-                    'nama_kejuaraan',
-                    'bidang',
-                    'tingkat',
-                    'peringkat',
-                    'tahun',
-                    'nama_sekolah',
-                    'penyelenggara',
-                    'keterangan',
-                ]);
-
-                // Contoh baris
-                fputcsv($output, [
-                    'Budi Santoso',
-                    '0081234567',
-                    'L',
-                    'Olimpiade Sains Nasional (OSN) Matematika',
-                    'Sains & Akademik',
-                    'Kabupaten',
-                    'Juara 1',
-                    date('Y'),
-                    'SMP Negeri 1 Banjarnegara',
-                    'Balai Pengembangan Talenta Indonesia',
-                    'Maju ke tingkat Provinsi',
-                ]);
-                fputcsv($output, [
-                    'Siti Aisyah',
-                    '0097654321',
-                    'P',
-                    'Festival Lomba Seni Siswa Nasional (FLS2N) Tari Tradisional',
-                    'Seni & Budaya',
-                    'Provinsi',
-                    'Juara 2',
-                    date('Y'),
-                    'SD Negeri 1 Krandegan',
-                    'Dinas Pendidikan Provinsi Jawa Tengah',
-                    'Piala & Piagam Penghargaan',
                 ]);
 
                 fclose($output);
@@ -423,7 +434,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Parser XLSX Penduduk (Kompatibel dengan penduduk.xlsx format BPS/DUKCAPIL maupun Excel standar)
+     * Parser XLSX Penduduk (Mendukung Template SIMAK maupun Format DUKCAPIL/Kemendagri)
      */
     private function parseXlsxPenduduk(string $filepath, int $tahun): int
     {
@@ -432,93 +443,159 @@ class ImportController extends Controller
             return 0;
         }
 
-        $sharedStrings = [];
-        if ($zip->locateName('xl/sharedStrings.xml') !== false) {
-            $stringsXml = simplexml_load_string($zip->getFromName('xl/sharedStrings.xml'));
-            foreach ($stringsXml->si as $si) {
-                $text = '';
-                if (isset($si->t)) {
-                    $text = (string) $si->t;
-                } elseif (isset($si->r)) {
-                    foreach ($si->r as $r) {
-                        $text .= (string) $r->t;
-                    }
-                }
-                $sharedStrings[] = $text;
-            }
-        }
+        $sharedStrings = $this->extractSharedStrings($zip);
 
-        // Cari sheet yang berisi data
-        $sheetName = 'xl/worksheets/sheet2.xml';
-        if ($zip->locateName($sheetName) === false) {
-            $sheetName = 'xl/worksheets/sheet1.xml';
-        }
-
-        if ($zip->locateName($sheetName) === false) {
-            $zip->close();
-
-            return 0;
-        }
-
-        $sheetXml = simplexml_load_string($zip->getFromName($sheetName));
+        // Cari sheet yang tersedia (biasanya sheet1 atau sheet2)
+        $candidateSheets = ['xl/worksheets/sheet1.xml', 'xl/worksheets/sheet2.xml'];
         $count = 0;
 
-        foreach ($sheetXml->sheetData->row as $row) {
-            $rData = [];
-            foreach ($row->c as $c) {
-                $ref = preg_replace('/[0-9]+/', '', (string) $c['r']);
-                $type = (string) $c['t'];
-                $val = (string) $c->v;
-                if ($type === 's' && isset($sharedStrings[(int) $val])) {
-                    $val = $sharedStrings[(int) $val];
-                }
-                $rData[$ref] = $val;
+        foreach ($candidateSheets as $sheetName) {
+            if ($zip->locateName($sheetName) === false) {
+                continue;
             }
 
-            // Pola format penduduk.xlsx Kemendagri / DUKCAPIL Banjarnegara (Kode 3304xx di Kolom B)
-            $kode = trim($rData['B'] ?? '');
-            $nama = trim($rData['C'] ?? '');
+            $sheetXml = simplexml_load_string($zip->getFromName($sheetName));
+            if (! $sheetXml || ! isset($sheetXml->sheetData->row)) {
+                continue;
+            }
 
-            if (preg_match('/^3304\d{2}$/', $kode)) {
-                $kecamatan = WilayahKecamatan::where('kode', $kode)->first();
-                if (! $kecamatan && ! empty($nama)) {
-                    $kecamatan = WilayahKecamatan::where('nama', 'like', "%{$nama}%")->first();
+            $headerColMap = [];
+            $sheetProcessed = 0;
+
+            foreach ($sheetXml->sheetData->row as $row) {
+                $rData = [];
+                foreach ($row->c as $c) {
+                    $ref = preg_replace('/[0-9]+/', '', (string) $c['r']);
+                    $rData[$ref] = $this->getCellValue($c, $sharedStrings);
                 }
 
-                if ($kecamatan) {
-                    $p0_4_l = (int) ($rData['NC'] ?? 0);
-                    $p0_4_p = (int) ($rData['ND'] ?? 0);
-                    $p5_6_l = (int) ($rData['NE'] ?? 0);
-                    $p5_6_p = (int) ($rData['NF'] ?? 0);
-                    $p7_12_l = (int) ($rData['NG'] ?? 0);
-                    $p7_12_p = (int) ($rData['NH'] ?? 0);
-                    $p13_15_l = (int) ($rData['NI'] ?? 0);
-                    $p13_15_p = (int) ($rData['NJ'] ?? 0);
-                    $p16_18_l = (int) ($rData['NK'] ?? 0);
-                    $p16_18_p = (int) ($rData['NL'] ?? 0);
+                // Cek jika baris ini adalah baris header template
+                if (empty($headerColMap)) {
+                    $possibleHeader = false;
+                    foreach ($rData as $colLetter => $val) {
+                        $clean = strtolower(trim($val));
+                        if (in_array($clean, ['kode_kecamatan', 'nama_kecamatan', 'usia_7_12', 'usia_0_4', 'kecamatan'])) {
+                            $possibleHeader = true;
+                            break;
+                        }
+                    }
 
-                    $totUsiaSekolah = ($p0_4_l + $p0_4_p) + ($p5_6_l + $p5_6_p) + ($p7_12_l + $p7_12_p) + ($p13_15_l + $p13_15_p) + ($p16_18_l + $p16_18_p);
-                    $estTotal = (int) ($totUsiaSekolah * 3.4);
-                    $est18Plus = max(0, $estTotal - $totUsiaSekolah);
+                    if ($possibleHeader) {
+                        foreach ($rData as $colLetter => $val) {
+                            $clean = strtolower(trim($val));
+                            $headerColMap[$clean] = $colLetter;
+                        }
+
+                        continue;
+                    }
+                }
+
+                // 1. Mode Template SIMAK (jika terdeteksi header nama/kode)
+                if (! empty($headerColMap) && (isset($headerColMap['kode_kecamatan']) || isset($headerColMap['nama_kecamatan']))) {
+                    $colKode = $headerColMap['kode_kecamatan'] ?? null;
+                    $colNama = $headerColMap['nama_kecamatan'] ?? ($headerColMap['kecamatan'] ?? null);
+
+                    $kode = $colKode ? trim($rData[$colKode] ?? '') : '';
+                    $nama = $colNama ? trim($rData[$colNama] ?? '') : '';
+
+                    $kecamatan = null;
+                    if (! empty($kode)) {
+                        $kecamatan = WilayahKecamatan::where('kode', $kode)->first();
+                    }
+                    if (! $kecamatan && ! empty($nama)) {
+                        $kecamatan = WilayahKecamatan::where('nama', 'like', "%{$nama}%")->first();
+                    }
+
+                    if (! $kecamatan) {
+                        continue;
+                    }
+
+                    $colTahun = $headerColMap['tahun'] ?? null;
+                    $rowTahun = $colTahun && ! empty($rData[$colTahun]) ? (int) $rData[$colTahun] : $tahun;
+                    if ($rowTahun <= 0) {
+                        $rowTahun = $tahun;
+                    }
+
+                    $u0_4 = (int) ($rData[$headerColMap['usia_0_4'] ?? ''] ?? 0);
+                    $u5_6 = (int) ($rData[$headerColMap['usia_5_6'] ?? ''] ?? 0);
+                    $u7_12 = (int) ($rData[$headerColMap['usia_7_12'] ?? ''] ?? 0);
+                    $u13_15 = (int) ($rData[$headerColMap['usia_13_15'] ?? ''] ?? 0);
+                    $u16_18 = (int) ($rData[$headerColMap['usia_16_18'] ?? ''] ?? 0);
+                    $u18_plus = (int) ($rData[$headerColMap['usia_18_plus'] ?? ''] ?? 0);
+
+                    $total = $u0_4 + $u5_6 + $u7_12 + $u13_15 + $u16_18 + $u18_plus;
 
                     PendudukUsiaSekolah::updateOrCreate(
                         [
                             'kecamatan_id' => $kecamatan->id,
-                            'tahun' => $tahun,
+                            'tahun' => $rowTahun,
                         ],
                         [
-                            'usia_0_4_total' => $p0_4_l + $p0_4_p,
-                            'usia_5_6_total' => $p5_6_l + $p5_6_p,
-                            'usia_7_12_total' => $p7_12_l + $p7_12_p,
-                            'usia_13_15_total' => $p13_15_l + $p13_15_p,
-                            'usia_16_18_total' => $p16_18_l + $p16_18_p,
-                            'usia_18_plus_total' => $est18Plus,
-                            'total_penduduk' => $estTotal,
+                            'usia_0_4_total' => $u0_4,
+                            'usia_5_6_total' => $u5_6,
+                            'usia_7_12_total' => $u7_12,
+                            'usia_13_15_total' => $u13_15,
+                            'usia_16_18_total' => $u16_18,
+                            'usia_18_plus_total' => $u18_plus,
+                            'total_penduduk' => $total,
                         ]
                     );
 
-                    $count++;
+                    $sheetProcessed++;
+
+                    continue;
                 }
+
+                // 2. Mode Format DUKCAPIL / Kemendagri Banjarnegara (Kode 3304xx di Kolom B)
+                $kode = trim($rData['B'] ?? '');
+                $nama = trim($rData['C'] ?? '');
+
+                if (preg_match('/^3304\d{2}$/', $kode)) {
+                    $kecamatan = WilayahKecamatan::where('kode', $kode)->first();
+                    if (! $kecamatan && ! empty($nama)) {
+                        $kecamatan = WilayahKecamatan::where('nama', 'like', "%{$nama}%")->first();
+                    }
+
+                    if ($kecamatan) {
+                        $p0_4_l = (int) ($rData['NC'] ?? 0);
+                        $p0_4_p = (int) ($rData['ND'] ?? 0);
+                        $p5_6_l = (int) ($rData['NE'] ?? 0);
+                        $p5_6_p = (int) ($rData['NF'] ?? 0);
+                        $p7_12_l = (int) ($rData['NG'] ?? 0);
+                        $p7_12_p = (int) ($rData['NH'] ?? 0);
+                        $p13_15_l = (int) ($rData['NI'] ?? 0);
+                        $p13_15_p = (int) ($rData['NJ'] ?? 0);
+                        $p16_18_l = (int) ($rData['NK'] ?? 0);
+                        $p16_18_p = (int) ($rData['NL'] ?? 0);
+
+                        $totUsiaSekolah = ($p0_4_l + $p0_4_p) + ($p5_6_l + $p5_6_p) + ($p7_12_l + $p7_12_p) + ($p13_15_l + $p13_15_p) + ($p16_18_l + $p16_18_p);
+                        $estTotal = (int) ($totUsiaSekolah * 3.4);
+                        $est18Plus = max(0, $estTotal - $totUsiaSekolah);
+
+                        PendudukUsiaSekolah::updateOrCreate(
+                            [
+                                'kecamatan_id' => $kecamatan->id,
+                                'tahun' => $tahun,
+                            ],
+                            [
+                                'usia_0_4_total' => $p0_4_l + $p0_4_p,
+                                'usia_5_6_total' => $p5_6_l + $p5_6_p,
+                                'usia_7_12_total' => $p7_12_l + $p7_12_p,
+                                'usia_13_15_total' => $p13_15_l + $p13_15_p,
+                                'usia_16_18_total' => $p16_18_l + $p16_18_p,
+                                'usia_18_plus_total' => $est18Plus,
+                                'total_penduduk' => $estTotal,
+                            ]
+                        );
+
+                        $sheetProcessed++;
+                    }
+                }
+            }
+
+            if ($sheetProcessed > 0) {
+                $count = $sheetProcessed;
+                break;
             }
         }
 
@@ -528,61 +605,99 @@ class ImportController extends Controller
     }
 
     /**
-     * Parser CSV Prestasi Siswa
+     * Parser XLSX Prestasi Siswa
      */
-    private function parseCsvPrestasi(string $filepath, int $tahunDefault): int
+    private function parseXlsxPrestasi(string $filepath, int $tahunDefault): int
     {
-        $handle = fopen($filepath, 'r');
-        if (! $handle) {
+        $zip = new ZipArchive;
+        if ($zip->open($filepath) !== true) {
             return 0;
         }
 
-        // BOM detection
-        $bom = fread($handle, 3);
-        if ($bom !== "\xEF\xBB\xBF") {
-            rewind($handle);
+        $sharedStrings = $this->extractSharedStrings($zip);
+
+        $sheetName = 'xl/worksheets/sheet1.xml';
+        if ($zip->locateName($sheetName) === false) {
+            $sheetName = 'xl/worksheets/sheet2.xml';
         }
 
-        $header = fgetcsv($handle, 0, ',');
-        if (! $header || count($header) < 4) {
-            rewind($handle);
-            $header = fgetcsv($handle, 0, ';');
-            $delimiter = ';';
-        } else {
-            $delimiter = ',';
+        if ($zip->locateName($sheetName) === false) {
+            $zip->close();
+
+            return 0;
         }
 
-        $headerMap = [];
-        foreach ($header as $idx => $col) {
-            $headerMap[strtolower(trim($col))] = $idx;
+        $sheetXml = simplexml_load_string($zip->getFromName($sheetName));
+        if (! $sheetXml || ! isset($sheetXml->sheetData->row)) {
+            $zip->close();
+
+            return 0;
         }
 
+        $headerColMap = [];
         $count = 0;
         $defaultKecamatan = WilayahKecamatan::first();
 
-        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-            if (empty($row) || count($row) < 3) {
-                continue;
+        foreach ($sheetXml->sheetData->row as $row) {
+            $rData = [];
+            foreach ($row->c as $c) {
+                $ref = preg_replace('/[0-9]+/', '', (string) $c['r']);
+                $rData[$ref] = $this->getCellValue($c, $sharedStrings);
             }
 
-            $namaSiswa = trim($row[$headerMap['nama_siswa'] ?? 0] ?? '');
-            $nisn = trim($row[$headerMap['nisn'] ?? 1] ?? '');
-            $rawJk = isset($headerMap['jenis_kelamin']) ? strtoupper(trim($row[$headerMap['jenis_kelamin']])) : (isset($headerMap['jk']) ? strtoupper(trim($row[$headerMap['jk']])) : 'L');
+            // Temukan baris header
+            if (empty($headerColMap)) {
+                $possibleHeader = false;
+                foreach ($rData as $colLetter => $val) {
+                    $clean = strtolower(trim($val));
+                    if (in_array($clean, ['nama_siswa', 'nama siswa', 'nisn', 'nama_kejuaraan', 'kejuaraan'])) {
+                        $possibleHeader = true;
+                        break;
+                    }
+                }
+
+                if ($possibleHeader) {
+                    foreach ($rData as $colLetter => $val) {
+                        $clean = strtolower(trim($val));
+                        $headerColMap[$clean] = $colLetter;
+                    }
+
+                    continue;
+                }
+            }
+
+            // Ambil nilai kolom
+            $colNamaSiswa = $headerColMap['nama_siswa'] ?? ($headerColMap['nama siswa'] ?? 'A');
+            $colNisn = $headerColMap['nisn'] ?? 'B';
+            $colJk = $headerColMap['jenis_kelamin'] ?? ($headerColMap['jk'] ?? 'C');
+            $colKejuaraan = $headerColMap['nama_kejuaraan'] ?? ($headerColMap['kejuaraan'] ?? 'D');
+            $colBidang = $headerColMap['bidang'] ?? 'E';
+            $colTingkat = $headerColMap['tingkat'] ?? 'F';
+            $colPeringkat = $headerColMap['peringkat'] ?? 'G';
+            $colTahun = $headerColMap['tahun'] ?? 'H';
+            $colSekolah = $headerColMap['nama_sekolah'] ?? ($headerColMap['sekolah'] ?? 'I');
+            $colPenyelenggara = $headerColMap['penyelenggara'] ?? 'J';
+            $colKeterangan = $headerColMap['keterangan'] ?? 'K';
+
+            $namaSiswa = trim($rData[$colNamaSiswa] ?? '');
+            $nisn = trim($rData[$colNisn] ?? '');
+            $rawJk = strtoupper(trim($rData[$colJk] ?? 'L'));
             $jenisKelamin = in_array($rawJk, ['L', 'P']) ? $rawJk : 'L';
-            $namaKejuaraan = trim($row[$headerMap['nama_kejuaraan'] ?? $headerMap['kejuaraan'] ?? 3] ?? '');
-            $bidang = trim($row[$headerMap['bidang'] ?? 4] ?? 'Sains & Akademik');
-            $tingkat = trim($row[$headerMap['tingkat'] ?? 5] ?? 'Kabupaten');
-            $peringkat = trim($row[$headerMap['peringkat'] ?? 6] ?? 'Juara 1');
-            $tahun = isset($headerMap['tahun']) ? (int) ($row[$headerMap['tahun']] ?? $tahunDefault) : $tahunDefault;
-            $namaSekolah = trim($row[$headerMap['nama_sekolah'] ?? $headerMap['sekolah'] ?? 8] ?? '');
-            $penyelenggara = trim($row[$headerMap['penyelenggara'] ?? 9] ?? 'Dinas Pendidikan');
-            $keterangan = trim($row[$headerMap['keterangan'] ?? 10] ?? '');
+            $namaKejuaraan = trim($rData[$colKejuaraan] ?? '');
+            $bidang = trim($rData[$colBidang] ?? 'Sains & Akademik');
+            $tingkat = trim($rData[$colTingkat] ?? 'Kabupaten');
+            $peringkat = trim($rData[$colPeringkat] ?? 'Juara 1');
+            $tahun = ! empty($rData[$colTahun]) ? (int) $rData[$colTahun] : $tahunDefault;
+            $namaSekolah = trim($rData[$colSekolah] ?? '');
+            $penyelenggara = trim($rData[$colPenyelenggara] ?? 'Dinas Pendidikan');
+            $keterangan = trim($rData[$colKeterangan] ?? '');
 
-            if (empty($namaSiswa) || empty($namaKejuaraan)) {
+            // Validasi baris data
+            if (empty($namaSiswa) || empty($namaKejuaraan) || strtolower($namaSiswa) === 'nama_siswa') {
                 continue;
             }
 
-            // Find or create school
+            // Temukan atau buat satuan pendidikan
             $sekolah = null;
             if (! empty($namaSekolah)) {
                 $sekolah = SatuanPendidikan::where('nama_sekolah', 'like', "%{$namaSekolah}%")->first();
@@ -619,8 +734,62 @@ class ImportController extends Controller
             $count++;
         }
 
-        fclose($handle);
+        $zip->close();
 
         return $count;
+    }
+
+    /**
+     * Ambil nilai sel dari node SimpleXMLElement
+     *
+     * @param  array<int, string>  $sharedStrings
+     */
+    private function getCellValue(SimpleXMLElement $cell, array $sharedStrings): string
+    {
+        $type = (string) $cell['t'];
+
+        if ($type === 's') {
+            $idx = (int) $cell->v;
+
+            return $sharedStrings[$idx] ?? '';
+        }
+
+        if ($type === 'inlineStr' && isset($cell->is->t)) {
+            return (string) $cell->is->t;
+        }
+
+        if (isset($cell->v)) {
+            return (string) $cell->v;
+        }
+
+        return '';
+    }
+
+    /**
+     * Ekstrak tabel shared strings dari arsip OpenXML
+     *
+     * @return array<int, string>
+     */
+    private function extractSharedStrings(ZipArchive $zip): array
+    {
+        $sharedStrings = [];
+        if ($zip->locateName('xl/sharedStrings.xml') !== false) {
+            $stringsXml = simplexml_load_string($zip->getFromName('xl/sharedStrings.xml'));
+            if ($stringsXml && isset($stringsXml->si)) {
+                foreach ($stringsXml->si as $si) {
+                    $text = '';
+                    if (isset($si->t)) {
+                        $text = (string) $si->t;
+                    } elseif (isset($si->r)) {
+                        foreach ($si->r as $r) {
+                            $text .= (string) $r->t;
+                        }
+                    }
+                    $sharedStrings[] = $text;
+                }
+            }
+        }
+
+        return $sharedStrings;
     }
 }

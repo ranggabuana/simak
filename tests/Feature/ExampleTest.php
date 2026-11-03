@@ -9,6 +9,7 @@ use App\Models\SatuanPendidikan;
 use App\Models\TargetRenstra;
 use App\Models\User;
 use App\Models\WilayahKecamatan;
+use App\Services\ExcelExporter;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
@@ -175,14 +176,14 @@ class ExampleTest extends TestCase
         $response1 = $this->actingAs($user)->get('/tujuan1/penduduk');
         $response1->assertStatus(200);
         $response1->assertSee('importModal');
-        $response1->assertSee('Import Excel / CSV');
+        $response1->assertSee('Import Excel (.xlsx)');
         $response1->assertSee(route('import.template', 'penduduk'));
 
         // Tujuan 2 has the import modal and template download
         $response2 = $this->actingAs($user)->get('/tujuan2/prestasi');
         $response2->assertStatus(200);
         $response2->assertSee('importModal');
-        $response2->assertSee('Import CSV');
+        $response2->assertSee('Import Excel (.xlsx)');
         $response2->assertSee(route('import.template', 'prestasi'));
     }
 
@@ -193,8 +194,47 @@ class ExampleTest extends TestCase
     {
         $user = $this->getAdminUser();
 
-        $this->actingAs($user)->get('/import/template/penduduk')->assertStatus(200);
-        $this->actingAs($user)->get('/import/template/prestasi')->assertStatus(200);
+        $resPenduduk = $this->actingAs($user)->get('/import/template/penduduk');
+        $resPenduduk->assertStatus(200);
+        $resPenduduk->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->assertStringContainsString('template_penduduk_usia_sekolah_banjarnegara.xlsx', $resPenduduk->headers->get('Content-Disposition'));
+
+        $resPrestasi = $this->actingAs($user)->get('/import/template/prestasi');
+        $resPrestasi->assertStatus(200);
+        $resPrestasi->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->assertStringContainsString('template_prestasi_siswa_banjarnegara.xlsx', $resPrestasi->headers->get('Content-Disposition'));
+    }
+
+    /**
+     * Test import penduduk only accepts .xlsx file.
+     */
+    public function test_import_penduduk_only_accepts_xlsx(): void
+    {
+        $user = $this->getAdminUser();
+
+        $fileCsv = UploadedFile::fake()->create('data.csv', 10, 'text/csv');
+        $response = $this->actingAs($user)->post('/import/penduduk', [
+            'file_penduduk' => $fileCsv,
+            'tahun' => 2026,
+        ]);
+
+        $response->assertSessionHasErrors('file_penduduk');
+    }
+
+    /**
+     * Test import prestasi only accepts .xlsx file.
+     */
+    public function test_import_prestasi_only_accepts_xlsx(): void
+    {
+        $user = $this->getAdminUser();
+
+        $fileCsv = UploadedFile::fake()->create('prestasi.csv', 10, 'text/csv');
+        $response = $this->actingAs($user)->post('/import/prestasi', [
+            'file_prestasi' => $fileCsv,
+            'tahun' => 2026,
+        ]);
+
+        $response->assertSessionHasErrors('file_prestasi');
     }
 
     /**
@@ -247,55 +287,87 @@ class ExampleTest extends TestCase
     }
 
     /**
-     * Test user can import demographic CSV file.
+     * Test user can import demographic XLSX file.
      */
-    public function test_user_can_import_demographic_csv(): void
+    public function test_user_can_import_demographic_xlsx(): void
     {
         $user = $this->getAdminUser();
         $kec = WilayahKecamatan::first();
 
-        $csvContent = "kode_kecamatan,nama_kecamatan,tahun,usia_0_4,usia_5_6,usia_7_12,usia_13_15,usia_16_18,usia_18_plus\n"
-                    ."{$kec->kode},{$kec->nama},2027,2100,1600,4300,2200,2000,26000\n";
+        $exporter = app(ExcelExporter::class);
+        $res = $exporter->downloadXlsx(
+            'test_penduduk.xlsx',
+            'Template Penduduk',
+            ['kode_kecamatan', 'nama_kecamatan', 'tahun', 'usia_0_4', 'usia_5_6', 'usia_7_12', 'usia_13_15', 'usia_16_18', 'usia_18_plus'],
+            [
+                [$kec->kode, $kec->nama, 2034, 2100, 1600, 4300, 2200, 2000, 26000],
+            ]
+        );
 
-        $file = UploadedFile::fake()->createWithContent('penduduk.csv', $csvContent);
+        $tmpFile = tempnam(sys_get_temp_dir(), 'test_penduduk_').'.xlsx';
+        ob_start();
+        $res->sendContent();
+        file_put_contents($tmpFile, ob_get_clean());
+
+        $file = new UploadedFile($tmpFile, 'penduduk.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
         $response = $this->actingAs($user)->post('/import/penduduk', [
             'file_penduduk' => $file,
-            'tahun' => 2027,
+            'tahun' => 2034,
         ]);
 
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('penduduk_usia_sekolah', [
             'kecamatan_id' => $kec->id,
-            'tahun' => 2027,
+            'tahun' => 2034,
             'usia_7_12_total' => 4300,
         ]);
+
+        // Bersihkan data uji coba agar database tetap bersih
+        PendudukUsiaSekolah::where('tahun', 2034)->delete();
+        @unlink($tmpFile);
     }
 
     /**
-     * Test user can import prestasi CSV file.
+     * Test user can import prestasi XLSX file.
      */
-    public function test_user_can_import_prestasi_csv(): void
+    public function test_user_can_import_prestasi_xlsx(): void
     {
         $user = $this->getAdminUser();
 
-        $csvContent = "nama_siswa,nisn,kejuaraan,bidang,tingkat,peringkat,tahun,sekolah\n"
-                    ."Ahmad Fauzan,0081234567,Olimpiade Sains Nasional Matematika,Sains & Akademik,Nasional,Juara 1,2026,SMP Negeri 1 Banjarnegara\n";
+        $exporter = app(ExcelExporter::class);
+        $res = $exporter->downloadXlsx(
+            'test_prestasi.xlsx',
+            'Template Prestasi',
+            ['nama_siswa', 'nisn', 'jenis_kelamin', 'nama_kejuaraan', 'bidang', 'tingkat', 'peringkat', 'tahun', 'nama_sekolah', 'penyelenggara', 'keterangan'],
+            [
+                ['Test Siswa Uji', '0081234567', 'L', 'Olimpiade Uji Coba', 'Sains & Akademik', 'Nasional', 'Juara 1', 2034, 'SMP Negeri 1 Banjarnegara', 'Kemendikbud', 'Uji Coba'],
+            ]
+        );
 
-        $file = UploadedFile::fake()->createWithContent('prestasi.csv', $csvContent);
+        $tmpFile = tempnam(sys_get_temp_dir(), 'test_prestasi_').'.xlsx';
+        ob_start();
+        $res->sendContent();
+        file_put_contents($tmpFile, ob_get_clean());
+
+        $file = new UploadedFile($tmpFile, 'prestasi.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
         $response = $this->actingAs($user)->post('/import/prestasi', [
             'file_prestasi' => $file,
-            'tahun' => 2026,
+            'tahun' => 2034,
         ]);
 
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('prestasi_siswa', [
-            'nama_siswa' => 'Ahmad Fauzan',
-            'nama_kejuaraan' => 'Olimpiade Sains Nasional Matematika',
+            'nama_siswa' => 'Test Siswa Uji',
+            'nama_kejuaraan' => 'Olimpiade Uji Coba',
             'peringkat' => 'Juara 1',
-            'tahun' => 2026,
+            'tahun' => 2034,
         ]);
+
+        // Bersihkan data uji coba agar database tetap bersih
+        PrestasiSiswa::where('tahun', 2034)->delete();
+        @unlink($tmpFile);
     }
 
     /**
