@@ -845,7 +845,7 @@ class ExampleTest extends TestCase
         // 1. Visit demographic page
         $resPage = $this->actingAs($admin)->get('/tujuan1/penduduk?tahun='.$testYear);
         $resPage->assertStatus(200);
-        $resPage->assertSee('Input Data Penduduk Baru');
+        $resPage->assertSee('Import Excel (.xlsx)');
 
         // 2. Store new record
         $resCreate = $this->actingAs($admin)->post('/tujuan1/penduduk', [
