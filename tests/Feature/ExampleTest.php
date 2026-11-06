@@ -10,6 +10,7 @@ use App\Models\TargetRenstra;
 use App\Models\User;
 use App\Models\WilayahKecamatan;
 use App\Services\ExcelExporter;
+use App\Services\KinerjaService;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
@@ -526,6 +527,40 @@ class ExampleTest extends TestCase
         $this->actingAs($user)->get('/indikator/laporan/apk')->assertStatus(200);
         $this->actingAs($user)->get('/indikator/laporan/apm')->assertStatus(200);
         $this->actingAs($user)->get('/indikator/laporan/aps')->assertStatus(200);
+    }
+
+    /**
+     * Test format baru tabel basic wilayah pada menu APK, APM, dan APS (sesuai format-baru.jpeg).
+     */
+    public function test_indikator_official_table_renders_format_baru_structure(): void
+    {
+        $user = $this->getAdminUser();
+
+        foreach (['apk', 'apm', 'aps'] as $tipe) {
+            $response = $this->actingAs($user)->get("/indikator/{$tipe}");
+            $response->assertStatus(200);
+            $response->assertSee('Berdasarkan Basis Sekolah');
+            $response->assertSee('Kecamatan');
+            $response->assertSee('Penduduk Usia');
+            $response->assertSee('Jumlah Siswa');
+            $response->assertSee('SMP');
+            $response->assertSee('MTs');
+            $response->assertSee('SMA');
+            $response->assertSee('SMK');
+            $response->assertSee('MA');
+            $response->assertSee('Kec.');
+            $response->assertSee('Jumlah');
+        }
+
+        $service = app(KinerjaService::class);
+        $data = $service->getIndikatorOfficialData('aps');
+        $this->assertArrayHasKey('blocks', $data);
+        $this->assertArrayHasKey('smp', $data['blocks']);
+        $this->assertArrayHasKey('SD', $data['blocks']['smp']['forms']);
+        $this->assertArrayHasKey('MTS', $data['blocks']['smp']['forms']);
+        $this->assertEquals('MTs', $data['blocks']['smp']['forms']['MTS']);
+        $this->assertArrayHasKey('breakdown', $data['rows'][0]['smp']);
+        $this->assertArrayHasKey('breakdown', $data['total']['smp']);
     }
 
     /**

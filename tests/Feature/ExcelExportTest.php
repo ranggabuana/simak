@@ -127,4 +127,46 @@ class ExcelExportTest extends TestCase
         // Percentage 98.5 under numeric column is a number
         $this->assertTrue(ExcelExporter::shouldRenderAsNumber(98.50, false));
     }
+
+    public function test_unduh_indikator_official_excel_has_4_sheets_and_format_baru(): void
+    {
+        $user = $this->getAuthenticatedUser();
+
+        foreach (['apk', 'apm', 'aps'] as $tipe) {
+            $response = $this->actingAs($user)->get(route('export.'.$tipe, ['tahun' => 2026]));
+
+            $response->assertStatus(200);
+            $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            $this->assertStringContainsString(strtoupper($tipe).'_2026.xlsx', $response->headers->get('Content-Disposition'));
+            $this->assertStringEndsWith('.xlsx"', $response->headers->get('Content-Disposition'));
+
+            $content = $response->streamedContent();
+            $tmp = tempnam(sys_get_temp_dir(), 'test_zip_indikator_');
+            file_put_contents($tmp, $content);
+
+            $zip = new ZipArchive;
+            $this->assertTrue($zip->open($tmp) === true);
+
+            // Assert 4 sheets exist: PAUD, SD, SMP, SMA
+            $this->assertNotFalse($zip->locateName('xl/worksheets/sheet1.xml'));
+            $this->assertNotFalse($zip->locateName('xl/worksheets/sheet2.xml'));
+            $this->assertNotFalse($zip->locateName('xl/worksheets/sheet3.xml'));
+            $this->assertNotFalse($zip->locateName('xl/worksheets/sheet4.xml'));
+
+            // Check workbook.xml contains sheet names
+            $wbXml = $zip->getFromName('xl/workbook.xml');
+            $this->assertStringContainsString('PAUD (5-6 Th)', $wbXml);
+            $this->assertStringContainsString('SD (7-12 Th)', $wbXml);
+            $this->assertStringContainsString('SMP (13-15 Th)', $wbXml);
+            $this->assertStringContainsString('SMA-SMK-MA (16-18 Th)', $wbXml);
+
+            // Check sheet 3 (SMP, 13-15 Th, 28 columns: A s/d AB)
+            $sheet3Xml = $zip->getFromName('xl/worksheets/sheet3.xml');
+            $this->assertStringContainsString('AB', $sheet3Xml);
+            $this->assertStringContainsString('Jumlah', $sheet3Xml);
+
+            $zip->close();
+            @unlink($tmp);
+        }
+    }
 }

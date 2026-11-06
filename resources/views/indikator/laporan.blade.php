@@ -91,6 +91,25 @@
             font-size: 7.5pt;
             font-weight: 700;
         }
+        .report-table-detail {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7pt;
+            table-layout: auto;
+        }
+        .report-table-detail th, .report-table-detail td {
+            padding: 2.5px 3px;
+            border: 1px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .report-table-detail thead tr {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 700;
+        }
+        .report-table-detail tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
 
         /* Print Media Styles */
         @media print {
@@ -124,6 +143,16 @@
                 padding: 3px 4px !important;
                 font-size: 7pt !important;
                 border-color: #94a3b8 !important;
+            }
+            .report-table-detail {
+                font-size: 5.5pt !important;
+                width: 100% !important;
+            }
+            .report-table-detail th, .report-table-detail td {
+                padding: 1.5px 2px !important;
+                font-size: 5.5pt !important;
+                border-color: #94a3b8 !important;
+                line-height: 1.15 !important;
             }
             @page {
                 size: A4 landscape;
@@ -394,275 +423,128 @@
             </div>
         </div>
 
-        <!-- ==================== HALAMAN 3: TABEL RINCIAN PENDUDUK & SISWA (PAUD & SD) ==================== -->
-        <div class="page-break space-y-4">
-            <div style="border-bottom: 1.5px solid #cbd5e1; padding-bottom: 6px;">
-                <h3 style="font-size: 9.5pt; font-weight: 900; text-transform: uppercase; margin: 0; color: #0f172a;">
-                    2. Rincian Data Kependudukan & Partisipasi Siswa: PAUD & SD/Sederajat
-                </h3>
-                <div style="font-size: 7.5pt; color: #64748b;">Rincian agregat penduduk Dukcapil, siswa aktif Dapodik/EMIS, dan rasio capaian gender (L, P, Jumlah)</div>
+        <!-- ==================== HALAMAN 3-6: TABEL RINCIAN BASIS SEKOLAH SESUAI FORMAT-BARU.JPEG ==================== -->
+        @foreach($officialData['blocks'] as $blockKey => $block)
+        <div class="page-break space-y-2.5">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #cbd5e1; padding-bottom: 6px;">
+                <div>
+                    <h3 style="font-size: 9.5pt; font-weight: 900; text-transform: uppercase; margin: 0; color: #0f172a;">
+                        {{ $loop->iteration + 1 }}. {{ $block['title'] }}
+                    </h3>
+                    <div style="font-size: 7.5pt; color: #64748b;">
+                        Rincian Agregat Penduduk Usia, Siswa Terpilah Per Bentuk Sekolah (Dapodik & EMIS), dan Capaian {{ strtoupper($officialData['tipe']) }}
+                    </div>
+                </div>
+                <div style="font-size: 7.5pt; font-family: 'JetBrains Mono', monospace; color: #64748b;">
+                    T.A {{ $tahun }} &bull; 20 Kecamatan
+                </div>
             </div>
 
-            <!-- SUB-TABEL PAUD -->
-            <div class="avoid-break space-y-1">
-                <div style="font-size: 8pt; font-weight: 800; color: #1e40af; text-transform: uppercase; background: #eff6ff; padding: 4px 8px; border-radius: 6px; border: 1px solid #bfdbfe;">
-                    A. {{ $officialData['labels']['paud_title'] }}
-                </div>
-                <table class="report-table">
+            <div style="width: 100%; overflow-x: auto;">
+                <table class="report-table-detail">
                     <thead>
-                        <tr>
-                            <th rowspan="2" style="width: 28px; text-align: center;">No</th>
-                            <th rowspan="2" style="width: 140px; text-align: left;">Kecamatan</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['paud_penduduk'] }}</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['paud_siswa'] }}</th>
-                            <th colspan="3" style="text-align: center; background: #dbeafe; color: #1e40af;">{{ $officialData['labels']['paud_capaian'] }}</th>
+                        {{-- Baris 1: Header Utama --}}
+                        <tr style="background: #f1f5f9; color: #0f172a; font-weight: 800; text-align: center;">
+                            <th rowspan="3" style="width: 24px; text-align: center;">No</th>
+                            <th rowspan="3" style="width: 130px; text-align: left;">Kecamatan</th>
+                            <th colspan="3" rowspan="2" style="text-align: center;">{{ $block['penduduk_header'] }}</th>
+                            <th colspan="{{ count($block['forms']) * 3 }}" style="text-align: center;">{{ $block['siswa_header'] }}</th>
+                            <th colspan="3" rowspan="2" style="text-align: center; background: #e0f2fe; color: #0369a1;">{{ $block['capaian_header'] }} (%)</th>
                         </tr>
-                        <tr style="background: #f8fafc; font-size: 7pt;">
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right; background: #eff6ff;">L (%)</th>
-                            <th style="text-align: right; background: #eff6ff;">P (%)</th>
-                            <th style="text-align: right; background: #dbeafe; font-weight: 900;">Jml (%)</th>
+
+                        {{-- Baris 2: Sub-Header Tiap Bentuk Pendidikan --}}
+                        <tr style="background: #f8fafc; color: #1e293b; font-weight: 700; text-align: center;">
+                            @foreach($block['forms'] as $fKey => $fLabel)
+                                <th colspan="3" style="text-align: center;">{{ $fLabel }}</th>
+                            @endforeach
+                        </tr>
+
+                        {{-- Baris 3: Sub-Kolom L, P, Jml --}}
+                        <tr style="background: #f1f5f9; font-size: 6pt; text-align: center;">
+                            {{-- Penduduk L, P, Jml --}}
+                            <th style="text-align: right; width: 34px;">L</th>
+                            <th style="text-align: right; width: 34px;">P</th>
+                            <th style="text-align: right; width: 38px; font-weight: 800;">Jml</th>
+
+                            {{-- Bentuk Sekolah L, P, Jml --}}
+                            @foreach($block['forms'] as $fKey => $fLabel)
+                                <th style="text-align: right; width: 28px;">L</th>
+                                <th style="text-align: right; width: 28px;">P</th>
+                                <th style="text-align: right; width: 32px; font-weight: 700;">Jml</th>
+                            @endforeach
+
+                            {{-- Capaian L, P, Jml --}}
+                            <th style="text-align: right; width: 44px; background: #f0f9ff; color: #0369a1;">L</th>
+                            <th style="text-align: right; width: 44px; background: #f0f9ff; color: #db2777;">P</th>
+                            <th style="text-align: right; width: 48px; background: #e0f2fe; color: #0c4a6e; font-weight: 900;">Jml</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($officialData['rows'] as $r)
+                        @php
+                            $bData = $r[$blockKey];
+                            $namaKec = 'Kec. ' . ucwords(strtolower(preg_replace('/^kec(\.|\s+)/i', '', $r['nama'])));
+                        @endphp
                         <tr>
                             <td style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #64748b;">{{ $r['no'] }}</td>
-                            <td style="font-weight: 700;">{{ $r['nama'] }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['paud']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['paud']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['paud']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['paud']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['paud']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['paud']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #2563eb;">{{ number_format($r['paud']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #db2777;">{{ number_format($r['paud']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900; background: #eff6ff; color: #1e3a8a;">{{ number_format($r['paud']['capaian']['jml'], 2) }}%</td>
+                            <td style="font-weight: 700; color: #0f172a; white-space: nowrap;">{{ $namaKec }}</td>
+
+                            {{-- Penduduk --}}
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($bData['penduduk']['l']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($bData['penduduk']['p']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; background: #f8fafc;">{{ number_format($bData['penduduk']['jml']) }}</td>
+
+                            {{-- Forms --}}
+                            @foreach($block['forms'] as $fKey => $fLabel)
+                            @php $f = $bData['breakdown'][$fKey] ?? ['l' => 0, 'p' => 0, 'jml' => 0]; @endphp
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($f['l']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($f['p']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; background: #f8fafc;">{{ number_format($f['jml']) }}</td>
+                            @endforeach
+
+                            {{-- Capaian --}}
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #2563eb;">{{ number_format($bData['capaian']['l'], 2) }}%</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #db2777;">{{ number_format($bData['capaian']['p'], 2) }}%</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900; background: #eff6ff; color: #1e3a8a;">{{ number_format($bData['capaian']['jml'], 2) }}%</td>
                         </tr>
                         @endforeach
                     </tbody>
                     <tfoot>
+                        @php $bTot = $officialData['total'][$blockKey]; @endphp
                         <tr style="background: #e2e8f0; font-weight: 900; color: #0f172a;">
                             <td style="text-align: center;">#</td>
-                            <td>JUMLAH</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['paud']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['paud']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['paud']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['paud']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['paud']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['paud']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #1e40af;">{{ number_format($tot['paud']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #9d174d;">{{ number_format($tot['paud']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; background: #cbd5e1;">{{ number_format($tot['paud']['capaian']['jml'], 2) }}%</td>
+                            <td style="font-weight: 900; white-space: nowrap;">TOTAL KABUPATEN</td>
+
+                            {{-- Penduduk Total --}}
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($bTot['penduduk']['l']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($bTot['penduduk']['p']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900;">{{ number_format($bTot['penduduk']['jml']) }}</td>
+
+                            {{-- Forms Total --}}
+                            @foreach($block['forms'] as $fKey => $fLabel)
+                            @php $fTot = $bTot['breakdown'][$fKey] ?? ['l' => 0, 'p' => 0, 'jml' => 0]; @endphp
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($fTot['l']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($fTot['p']) }}</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 800;">{{ number_format($fTot['jml']) }}</td>
+                            @endforeach
+
+                            {{-- Capaian Total --}}
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #1e40af;">{{ number_format($bTot['capaian']['l'], 2) }}%</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #9d174d;">{{ number_format($bTot['capaian']['p'], 2) }}%</td>
+                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900; background: #cbd5e1; color: #0f172a;">{{ number_format($bTot['capaian']['jml'], 2) }}%</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
-            <!-- SUB-TABEL SD -->
-            <div class="avoid-break space-y-1">
-                <div style="font-size: 8pt; font-weight: 800; color: #3730a3; text-transform: uppercase; background: #eef2ff; padding: 4px 8px; border-radius: 6px; border: 1px solid #c7d2fe;">
-                    B. {{ $officialData['labels']['sd_title'] }}
-                </div>
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="width: 28px; text-align: center;">No</th>
-                            <th rowspan="2" style="width: 140px; text-align: left;">Kecamatan</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sd_penduduk'] }}</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sd_siswa'] }}</th>
-                            <th colspan="3" style="text-align: center; background: #e0e7ff; color: #3730a3;">{{ $officialData['labels']['sd_capaian'] }}</th>
-                        </tr>
-                        <tr style="background: #f8fafc; font-size: 7pt;">
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right; background: #eef2ff;">L (%)</th>
-                            <th style="text-align: right; background: #eef2ff;">P (%)</th>
-                            <th style="text-align: right; background: #e0e7ff; font-weight: 900;">Jml (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($officialData['rows'] as $r)
-                        <tr>
-                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #64748b;">{{ $r['no'] }}</td>
-                            <td style="font-weight: 700;">{{ $r['nama'] }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sd']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sd']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['sd']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sd']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sd']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['sd']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #4338ca;">{{ number_format($r['sd']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #db2777;">{{ number_format($r['sd']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900; background: #eef2ff; color: #312e81;">{{ number_format($r['sd']['capaian']['jml'], 2) }}%</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr style="background: #e2e8f0; font-weight: 900; color: #0f172a;">
-                            <td style="text-align: center;">#</td>
-                            <td>JUMLAH</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['sd']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['sd']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['sd']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['sd']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['sd']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['sd']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #3730a3;">{{ number_format($tot['sd']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #9d174d;">{{ number_format($tot['sd']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; background: #cbd5e1;">{{ number_format($tot['sd']['capaian']['jml'], 2) }}%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <!-- ==================== HALAMAN 4: TABEL RINCIAN PENDUDUK & SISWA (SMP & SMA/SMK/MA) ==================== -->
-        <div class="page-break space-y-4">
-            <div style="border-bottom: 1.5px solid #cbd5e1; padding-bottom: 6px;">
-                <h3 style="font-size: 9.5pt; font-weight: 900; text-transform: uppercase; margin: 0; color: #0f172a;">
-                    3. Rincian Data Kependudukan & Partisipasi Siswa: SMP & SMA/SMK/MA
-                </h3>
-                <div style="font-size: 7.5pt; color: #64748b;">Rincian agregat penduduk Dukcapil, siswa aktif Dapodik/EMIS, dan rasio capaian gender (L, P, Jumlah)</div>
-            </div>
-
-            <!-- SUB-TABEL SMP -->
-            <div class="avoid-break space-y-1">
-                <div style="font-size: 8pt; font-weight: 800; color: #0369a1; text-transform: uppercase; background: #f0f9ff; padding: 4px 8px; border-radius: 6px; border: 1px solid #bae6fd;">
-                    A. {{ $officialData['labels']['smp_title'] }}
-                </div>
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="width: 28px; text-align: center;">No</th>
-                            <th rowspan="2" style="width: 140px; text-align: left;">Kecamatan</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['smp_penduduk'] }}</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['smp_siswa'] }}</th>
-                            <th colspan="3" style="text-align: center; background: #e0f2fe; color: #0369a1;">{{ $officialData['labels']['smp_capaian'] }}</th>
-                        </tr>
-                        <tr style="background: #f8fafc; font-size: 7pt;">
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right; background: #f0f9ff;">L (%)</th>
-                            <th style="text-align: right; background: #f0f9ff;">P (%)</th>
-                            <th style="text-align: right; background: #e0f2fe; font-weight: 900;">Jml (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($officialData['rows'] as $r)
-                        <tr>
-                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #64748b;">{{ $r['no'] }}</td>
-                            <td style="font-weight: 700;">{{ $r['nama'] }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['smp']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['smp']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['smp']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['smp']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['smp']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['smp']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #0284c7;">{{ number_format($r['smp']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #db2777;">{{ number_format($r['smp']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900; background: #f0f9ff; color: #0c4a6e;">{{ number_format($r['smp']['capaian']['jml'], 2) }}%</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr style="background: #e2e8f0; font-weight: 900; color: #0f172a;">
-                            <td style="text-align: center;">#</td>
-                            <td>JUMLAH</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['smp']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['smp']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['smp']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['smp']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['smp']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($tot['smp']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #0369a1;">{{ number_format($tot['smp']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #9d174d;">{{ number_format($tot['smp']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; background: #cbd5e1;">{{ number_format($tot['smp']['capaian']['jml'], 2) }}%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
-            <!-- SUB-TABEL SMA / SMK / MA -->
-            <div class="avoid-break space-y-1">
-                <div style="font-size: 8pt; font-weight: 800; color: #065f46; text-transform: uppercase; background: #ecfdf5; padding: 4px 8px; border-radius: 6px; border: 1px solid #a7f3d0;">
-                    B. {{ $officialData['labels']['sma_title'] ?? 'SMA / SMK / MA (Usia 16–18 Tahun)' }}
-                </div>
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" style="width: 28px; text-align: center;">No</th>
-                            <th rowspan="2" style="width: 140px; text-align: left;">Kecamatan</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sma_penduduk'] ?? 'Penduduk (16–18 Th)' }}</th>
-                            <th colspan="3" style="text-align: center;">{{ $officialData['labels']['sma_siswa'] ?? 'Siswa SMA/SMK/MA' }}</th>
-                            <th colspan="3" style="text-align: center; background: #d1fae5; color: #065f46;">{{ $officialData['labels']['sma_capaian'] ?? 'Capaian SMA/SMK/MA (%)' }}</th>
-                        </tr>
-                        <tr style="background: #f8fafc; font-size: 7pt;">
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right;">L</th>
-                            <th style="text-align: right;">P</th>
-                            <th style="text-align: right;">Jml</th>
-                            <th style="text-align: right; background: #ecfdf5;">L (%)</th>
-                            <th style="text-align: right; background: #ecfdf5;">P (%)</th>
-                            <th style="text-align: right; background: #d1fae5; font-weight: 900;">Jml (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($officialData['rows'] as $r)
-                        <tr>
-                            <td style="text-align: center; font-family: 'JetBrains Mono', monospace; color: #64748b;">{{ $r['no'] }}</td>
-                            <td style="font-weight: 700;">{{ $r['nama'] }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sma']['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sma']['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['sma']['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sma']['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($r['sma']['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700;">{{ number_format($r['sma']['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #059669;">{{ number_format($r['sma']['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #db2777;">{{ number_format($r['sma']['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 900; background: #ecfdf5; color: #064e3b;">{{ number_format($r['sma']['capaian']['jml'], 2) }}%</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        @php $smaTot = $tot['sma'] ?? ['penduduk' => ['l' => 0, 'p' => 0, 'jml' => 0], 'siswa' => ['l' => 0, 'p' => 0, 'jml' => 0], 'capaian' => ['l' => 0, 'p' => 0, 'jml' => 0]]; @endphp
-                        <tr style="background: #e2e8f0; font-weight: 900; color: #0f172a;">
-                            <td style="text-align: center;">#</td>
-                            <td>JUMLAH</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($smaTot['penduduk']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($smaTot['penduduk']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($smaTot['penduduk']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($smaTot['siswa']['l']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($smaTot['siswa']['p']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">{{ number_format($smaTot['siswa']['jml']) }}</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #065f46;">{{ number_format($smaTot['capaian']['l'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; color: #9d174d;">{{ number_format($smaTot['capaian']['p'], 2) }}%</td>
-                            <td style="text-align: right; font-family: 'JetBrains Mono', monospace; background: #cbd5e1;">{{ number_format($smaTot['capaian']['jml'], 2) }}%</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
+            @if($loop->last)
             <!-- CATATAN KAKI SUMBER DATA -->
             <div style="font-size: 7.5pt; color: #64748b; font-style: italic; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
-                Sumber data resmi : DISDUKCAPIL Kab. Banjarnegara, DAPODIK KEMENDIKBUDRISTEK, dan EMIS KEMENAG RI. Dokumen dicetak secara terotomatisasi melalui SIMAK Pendidikan Kab. Banjarnegara pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i:s') }} WIB.
+                {{ $officialData['sumber'] }}. Dokumen dicetak secara terotomatisasi melalui SIMAK Pendidikan Kab. Banjarnegara pada {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i:s') }} WIB.
             </div>
+            @endif
         </div>
+        @endforeach
 
     </div>
 
@@ -736,10 +618,10 @@
                             {
                                 label: 'Laki-laki ♂ (%)',
                                 data: [
-                                    {{ (float) $tot['paud']['capaian']['l'] }},
-                                    {{ (float) $tot['sd']['capaian']['l'] }},
-                                    {{ (float) $tot['smp']['capaian']['l'] }},
-                                    {{ (float) ($tot['sma']['capaian']['l'] ?? 0) }}
+                                    {{ (float) ($officialData['total']['paud']['capaian']['l'] ?? 0) }},
+                                    {{ (float) ($officialData['total']['sd']['capaian']['l'] ?? 0) }},
+                                    {{ (float) ($officialData['total']['smp']['capaian']['l'] ?? 0) }},
+                                    {{ (float) ($officialData['total']['sma']['capaian']['l'] ?? 0) }}
                                 ],
                                 backgroundColor: 'rgba(37, 99, 235, 0.85)',
                                 borderColor: '#1d4ed8',
@@ -750,10 +632,10 @@
                             {
                                 label: 'Perempuan ♀ (%)',
                                 data: [
-                                    {{ (float) $tot['paud']['capaian']['p'] }},
-                                    {{ (float) $tot['sd']['capaian']['p'] }},
-                                    {{ (float) $tot['smp']['capaian']['p'] }},
-                                    {{ (float) ($tot['sma']['capaian']['p'] ?? 0) }}
+                                    {{ (float) ($officialData['total']['paud']['capaian']['p'] ?? 0) }},
+                                    {{ (float) ($officialData['total']['sd']['capaian']['p'] ?? 0) }},
+                                    {{ (float) ($officialData['total']['smp']['capaian']['p'] ?? 0) }},
+                                    {{ (float) ($officialData['total']['sma']['capaian']['p'] ?? 0) }}
                                 ],
                                 backgroundColor: 'rgba(219, 39, 119, 0.85)',
                                 borderColor: '#be185d',

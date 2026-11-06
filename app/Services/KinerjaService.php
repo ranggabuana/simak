@@ -542,6 +542,10 @@ class KinerjaService
                 'sd_title' => "APK SD Sederajat TAHUN {$tahun}",
                 'smp_title' => "APK SMP SEDERAJAT  TAHUN {$tahun}",
                 'sma_title' => "APK SMA/SMK/MA Sederajat TAHUN {$tahun}",
+                'paud_basis_title' => "Angka Partisipasi Kasar (APK) PAUD Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'sd_basis_title' => "Angka Partisipasi Kasar (APK) SD/Sederajat Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'smp_basis_title' => "Angka Partisipasi Kasar (APK) SMP/Sederajat Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'sma_basis_title' => "Angka Partisipasi Kasar (APK) SMA/SMK/MA Sederajat Berdasarkan Basis Sekolah Tahun {$tahun}",
                 'paud_penduduk' => 'Jumlah anak usia 5-6 tahun',
                 'sd_penduduk' => 'Jumlah anak usia 7-12 tahun',
                 'smp_penduduk' => 'Jumlah anak usia 13-15',
@@ -562,6 +566,10 @@ class KinerjaService
                 'sd_title' => "APM  SD TAHUN {$tahun}",
                 'smp_title' => "APM  SMP TAHUN {$tahun}",
                 'sma_title' => "APM  SMA/SMK/MA TAHUN {$tahun}",
+                'paud_basis_title' => "Angka Partisipasi Murni (APM) PAUD Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'sd_basis_title' => "Angka Partisipasi Murni (APM) SD/Sederajat Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'smp_basis_title' => "Angka Partisipasi Murni (APM) SMP/Sederajat Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'sma_basis_title' => "Angka Partisipasi Murni (APM) SMA/SMK/MA Sederajat Berdasarkan Basis Sekolah Tahun {$tahun}",
                 'paud_penduduk' => 'Jumlah anak usia 5-6 tahun',
                 'sd_penduduk' => 'Jumlah anak usia 7-12 tahun',
                 'smp_penduduk' => 'Jumlah anak usia 13-15',
@@ -582,6 +590,10 @@ class KinerjaService
                 'sd_title' => "APS SD TAHUN {$tahun}",
                 'smp_title' => "APS SMP TAHUN {$tahun}",
                 'sma_title' => "APS SMA/SMK/MA TAHUN {$tahun}",
+                'paud_basis_title' => "Angka Partisipasi Sekolah (APS) 5-6 tahun Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'sd_basis_title' => "Angka Partisipasi Sekolah (APS) 7-12 tahun Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'smp_basis_title' => "Angka Partisipasi Sekolah (APS) 13-15 tahun Berdasarkan Basis Sekolah Tahun {$tahun}",
+                'sma_basis_title' => "Angka Partisipasi Sekolah (APS) 16-18 tahun Berdasarkan Basis Sekolah Tahun {$tahun}",
                 'paud_penduduk' => 'Jumlah anak usia 5-6 tahun',
                 'sd_penduduk' => 'Jumlah anak usia 7-12 tahun',
                 'smp_penduduk' => 'Jumlah anak usia 13 -15',
@@ -599,6 +611,61 @@ class KinerjaService
 
         $currentLabels = $labels[$tipe] ?? $labels['apk'];
 
+        $blocksConfig = [
+            'paud' => [
+                'key' => 'paud',
+                'name' => 'PAUD',
+                'title' => $currentLabels['paud_basis_title'],
+                'penduduk_header' => 'Penduduk Usia 5-6 Tahun',
+                'siswa_header' => match ($tipe) {
+                    'aps' => 'Jumlah Siswa Usia 5-6 Tahun',
+                    'apm' => 'Jumlah Siswa Usia 5-6 Tahun di PAUD',
+                    default => 'Jumlah Siswa Jenjang PAUD',
+                },
+                'capaian_header' => strtoupper($tipe).' 5-6 Tahun',
+                'forms' => ['PAUD' => 'PAUD', 'TK' => 'TK', 'SD' => 'SD', 'MI' => 'MI'],
+            ],
+            'sd' => [
+                'key' => 'sd',
+                'name' => 'SD',
+                'title' => $currentLabels['sd_basis_title'],
+                'penduduk_header' => 'Penduduk Usia 7-12 Tahun',
+                'siswa_header' => match ($tipe) {
+                    'aps' => 'Jumlah Siswa Usia 7-12 Tahun',
+                    'apm' => 'Jumlah Siswa Usia 7-12 Tahun di SD/Sederajat',
+                    default => 'Jumlah Siswa Jenjang SD/Sederajat',
+                },
+                'capaian_header' => strtoupper($tipe).' 7-12 Tahun',
+                'forms' => ['SD' => 'SD', 'MI' => 'MI', 'SMP' => 'SMP', 'MTS' => 'MTs', 'SMA' => 'SMA', 'SMK' => 'SMK', 'MA' => 'MA'],
+            ],
+            'smp' => [
+                'key' => 'smp',
+                'name' => 'SMP',
+                'title' => $currentLabels['smp_basis_title'],
+                'penduduk_header' => 'Penduduk Usia 13-15 Tahun',
+                'siswa_header' => match ($tipe) {
+                    'aps' => 'Jumlah Siswa Usia 13-15 Tahun',
+                    'apm' => 'Jumlah Siswa Usia 13-15 Tahun di SMP/Sederajat',
+                    default => 'Jumlah Siswa Jenjang SMP/Sederajat',
+                },
+                'capaian_header' => strtoupper($tipe).' 13-15 Tahun',
+                'forms' => ['SD' => 'SD', 'MI' => 'MI', 'SMP' => 'SMP', 'MTS' => 'MTs', 'SMA' => 'SMA', 'SMK' => 'SMK', 'MA' => 'MA'],
+            ],
+            'sma' => [
+                'key' => 'sma',
+                'name' => 'SMA / SMK / MA',
+                'title' => $currentLabels['sma_basis_title'],
+                'penduduk_header' => 'Penduduk Usia 16-18 Tahun',
+                'siswa_header' => match ($tipe) {
+                    'aps' => 'Jumlah Siswa Usia 16-18 Tahun',
+                    'apm' => 'Jumlah Siswa Usia 16-18 Tahun di SMA/SMK/MA',
+                    default => 'Jumlah Siswa Jenjang SMA/SMK/MA',
+                },
+                'capaian_header' => strtoupper($tipe).' 16-18 Tahun',
+                'forms' => ['SD' => 'SD', 'MI' => 'MI', 'SMP' => 'SMP', 'MTS' => 'MTs', 'SMA' => 'SMA', 'SMK' => 'SMK', 'MA' => 'MA'],
+            ],
+        ];
+
         $rows = [];
         $no = 1;
 
@@ -607,23 +674,33 @@ class KinerjaService
                 'penduduk' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'siswa' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'capaian' => ['l' => 0.0, 'p' => 0.0, 'jml' => 0.0],
+                'breakdown' => [],
             ],
             'sd' => [
                 'penduduk' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'siswa' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'capaian' => ['l' => 0.0, 'p' => 0.0, 'jml' => 0.0],
+                'breakdown' => [],
             ],
             'smp' => [
                 'penduduk' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'siswa' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'capaian' => ['l' => 0.0, 'p' => 0.0, 'jml' => 0.0],
+                'breakdown' => [],
             ],
             'sma' => [
                 'penduduk' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'siswa' => ['l' => 0, 'p' => 0, 'jml' => 0],
                 'capaian' => ['l' => 0.0, 'p' => 0.0, 'jml' => 0.0],
+                'breakdown' => [],
             ],
         ];
+
+        foreach ($blocksConfig as $bKey => $bCfg) {
+            foreach (array_keys($bCfg['forms']) as $fKey) {
+                $total[$bKey]['breakdown'][$fKey] = ['l' => 0, 'p' => 0, 'jml' => 0];
+            }
+        }
 
         foreach ($kecamatanList as $kec) {
             $demografi = $kec->pendudukUsiaSekolah->first();
@@ -646,152 +723,125 @@ class KinerjaService
             $pop16_18_p = (int) ($demografi?->usia_16_18_p ?? 0);
             $pop16_18_jml = (int) ($demografi?->usia_16_18_total ?? ($pop16_18_l + $pop16_18_p));
 
-            // 2. Hitung Siswa per Blok
-            if ($tipe === 'apk') {
-                $siswaPaudL = (int) $partisipasi->whereIn('jenjang', ['PAUD', 'TK'])->sum('siswa_l');
-                $siswaPaudP = (int) $partisipasi->whereIn('jenjang', ['PAUD', 'TK'])->sum('siswa_p');
-                $siswaPaudJml = (int) $partisipasi->whereIn('jenjang', ['PAUD', 'TK'])->sum('total_siswa_semua_usia');
+            $populasiMap = [
+                'paud' => ['l' => $pop5_6_l, 'p' => $pop5_6_p, 'jml' => $pop5_6_jml],
+                'sd' => ['l' => $pop7_12_l, 'p' => $pop7_12_p, 'jml' => $pop7_12_jml],
+                'smp' => ['l' => $pop13_15_l, 'p' => $pop13_15_p, 'jml' => $pop13_15_jml],
+                'sma' => ['l' => $pop16_18_l, 'p' => $pop16_18_p, 'jml' => $pop16_18_jml],
+            ];
 
-                $siswaSdL = (int) $partisipasi->whereIn('jenjang', ['SD', 'MI'])->sum('siswa_l');
-                $siswaSdP = (int) $partisipasi->whereIn('jenjang', ['SD', 'MI'])->sum('siswa_p');
-                $siswaSdJml = (int) $partisipasi->whereIn('jenjang', ['SD', 'MI'])->sum('total_siswa_semua_usia');
+            // 2. Hitung Siswa dan Breakdown Form per Blok
+            $blockData = [];
+            foreach ($blocksConfig as $bKey => $bCfg) {
+                $curPop = $populasiMap[$bKey];
+                $bBreakdown = [];
 
-                $siswaSmpL = (int) $partisipasi->whereIn('jenjang', ['SMP', 'MTS'])->sum('siswa_l');
-                $siswaSmpP = (int) $partisipasi->whereIn('jenjang', ['SMP', 'MTS'])->sum('siswa_p');
-                $siswaSmpJml = (int) $partisipasi->whereIn('jenjang', ['SMP', 'MTS'])->sum('total_siswa_semua_usia');
+                foreach (array_keys($bCfg['forms']) as $fKey) {
+                    $formPart = $partisipasi->where('jenjang', $fKey);
 
-                $siswaSmaL = (int) $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_l');
-                $siswaSmaP = (int) $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_p');
-                $siswaSmaJml = (int) $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('total_siswa_semua_usia');
-            } elseif ($tipe === 'apm') {
-                $siswaPaudL = (int) $partisipasi->whereIn('jenjang', ['PAUD', 'TK'])->sum('siswa_usia_sesuai_l');
-                $siswaPaudP = (int) $partisipasi->whereIn('jenjang', ['PAUD', 'TK'])->sum('siswa_usia_sesuai_p');
-                $siswaPaudJml = (int) $partisipasi->whereIn('jenjang', ['PAUD', 'TK'])->sum('siswa_usia_sesuai');
+                    if ($tipe === 'apk') {
+                        $isRelevant = match ($bKey) {
+                            'paud' => in_array($fKey, ['PAUD', 'TK']),
+                            'sd' => in_array($fKey, ['SD', 'MI']),
+                            'smp' => in_array($fKey, ['SMP', 'MTS']),
+                            'sma' => in_array($fKey, ['SMA', 'SMK', 'MA']),
+                            default => false,
+                        };
+                        $fJml = $isRelevant ? (int) $formPart->sum('total_siswa_semua_usia') : 0;
+                        $fL = $isRelevant ? (int) $formPart->sum('siswa_l') : 0;
+                        $fP = $isRelevant ? (int) $formPart->sum('siswa_p') : 0;
+                    } elseif ($tipe === 'apm') {
+                        $isRelevant = match ($bKey) {
+                            'paud' => in_array($fKey, ['PAUD', 'TK']),
+                            'sd' => in_array($fKey, ['SD', 'MI']),
+                            'smp' => in_array($fKey, ['SMP', 'MTS']),
+                            'sma' => in_array($fKey, ['SMA', 'SMK', 'MA']),
+                            default => false,
+                        };
+                        $fJml = $isRelevant ? (int) $formPart->sum('siswa_usia_sesuai') : 0;
+                        $fL = $isRelevant ? (int) $formPart->sum('siswa_usia_sesuai_l') : 0;
+                        $fP = $isRelevant ? (int) $formPart->sum('siswa_usia_sesuai_p') : 0;
+                    } else {
+                        // APS: siswa usia kelompok spesifik yang bersekolah di bentuk sekolah $fKey
+                        $ageCol = match ($bKey) {
+                            'paud' => 'siswa_usia_5_6',
+                            'sd' => 'siswa_usia_7_12',
+                            'smp' => 'siswa_usia_13_15',
+                            'sma' => 'siswa_usia_16_18',
+                            default => 'siswa_usia_13_15',
+                        };
+                        $fJml = (int) $formPart->sum($ageCol);
+                        $formTotAll = (int) $formPart->sum('total_siswa_semua_usia');
+                        $formLAll = (int) $formPart->sum('siswa_l');
+                        $ratioL = $formTotAll > 0
+                            ? ($formLAll / $formTotAll)
+                            : ($curPop['jml'] > 0 ? ($curPop['l'] / $curPop['jml']) : 0.51);
 
-                $siswaSdL = (int) $partisipasi->whereIn('jenjang', ['SD', 'MI'])->sum('siswa_usia_sesuai_l');
-                $siswaSdP = (int) $partisipasi->whereIn('jenjang', ['SD', 'MI'])->sum('siswa_usia_sesuai_p');
-                $siswaSdJml = (int) $partisipasi->whereIn('jenjang', ['SD', 'MI'])->sum('siswa_usia_sesuai');
+                        $fL = (int) round($fJml * $ratioL);
+                        $fP = $fJml - $fL;
+                    }
 
-                $siswaSmpL = (int) $partisipasi->whereIn('jenjang', ['SMP', 'MTS'])->sum('siswa_usia_sesuai_l');
-                $siswaSmpP = (int) $partisipasi->whereIn('jenjang', ['SMP', 'MTS'])->sum('siswa_usia_sesuai_p');
-                $siswaSmpJml = (int) $partisipasi->whereIn('jenjang', ['SMP', 'MTS'])->sum('siswa_usia_sesuai');
+                    $bBreakdown[$fKey] = [
+                        'l' => $fL,
+                        'p' => $fP,
+                        'jml' => $fJml,
+                    ];
 
-                $siswaSmaL = (int) $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai_l');
-                $siswaSmaP = (int) $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai_p');
-                $siswaSmaJml = (int) $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai');
-            } else {
-                $siswaPaudJml = (int) $partisipasi->sum('siswa_usia_5_6');
-                $siswaPaudL = $pop5_6_jml > 0 ? (int) round($siswaPaudJml * ($pop5_6_l / $pop5_6_jml)) : (int) round($siswaPaudJml * 0.51);
-                $siswaPaudP = $siswaPaudJml - $siswaPaudL;
+                    $total[$bKey]['breakdown'][$fKey]['l'] += $fL;
+                    $total[$bKey]['breakdown'][$fKey]['p'] += $fP;
+                    $total[$bKey]['breakdown'][$fKey]['jml'] += $fJml;
+                }
 
-                $siswaSdJml = (int) $partisipasi->sum('siswa_usia_7_12');
-                $siswaSdL = $pop7_12_jml > 0 ? (int) round($siswaSdJml * ($pop7_12_l / $pop7_12_jml)) : (int) round($siswaSdJml * 0.51);
-                $siswaSdP = $siswaSdJml - $siswaSdL;
+                $bSiswaL = array_sum(array_column($bBreakdown, 'l'));
+                $bSiswaP = array_sum(array_column($bBreakdown, 'p'));
+                $bSiswaJml = array_sum(array_column($bBreakdown, 'jml'));
 
-                $siswaSmpJml = (int) $partisipasi->sum('siswa_usia_13_15');
-                $siswaSmpL = $pop13_15_jml > 0 ? (int) round($siswaSmpJml * ($pop13_15_l / $pop13_15_jml)) : (int) round($siswaSmpJml * 0.51);
-                $siswaSmpP = $siswaSmpJml - $siswaSmpL;
+                $bCapaianL = $curPop['l'] > 0 ? round(($bSiswaL / $curPop['l']) * 100, 2) : 0.0;
+                $bCapaianP = $curPop['p'] > 0 ? round(($bSiswaP / $curPop['p']) * 100, 2) : 0.0;
+                $bCapaianJml = $curPop['jml'] > 0 ? round(($bSiswaJml / $curPop['jml']) * 100, 2) : 0.0;
 
-                $siswaSmaJml = (int) $partisipasi->sum('siswa_usia_16_18');
-                $siswaSmaL = $pop16_18_jml > 0 ? (int) round($siswaSmaJml * ($pop16_18_l / $pop16_18_jml)) : (int) round($siswaSmaJml * 0.51);
-                $siswaSmaP = $siswaSmaJml - $siswaSmaL;
+                $blockData[$bKey] = [
+                    'penduduk' => $curPop,
+                    'siswa' => ['l' => $bSiswaL, 'p' => $bSiswaP, 'jml' => $bSiswaJml],
+                    'capaian' => ['l' => $bCapaianL, 'p' => $bCapaianP, 'jml' => $bCapaianJml],
+                    'breakdown' => $bBreakdown,
+                ];
+
+                // Akumulasi total
+                $total[$bKey]['penduduk']['l'] += $curPop['l'];
+                $total[$bKey]['penduduk']['p'] += $curPop['p'];
+                $total[$bKey]['penduduk']['jml'] += $curPop['jml'];
+                $total[$bKey]['siswa']['l'] += $bSiswaL;
+                $total[$bKey]['siswa']['p'] += $bSiswaP;
+                $total[$bKey]['siswa']['jml'] += $bSiswaJml;
             }
-
-            // 3. Hitung Capaian Indikator (%)
-            $capaianPaudL = $pop5_6_l > 0 ? round(($siswaPaudL / $pop5_6_l) * 100, 2) : 0.0;
-            $capaianPaudP = $pop5_6_p > 0 ? round(($siswaPaudP / $pop5_6_p) * 100, 2) : 0.0;
-            $capaianPaudJml = $pop5_6_jml > 0 ? round(($siswaPaudJml / $pop5_6_jml) * 100, 2) : 0.0;
-
-            $capaianSdL = $pop7_12_l > 0 ? round(($siswaSdL / $pop7_12_l) * 100, 2) : 0.0;
-            $capaianSdP = $pop7_12_p > 0 ? round(($siswaSdP / $pop7_12_p) * 100, 2) : 0.0;
-            $capaianSdJml = $pop7_12_jml > 0 ? round(($siswaSdJml / $pop7_12_jml) * 100, 2) : 0.0;
-
-            $capaianSmpL = $pop13_15_l > 0 ? round(($siswaSmpL / $pop13_15_l) * 100, 2) : 0.0;
-            $capaianSmpP = $pop13_15_p > 0 ? round(($siswaSmpP / $pop13_15_p) * 100, 2) : 0.0;
-            $capaianSmpJml = $pop13_15_jml > 0 ? round(($siswaSmpJml / $pop13_15_jml) * 100, 2) : 0.0;
-
-            $capaianSmaL = $pop16_18_l > 0 ? round(($siswaSmaL / $pop16_18_l) * 100, 2) : 0.0;
-            $capaianSmaP = $pop16_18_p > 0 ? round(($siswaSmaP / $pop16_18_p) * 100, 2) : 0.0;
-            $capaianSmaJml = $pop16_18_jml > 0 ? round(($siswaSmaJml / $pop16_18_jml) * 100, 2) : 0.0;
-
-            // 4. Akumulasi Total
-            $total['paud']['penduduk']['l'] += $pop5_6_l;
-            $total['paud']['penduduk']['p'] += $pop5_6_p;
-            $total['paud']['penduduk']['jml'] += $pop5_6_jml;
-            $total['paud']['siswa']['l'] += $siswaPaudL;
-            $total['paud']['siswa']['p'] += $siswaPaudP;
-            $total['paud']['siswa']['jml'] += $siswaPaudJml;
-
-            $total['sd']['penduduk']['l'] += $pop7_12_l;
-            $total['sd']['penduduk']['p'] += $pop7_12_p;
-            $total['sd']['penduduk']['jml'] += $pop7_12_jml;
-            $total['sd']['siswa']['l'] += $siswaSdL;
-            $total['sd']['siswa']['p'] += $siswaSdP;
-            $total['sd']['siswa']['jml'] += $siswaSdJml;
-
-            $total['smp']['penduduk']['l'] += $pop13_15_l;
-            $total['smp']['penduduk']['p'] += $pop13_15_p;
-            $total['smp']['penduduk']['jml'] += $pop13_15_jml;
-            $total['smp']['siswa']['l'] += $siswaSmpL;
-            $total['smp']['siswa']['p'] += $siswaSmpP;
-            $total['smp']['siswa']['jml'] += $siswaSmpJml;
-
-            $total['sma']['penduduk']['l'] += $pop16_18_l;
-            $total['sma']['penduduk']['p'] += $pop16_18_p;
-            $total['sma']['penduduk']['jml'] += $pop16_18_jml;
-            $total['sma']['siswa']['l'] += $siswaSmaL;
-            $total['sma']['siswa']['p'] += $siswaSmaP;
-            $total['sma']['siswa']['jml'] += $siswaSmaJml;
 
             $rows[] = [
                 'no' => $no++,
                 'id' => $kec->id,
                 'kode' => $kec->kode,
                 'nama' => $kec->nama,
-                'paud' => [
-                    'penduduk' => ['l' => $pop5_6_l, 'p' => $pop5_6_p, 'jml' => $pop5_6_jml],
-                    'siswa' => ['l' => $siswaPaudL, 'p' => $siswaPaudP, 'jml' => $siswaPaudJml],
-                    'capaian' => ['l' => $capaianPaudL, 'p' => $capaianPaudP, 'jml' => $capaianPaudJml],
-                ],
-                'sd' => [
-                    'penduduk' => ['l' => $pop7_12_l, 'p' => $pop7_12_p, 'jml' => $pop7_12_jml],
-                    'siswa' => ['l' => $siswaSdL, 'p' => $siswaSdP, 'jml' => $siswaSdJml],
-                    'capaian' => ['l' => $capaianSdL, 'p' => $capaianSdP, 'jml' => $capaianSdJml],
-                ],
-                'smp' => [
-                    'penduduk' => ['l' => $pop13_15_l, 'p' => $pop13_15_p, 'jml' => $pop13_15_jml],
-                    'siswa' => ['l' => $siswaSmpL, 'p' => $siswaSmpP, 'jml' => $siswaSmpJml],
-                    'capaian' => ['l' => $capaianSmpL, 'p' => $capaianSmpP, 'jml' => $capaianSmpJml],
-                ],
-                'sma' => [
-                    'penduduk' => ['l' => $pop16_18_l, 'p' => $pop16_18_p, 'jml' => $pop16_18_jml],
-                    'siswa' => ['l' => $siswaSmaL, 'p' => $siswaSmaP, 'jml' => $siswaSmaJml],
-                    'capaian' => ['l' => $capaianSmaL, 'p' => $capaianSmaP, 'jml' => $capaianSmaJml],
-                ],
+                'paud' => $blockData['paud'],
+                'sd' => $blockData['sd'],
+                'smp' => $blockData['smp'],
+                'sma' => $blockData['sma'],
             ];
         }
 
-        // 5. Hitung Capaian Rata-Rata Kabupaten
-        $total['paud']['capaian']['l'] = $total['paud']['penduduk']['l'] > 0 ? round(($total['paud']['siswa']['l'] / $total['paud']['penduduk']['l']) * 100, 2) : 0.0;
-        $total['paud']['capaian']['p'] = $total['paud']['penduduk']['p'] > 0 ? round(($total['paud']['siswa']['p'] / $total['paud']['penduduk']['p']) * 100, 2) : 0.0;
-        $total['paud']['capaian']['jml'] = $total['paud']['penduduk']['jml'] > 0 ? round(($total['paud']['siswa']['jml'] / $total['paud']['penduduk']['jml']) * 100, 2) : 0.0;
-
-        $total['sd']['capaian']['l'] = $total['sd']['penduduk']['l'] > 0 ? round(($total['sd']['siswa']['l'] / $total['sd']['penduduk']['l']) * 100, 2) : 0.0;
-        $total['sd']['capaian']['p'] = $total['sd']['penduduk']['p'] > 0 ? round(($total['sd']['siswa']['p'] / $total['sd']['penduduk']['p']) * 100, 2) : 0.0;
-        $total['sd']['capaian']['jml'] = $total['sd']['penduduk']['jml'] > 0 ? round(($total['sd']['siswa']['jml'] / $total['sd']['penduduk']['jml']) * 100, 2) : 0.0;
-
-        $total['smp']['capaian']['l'] = $total['smp']['penduduk']['l'] > 0 ? round(($total['smp']['siswa']['l'] / $total['smp']['penduduk']['l']) * 100, 2) : 0.0;
-        $total['smp']['capaian']['p'] = $total['smp']['penduduk']['p'] > 0 ? round(($total['smp']['siswa']['p'] / $total['smp']['penduduk']['p']) * 100, 2) : 0.0;
-        $total['smp']['capaian']['jml'] = $total['smp']['penduduk']['jml'] > 0 ? round(($total['smp']['siswa']['jml'] / $total['smp']['penduduk']['jml']) * 100, 2) : 0.0;
-
-        $total['sma']['capaian']['l'] = $total['sma']['penduduk']['l'] > 0 ? round(($total['sma']['siswa']['l'] / $total['sma']['penduduk']['l']) * 100, 2) : 0.0;
-        $total['sma']['capaian']['p'] = $total['sma']['penduduk']['p'] > 0 ? round(($total['sma']['siswa']['p'] / $total['sma']['penduduk']['p']) * 100, 2) : 0.0;
-        $total['sma']['capaian']['jml'] = $total['sma']['penduduk']['jml'] > 0 ? round(($total['sma']['siswa']['jml'] / $total['sma']['penduduk']['jml']) * 100, 2) : 0.0;
+        // 3. Hitung Capaian Rata-Rata Kabupaten
+        foreach ($blocksConfig as $bKey => $bCfg) {
+            $totPop = $total[$bKey]['penduduk'];
+            $totSis = $total[$bKey]['siswa'];
+            $total[$bKey]['capaian']['l'] = $totPop['l'] > 0 ? round(($totSis['l'] / $totPop['l']) * 100, 2) : 0.0;
+            $total[$bKey]['capaian']['p'] = $totPop['p'] > 0 ? round(($totSis['p'] / $totPop['p']) * 100, 2) : 0.0;
+            $total[$bKey]['capaian']['jml'] = $totPop['jml'] > 0 ? round(($totSis['jml'] / $totPop['jml']) * 100, 2) : 0.0;
+        }
 
         return [
             'tipe' => $tipe,
             'tahun' => $tahun,
             'labels' => $currentLabels,
+            'blocks' => $blocksConfig,
             'rows' => $rows,
             'total' => $total,
             'sumber' => 'Sumber data : DISDUKCAPIL, DAPODIK KEMENDIKBUDRISTEK, EMIS - KEMENAG',
