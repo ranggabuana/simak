@@ -94,7 +94,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-900">Sinkronisasi Data Dapodik Banjarnegara</h3>
+                    <h3 class="text-base font-extrabold text-slate-900">Sinkronisasi Backbone Banjarnegara</h3>
                     <p class="text-[11px] text-slate-500">Sumber: SQL Server Datamart Kominfo (`kode_kabupaten = 030400`)</p>
                 </div>
             </div>
@@ -134,7 +134,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Cakupan Data</label>
                     <select x-model="target" :disabled="syncing" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="semua">Semua Data Dapodik (Sekolah + Siswa + Guru)</option>
+                        <option value="semua">Semua Data Backbone (Sekolah + Siswa + Guru)</option>
                         <option value="sekolah">Hanya Satuan Pendidikan</option>
                         <option value="siswa">Hanya Partisipasi Siswa</option>
                         <option value="guru">Hanya Data Guru & Tendik</option>

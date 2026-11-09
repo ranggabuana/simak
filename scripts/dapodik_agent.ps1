@@ -124,7 +124,7 @@ function Invoke-SyncCycle {
 }
 
 Write-Host "=================================================================" -ForegroundColor Blue
-Write-Host " AGEN SINKRONISASI DAPODIK BANJARNEGARA -> SIMAK PENDIDIKAN" -ForegroundColor White
+Write-Host " AGEN SINKRONISASI BACKBONE BANJARNEGARA -> SIMAK PENDIDIKAN" -ForegroundColor White
 Write-Host " Server SQL : $SqlServer ($SqlDatabase)" -ForegroundColor Gray
 Write-Host " Target URL : $SimakBaseUrl" -ForegroundColor Gray
 Write-Host " Mode Jalan : $Mode" -ForegroundColor Gray
@@ -133,7 +133,7 @@ Write-Host "=================================================================" -
 if ($Mode -eq "Once") {
     [void](Invoke-SyncCycle)
 } elseif ($Mode -eq "Watch") {
-    Write-Host "Menunggu klik tombol 'Sinkron Dapodik' dari aplikasi SIMAK (Polling tiap $PollSeconds detik, tekan Ctrl+C untuk berhenti)..." -ForegroundColor Yellow
+    Write-Host "Menunggu klik tombol 'Sinkronisasi Backbone' dari aplikasi SIMAK (Polling tiap $PollSeconds detik, tekan Ctrl+C untuk berhenti)..." -ForegroundColor Yellow
     while ($true) {
         [void](Invoke-SyncCycle)
         Start-Sleep -Seconds $PollSeconds

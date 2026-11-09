@@ -322,12 +322,12 @@
                 <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Pengaturan & Sistem</p>
                 <div class="mt-2 space-y-1">
                     <!-- Submenu: Pengaturan Aplikasi -->
-                    <div x-data="{ pengaturanOpen: {{ request()->routeIs('audit.*', 'panduan.*', 'users.*') ? 'true' : 'false' }} }" class="pt-0.5">
+                    <div x-data="{ pengaturanOpen: {{ request()->routeIs('settings.*', 'audit.*', 'panduan.*', 'users.*') ? 'true' : 'false' }} }" class="pt-0.5">
                         <button type="button" 
                                 @click="pengaturanOpen = !pengaturanOpen"
-                                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium transition cursor-pointer {{ request()->routeIs('audit.*', 'panduan.*', 'users.*') ? 'bg-blue-50 text-blue-800 font-semibold border border-blue-100/80 shadow-xs' : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900' }}">
+                                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium transition cursor-pointer {{ request()->routeIs('settings.*', 'audit.*', 'panduan.*', 'users.*') ? 'bg-blue-50 text-blue-800 font-semibold border border-blue-100/80 shadow-xs' : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900' }}">
                             <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5 {{ request()->routeIs('audit.*', 'panduan.*', 'users.*') ? 'text-blue-600' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="w-5 h-5 {{ request()->routeIs('settings.*', 'audit.*', 'panduan.*', 'users.*') ? 'text-blue-600' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
@@ -387,7 +387,7 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Tunggal Sinkronisasi Dapodik (Di Bawah Menu Pengaturan Aplikasi) -->
+                    <!-- Tombol Tunggal Sinkronisasi Backbone (Di Bawah Menu Pengaturan Aplikasi) -->
                     @if(auth()->user()->canAccessAnyMenu(['sekolah', 'siswa', 'guru', 'pengaturan']))
                     <div class="pt-2">
                         <button type="button"
@@ -397,7 +397,7 @@
                                 <svg class="w-4 h-4 text-white group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
-                                <span>Sinkronisasi Dapodik</span>
+                                <span>Sinkronisasi Backbone</span>
                             </div>
                             <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white/20 text-white">SYNC</span>
                         </button>
@@ -972,7 +972,7 @@
         </div>
     </div>
 
-    <!-- Modal Global Sinkronisasi Dapodik Banjarnegara -->
+    <!-- Modal Global Sinkronisasi Backbone Banjarnegara -->
     @if(auth()->check() && auth()->user()->canAccessAnyMenu(['sekolah', 'siswa', 'guru', 'pengaturan']))
     <x-dapodik-sync-modal defaultTarget="semua" :tahun="$activeTahunGlobal ?? $tahun ?? (int) date('Y')" />
     @endif

@@ -108,7 +108,7 @@
                     <option value="guru" {{ $filterModule === 'guru' ? 'selected' : '' }}>Data Guru</option>
                     <option value="penduduk" {{ $filterModule === 'penduduk' ? 'selected' : '' }}>Penduduk Usia Sekolah</option>
                     <option value="prestasi" {{ $filterModule === 'prestasi' ? 'selected' : '' }}>Prestasi Siswa</option>
-                    <option value="dapodik" {{ $filterModule === 'dapodik' ? 'selected' : '' }}>Sinkronisasi Dapodik</option>
+                    <option value="dapodik" {{ $filterModule === 'dapodik' ? 'selected' : '' }}>Sinkronisasi Backbone</option>
                     <option value="evaluasi" {{ $filterModule === 'evaluasi' ? 'selected' : '' }}>Evaluasi SAKIP</option>
                 </select>
 

@@ -25,7 +25,7 @@ class DapodikSyncController extends Controller
         $expected = config('services.dapodik.sync_secret', 'SIMAK_BANJARNEGARA_DAPODIK_SECRET_2026');
 
         if (! $token || ! hash_equals((string) $expected, (string) $token)) {
-            abort(401, 'Unauthorized: Token sinkronisasi Dapodik tidak valid.');
+            abort(401, 'Unauthorized: Token sinkronisasi Backbone tidak valid.');
         }
     }
 
@@ -55,7 +55,7 @@ class DapodikSyncController extends Controller
             'started_at' => now(),
         ]);
 
-        ActivityLogger::log('SYNC', 'dapodik', "Memicu permintaan sinkronisasi Dapodik (Target: {$log->target}, ID Tugas: #{$log->id})");
+        ActivityLogger::log('SYNC', 'dapodik', "Memicu permintaan sinkronisasi Backbone (Target: {$log->target}, ID Tugas: #{$log->id})");
 
         return response()->json([
             'status' => 'ok',
@@ -237,8 +237,8 @@ class DapodikSyncController extends Controller
             'completed_at' => now(),
         ]);
 
-        ActivityLogger::log('SYNC', $entity, "Menyinkronkan {$detailMsg} Dapodik Banjarnegara");
+        ActivityLogger::log('SYNC', $entity, "Menyinkronkan {$detailMsg} Backbone Banjarnegara");
 
-        return back()->with('success', "Sinkronisasi Dapodik berhasil! Data {$detailMsg} telah diperbarui ke dalam SIMAK.");
+        return back()->with('success', "Sinkronisasi Backbone berhasil! Data {$detailMsg} telah diperbarui ke dalam SIMAK.");
     }
 }
