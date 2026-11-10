@@ -337,4 +337,36 @@ class PartisipasiSiswaController extends Controller
 
         return back()->with('success', "Berhasil mengimpor {$count} data partisipasi siswa Dapodik.");
     }
+
+    /**
+     * Import / Update data partisipasi murid dari file Excel Dapodik (berisi sebaran umur U0..U21+).
+     * Berdasarkan NPSN, menggantikan (replace) nilai total murid, komposisi gender, dan sebaran usia.
+     */
+    public function importDapodikExcel(Request $request, DapodikSyncService $syncService): RedirectResponse
+    {
+        $user = auth()->user();
+        $request->validate([
+            'file_excel' => 'required|file|max:51200',
+            'tahun' => 'required|integer|min:2020|max:2035',
+        ]);
+
+        $file = $request->file('file_excel');
+        $tahun = (int) $request->input('tahun');
+        $scopedKecamatanId = ($user && $user->role === 'operator' && $user->kecamatan_id) ? (int) $user->kecamatan_id : null;
+
+        $res = $syncService->importExcelDapodikUsia($file->getRealPath(), $tahun, $scopedKecamatanId);
+
+        if ($res['updated'] === 0 && $res['created'] === 0) {
+            return back()->withErrors(['file_excel' => 'File Excel berhasil dibaca, namun tidak ada baris data valid yang dapat diproses atau NPSN tidak ditemukan. Pastikan format file sesuai ekspor Dapodik per usia.']);
+        }
+
+        ActivityLogger::log('IMPORT', 'siswa', "Mengimpor Excel Dapodik: {$res['updated']} data sekolah diperbarui, {$res['created']} data sekolah baru ditambahkan (Tahun {$tahun})");
+
+        $msg = "Berhasil mengimpor Excel Dapodik! {$res['updated']} data sekolah berhasil diperbarui dan {$res['created']} data sekolah baru ditambahkan untuk Tahun {$tahun}.";
+        if ($res['skipped'] > 0) {
+            $msg .= " ({$res['skipped']} baris di luar wilayah kewenangan/kosong dilewati).";
+        }
+
+        return redirect()->route('siswa.index', ['tahun' => $tahun])->with('success', $msg);
+    }
 }

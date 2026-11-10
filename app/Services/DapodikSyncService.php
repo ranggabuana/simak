@@ -8,6 +8,7 @@ use App\Models\SatuanPendidikan;
 use App\Models\WilayahKecamatan;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use ZipArchive;
 
 class DapodikSyncService
 {
@@ -499,5 +500,390 @@ class DapodikSyncService
         fclose($handle);
 
         return $rows;
+    }
+
+    /**
+     * Parse berkas OpenXML Excel (.xlsx) menjadi array baris sel mentah.
+     *
+     * @return array<int, array<string, string>>
+     */
+    public function parseXlsxCells(string $filePath): array
+    {
+        $zip = new ZipArchive;
+        if ($zip->open($filePath) !== true) {
+            return [];
+        }
+
+        $sharedStrings = [];
+        if ($zip->locateName('xl/sharedStrings.xml') !== false) {
+            $stringsXml = simplexml_load_string($zip->getFromName('xl/sharedStrings.xml'));
+            if ($stringsXml && isset($stringsXml->si)) {
+                foreach ($stringsXml->si as $si) {
+                    $text = '';
+                    if (isset($si->t)) {
+                        $text = (string) $si->t;
+                    } elseif (isset($si->r)) {
+                        foreach ($si->r as $r) {
+                            $text .= (string) $r->t;
+                        }
+                    }
+                    $sharedStrings[] = $text;
+                }
+            }
+        }
+
+        $candidateSheets = ['xl/worksheets/sheet1.xml', 'xl/worksheets/sheet.xml'];
+        $sheetXmlStr = null;
+        foreach ($candidateSheets as $name) {
+            if ($zip->locateName($name) !== false) {
+                $sheetXmlStr = $zip->getFromName($name);
+                break;
+            }
+        }
+
+        if (! $sheetXmlStr) {
+            $zip->close();
+
+            return [];
+        }
+
+        $sheetXml = simplexml_load_string($sheetXmlStr);
+        $zip->close();
+
+        if (! $sheetXml || ! isset($sheetXml->sheetData->row)) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($sheetXml->sheetData->row as $row) {
+            $rData = [];
+            foreach ($row->c as $c) {
+                $ref = preg_replace('/[0-9]+/', '', (string) $c['r']);
+                $type = (string) $c['t'];
+                $val = '';
+                if ($type === 's') {
+                    $idx = (int) $c->v;
+                    $val = $sharedStrings[$idx] ?? '';
+                } elseif ($type === 'inlineStr' && isset($c->is->t)) {
+                    $val = (string) $c->is->t;
+                } elseif (isset($c->v)) {
+                    $val = (string) $c->v;
+                }
+                $rData[$ref] = $val;
+            }
+            if (! empty($rData)) {
+                $rows[] = $rData;
+            }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Import dan perbarui nilai partisipasi murid per sekolah dari file Excel Dapodik per rentang usia.
+     * Menargetkan nomor NPSN untuk update data jika sudah ada (replace), atau insert jika belum ada.
+     *
+     * @return array{updated: int, created: int, total_rows: int, skipped: int}
+     */
+    public function importExcelDapodikUsia(string $filePath, int $tahun, ?int $scopedKecamatanId = null): array
+    {
+        $allSekolah = SatuanPendidikan::all()->keyBy('npsn');
+        $allKecamatan = WilayahKecamatan::all();
+
+        // 1. Coba baca format XLSX
+        $rows = $this->parseXlsxCells($filePath);
+
+        $headerMap = [];
+        $dataRows = [];
+
+        if (! empty($rows)) {
+            // XLSX mode: Baris pertama adalah header
+            $headerRow = $rows[0];
+            foreach ($headerRow as $colLetter => $val) {
+                $norm = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '_', $val), '_'));
+                $headerMap[$norm] = $colLetter;
+            }
+            $dataRows = array_slice($rows, 1);
+        } else {
+            // CSV / TSV fallback mode
+            $delimited = $this->parseDelimitedFile($filePath);
+            if (empty($delimited)) {
+                return [
+                    'updated' => 0,
+                    'created' => 0,
+                    'total_rows' => 0,
+                    'skipped' => 0,
+                ];
+            }
+            // Petakan langsung kunci kolom dari array asosiatif
+            $first = reset($delimited);
+            foreach (array_keys($first) as $k) {
+                $norm = strtolower(trim(preg_replace('/[^a-zA-Z0-9]/', '_', $k), '_'));
+                $headerMap[$norm] = $k;
+            }
+            $dataRows = $delimited;
+        }
+
+        $getVal = function (string $key, array $rData) use ($headerMap): int {
+            $col = $headerMap[$key] ?? null;
+
+            return $col && isset($rData[$col]) ? (int) self::cleanVal($rData[$col]) : 0;
+        };
+
+        $getString = function (string $key, array $rData, string $default = '') use ($headerMap): string {
+            $col = $headerMap[$key] ?? null;
+
+            return $col && isset($rData[$col]) ? self::cleanVal($rData[$col]) : $default;
+        };
+
+        $updatedCount = 0;
+        $createdCount = 0;
+        $skippedCount = 0;
+
+        DB::beginTransaction();
+        try {
+            foreach ($dataRows as $r) {
+                // Ambil NPSN sebagai target utama update data (mendukung numerik 8 digit & PKBM diawali P)
+                $npsn = trim($getString('npsn', $r, $r['B'] ?? ''));
+                if ($npsn === '' || ! preg_match('/^[A-Za-z0-9]{7,10}$/', $npsn)) {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                // Hitung kelompok umur
+                $u0_l = $getVal('u0_l', $r);
+                $u0_p = $getVal('u0_p', $r);
+                $u1_l = $getVal('u1_l', $r);
+                $u1_p = $getVal('u1_p', $r);
+                $u2_l = $getVal('u2_l', $r);
+                $u2_p = $getVal('u2_p', $r);
+                $u3_l = $getVal('u3_l', $r);
+                $u3_p = $getVal('u3_p', $r);
+                $u4_l = $getVal('u4_l', $r);
+                $u4_p = $getVal('u4_p', $r);
+
+                $u5_l = $getVal('u5_l', $r);
+                $u5_p = $getVal('u5_p', $r);
+                $u6_l = $getVal('u6_l', $r);
+                $u6_p = $getVal('u6_p', $r);
+                $u5_6_l = $u5_l + $u6_l;
+                $u5_6_p = $u5_p + $u6_p;
+                $u5_6 = $u5_6_l + $u5_6_p;
+
+                $u7_l = $getVal('u7_l', $r);
+                $u7_p = $getVal('u7_p', $r);
+                $u8_l = $getVal('u8_l', $r);
+                $u8_p = $getVal('u8_p', $r);
+                $u9_l = $getVal('u9_l', $r);
+                $u9_p = $getVal('u9_p', $r);
+                $u10_l = $getVal('u10_l', $r);
+                $u10_p = $getVal('u10_p', $r);
+                $u11_l = $getVal('u11_l', $r);
+                $u11_p = $getVal('u11_p', $r);
+                $u12_l = $getVal('u12_l', $r);
+                $u12_p = $getVal('u12_p', $r);
+                $u7_12_l = $u7_l + $u8_l + $u9_l + $u10_l + $u11_l + $u12_l;
+                $u7_12_p = $u7_p + $u8_p + $u9_p + $u10_p + $u11_p + $u12_p;
+                $u7_12 = $u7_12_l + $u7_12_p;
+
+                $u13_l = $getVal('u13_l', $r);
+                $u13_p = $getVal('u13_p', $r);
+                $u14_l = $getVal('u14_l', $r);
+                $u14_p = $getVal('u14_p', $r);
+                $u15_l = $getVal('u15_l', $r);
+                $u15_p = $getVal('u15_p', $r);
+                $u13_15_l = $u13_l + $u14_l + $u15_l;
+                $u13_15_p = $u13_p + $u14_p + $u15_p;
+                $u13_15 = $u13_15_l + $u13_15_p;
+
+                $u16_l = $getVal('u16_l', $r);
+                $u16_p = $getVal('u16_p', $r);
+                $u17_l = $getVal('u17_l', $r);
+                $u17_p = $getVal('u17_p', $r);
+                $u18_l = $getVal('u18_l', $r);
+                $u18_p = $getVal('u18_p', $r);
+                $u16_18_l = $u16_l + $u17_l + $u18_l;
+                $u16_18_p = $u16_p + $u17_p + $u18_p;
+                $u16_18 = $u16_18_l + $u16_18_p;
+
+                $u19_l = $getVal('u19_l', $r);
+                $u19_p = $getVal('u19_p', $r);
+                $u20_l = $getVal('u20_l', $r);
+                $u20_p = $getVal('u20_p', $r);
+                $u21_l = $getVal('u21__l', $r) ?: $getVal('u21_l', $r);
+                $u21_p = $getVal('u21__p', $r) ?: $getVal('u21_p', $r);
+
+                $pdTotal = $getVal('pd_total', $r) ?: $getVal('total', $r);
+                $pdL = $getVal('pd_l', $r) ?: $getVal('l', $r);
+                $pdP = $getVal('pd_p', $r) ?: $getVal('p', $r);
+
+                $sumUsiaL = $u0_l + $u1_l + $u2_l + $u3_l + $u4_l + $u5_6_l + $u7_12_l + $u13_15_l + $u16_18_l + $u19_l + $u20_l + $u21_l;
+                $sumUsiaP = $u0_p + $u1_p + $u2_p + $u3_p + $u4_p + $u5_6_p + $u7_12_p + $u13_15_p + $u16_18_p + $u19_p + $u20_p + $u21_p;
+                $sumTotal = $sumUsiaL + $sumUsiaP;
+
+                $totalSiswa = $pdTotal > 0 ? $pdTotal : $sumTotal;
+                $siswaL = $pdL > 0 ? $pdL : $sumUsiaL;
+                $siswaP = $pdP > 0 ? $pdP : $sumUsiaP;
+
+                if ($siswaL === 0 && $siswaP === 0 && $totalSiswa > 0) {
+                    $siswaL = (int) round($totalSiswa * 0.51);
+                    $siswaP = max(0, $totalSiswa - $siswaL);
+                }
+
+                $lainnya = max(0, $totalSiswa - ($u5_6 + $u7_12 + $u13_15 + $u16_18));
+
+                // 2. Cari Satuan Pendidikan berdasarkan NPSN
+                $sekolah = $allSekolah->get($npsn);
+                if (! $sekolah) {
+                    $namaSekolah = $getString('nama_satuan_pendidikan', $r, $getString('nama_sekolah', $r, ''));
+                    if ($namaSekolah !== '') {
+                        $sekolah = $allSekolah->first(fn ($s) => strcasecmp($s->nama_sekolah, $namaSekolah) === 0);
+                    }
+                }
+
+                // Jika sekolah belum terdaftar, buat otomatis dari data file Excel
+                if (! $sekolah) {
+                    $namaSekolah = $getString('nama_satuan_pendidikan', $r, $getString('nama_sekolah', $r, "Sekolah {$npsn}"));
+                    $bentuk = strtoupper($getString('bentuk_pendidikan', $r, 'SD'));
+                    $statusStr = strtolower($getString('status_sekolah', $r, 'Swasta'));
+                    $status = str_contains($statusStr, 'negeri') ? 'Negeri' : 'Swasta';
+                    $namaKec = $getString('kecamatan', $r, '');
+
+                    $jenjangSekolah = match (true) {
+                        in_array($bentuk, ['TK', 'KB', 'TPA', 'SPS', 'PAUD']) => 'PAUD',
+                        in_array($bentuk, ['SD', 'SDLB', 'SPK SD']) => 'SD',
+                        $bentuk === 'MI' => 'MI',
+                        in_array($bentuk, ['SMP', 'SMPLB', 'SPK SMP']) => 'SMP',
+                        $bentuk === 'MTS' || $bentuk === 'MTS.' => 'MTS',
+                        in_array($bentuk, ['SMA', 'SMALB', 'SPK SMA']) => 'SMA',
+                        $bentuk === 'SMK' => 'SMK',
+                        $bentuk === 'MA' => 'MA',
+                        in_array($bentuk, ['PKBM', 'SKB']) => 'PKBM',
+                        default => 'SD',
+                    };
+
+                    $kecamatan = self::resolveKecamatan($allKecamatan, '', $namaKec);
+
+                    if ($scopedKecamatanId && $kecamatan->id !== $scopedKecamatanId) {
+                        $skippedCount++;
+
+                        continue;
+                    }
+
+                    $sekolah = SatuanPendidikan::create([
+                        'npsn' => $npsn,
+                        'nama_sekolah' => $namaSekolah,
+                        'jenjang' => $jenjangSekolah,
+                        'status' => $status,
+                        'kecamatan_id' => $kecamatan->id,
+                        'alamat' => "Kec. {$kecamatan->nama}, Banjarnegara",
+                        'akreditasi' => 'Belum Terakreditasi',
+                    ]);
+                    $allSekolah->put($npsn, $sekolah);
+                }
+
+                // Cek scoping operator kecamatan
+                if ($scopedKecamatanId && $sekolah->kecamatan_id !== $scopedKecamatanId) {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                $jenjang = $sekolah->jenjang;
+
+                // 3. Tentukan Siswa Usia Sesuai Jenjang
+                if (in_array($jenjang, ['PAUD', 'TK'])) {
+                    $siswaSesuai = $u5_6;
+                    $sesuaiL = $u5_6_l;
+                    $sesuaiP = $u5_6_p;
+                } elseif (in_array($jenjang, ['SD', 'MI'])) {
+                    $siswaSesuai = $u7_12;
+                    $sesuaiL = $u7_12_l;
+                    $sesuaiP = $u7_12_p;
+                } elseif (in_array($jenjang, ['SMP', 'MTS'])) {
+                    $siswaSesuai = $u13_15;
+                    $sesuaiL = $u13_15_l;
+                    $sesuaiP = $u13_15_p;
+                } elseif (in_array($jenjang, ['SMA', 'SMK', 'MA', 'PKBM'])) {
+                    $siswaSesuai = $u16_18;
+                    $sesuaiL = $u16_18_l;
+                    $sesuaiP = $u16_18_p;
+                } else {
+                    $siswaSesuai = $u7_12;
+                    $sesuaiL = $u7_12_l;
+                    $sesuaiP = $u7_12_p;
+                }
+                $siswaSesuai = min($siswaSesuai, $totalSiswa);
+
+                // 4. Update jika sudah ada untuk tahun tersebut, atau Insert baru
+                $existing = PartisipasiSiswa::where('satuan_pendidikan_id', $sekolah->id)
+                    ->where('tahun', $tahun)
+                    ->first();
+
+                if ($existing) {
+                    $rombel = $existing->jumlah_rombel > 0
+                        ? $existing->jumlah_rombel
+                        : max(1, (int) round($totalSiswa / ($jenjang === 'PAUD' ? 15 : 28)));
+
+                    $existing->update([
+                        'kecamatan_id' => $sekolah->kecamatan_id,
+                        'jenjang' => $jenjang,
+                        'total_siswa_semua_usia' => $totalSiswa,
+                        'siswa_l' => $siswaL,
+                        'siswa_p' => $siswaP,
+                        'siswa_usia_sesuai' => $siswaSesuai,
+                        'siswa_usia_sesuai_l' => $sesuaiL,
+                        'siswa_usia_sesuai_p' => $sesuaiP,
+                        'siswa_usia_5_6' => $u5_6,
+                        'siswa_usia_7_12' => $u7_12,
+                        'siswa_usia_13_15' => $u13_15,
+                        'siswa_usia_16_18' => $u16_18,
+                        'siswa_usia_lainnya' => $lainnya,
+                        'jumlah_rombel' => $rombel,
+                    ]);
+                    $updatedCount++;
+                } else {
+                    $tahunAjaran = "{$tahun}/".($tahun + 1);
+                    $rombel = max(1, (int) round($totalSiswa / ($jenjang === 'PAUD' ? 15 : 28)));
+
+                    PartisipasiSiswa::updateOrCreate(
+                        [
+                            'satuan_pendidikan_id' => $sekolah->id,
+                            'tahun_ajaran' => $tahunAjaran,
+                        ],
+                        [
+                            'kecamatan_id' => $sekolah->kecamatan_id,
+                            'tahun' => $tahun,
+                            'jenjang' => $jenjang,
+                            'total_siswa_semua_usia' => $totalSiswa,
+                            'siswa_l' => $siswaL,
+                            'siswa_p' => $siswaP,
+                            'siswa_usia_sesuai' => $siswaSesuai,
+                            'siswa_usia_sesuai_l' => $sesuaiL,
+                            'siswa_usia_sesuai_p' => $sesuaiP,
+                            'siswa_usia_5_6' => $u5_6,
+                            'siswa_usia_7_12' => $u7_12,
+                            'siswa_usia_13_15' => $u13_15,
+                            'siswa_usia_16_18' => $u16_18,
+                            'siswa_usia_lainnya' => $lainnya,
+                            'jumlah_rombel' => $rombel,
+                        ]
+                    );
+                    $createdCount++;
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return [
+            'updated' => $updatedCount,
+            'created' => $createdCount,
+            'total_rows' => count($dataRows),
+            'skipped' => $skippedCount,
+        ];
     }
 }

@@ -1,7 +1,11 @@
 @extends('layouts.app', ['title' => 'Data Partisipasi Siswa (Dapodik)'])
 
+@php
+    $tahunOptionsList = \App\Http\Controllers\Controller::availableTahunOptions();
+@endphp
+
 @section('content')
-<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, detailModal: false, importModal: false, activeRow: {} }">
+<div class="space-y-8" x-data="{ createModal: false, editModal: false, deleteModal: false, detailModal: false, importModal: false, importExcelDapodikModal: false, activeRow: {} }">
 
     <!-- Header Banner -->
     <div class="p-6 rounded-3xl bg-gradient-to-r from-blue-50/80 via-slate-50 to-white text-slate-900 flex flex-col xl:flex-row xl:items-center justify-between gap-5 shadow-xs border border-blue-200/60">
@@ -14,26 +18,14 @@
         
         <!-- Action Row (1 Row) -->
         <div class="flex items-center gap-2.5 shrink-0 flex-nowrap overflow-x-auto pb-1 xl:pb-0">
-            {{-- Tombol Tambah & Import disembunyikan karena data dialirkan otomatis melalui Sinkronisasi Backbone --}}
-            @if(false)
             <button type="button" 
-                    @click="importModal = true" 
+                    @click="importExcelDapodikModal = true" 
                     class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-500/20 transition whitespace-nowrap shrink-0 cursor-pointer">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
-                <span>Import CSV / Excel</span>
+                <span>Import Excel Dapodik</span>
             </button>
-
-            <button type="button" 
-                    @click="createModal = true" 
-                    class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm shadow-blue-500/25 transition whitespace-nowrap shrink-0 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Tambah Data Siswa</span>
-            </button>
-            @endif
 
             <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -256,7 +248,7 @@
                         <input type="text" name="tahun_ajaran" required value="2024/2025" placeholder="Contoh: 2024/2025" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 font-mono">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">Tahun Anggaran Kinerja *</label>
+                        <label class="block font-bold text-slate-700 mb-1">Tahun *</label>
                         <input type="number" name="tahun" required value="{{ $tahun }}" min="2020" max="2035" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-500 font-mono">
                     </div>
                 </div>
@@ -421,7 +413,7 @@
             <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
                 @csrf
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Tahun Anggaran Kinerja *</label>
+                    <label class="block font-bold text-slate-700 mb-1">Tahun *</label>
                     <input type="number" name="tahun" required value="{{ $tahun }}" min="2020" max="2035" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono">
                 </div>
 
@@ -434,6 +426,79 @@
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                     <button type="button" @click="importModal = false" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 font-bold text-slate-600 transition">Batal</button>
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm">Mulai Import Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL IMPORT EXCEL DAPODIK (PER RENTANG USIA & UPDATE NILAI BERDASARKAN NPSN) -->
+    <div x-show="importExcelDapodikModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="importExcelDapodikModal = false">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200"
+             @click.away="importExcelDapodikModal = false">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Import Excel Dapodik (Per Usia)</h3>
+                        <p class="text-[11px] text-slate-500">Perbarui nilai siswa per sekolah berdasarkan target nomor NPSN</p>
+                    </div>
+                </div>
+                <button type="button" @click="importExcelDapodikModal = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold cursor-pointer">&times;</button>
+            </div>
+
+            <!-- Petunjuk Alur Update -->
+            <div class="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 text-xs space-y-2">
+                <p class="font-bold text-emerald-950 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Mekanisme Pembaruan (*Update Value*):</span>
+                </p>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px] leading-relaxed">
+                    <li>Sistem membaca kolom <strong>NPSN</strong> untuk mencocokkan sekolah dan menggantikan (*replace*) nilai jumlah siswa yang sudah ada.</li>
+                    <li>Mendukung file Excel format Dapodik resmi (seperti <code>DATA SISWA PER USIA- DAPODIK SEMUA JENJANG ...xlsx</code>).</li>
+                    <li>Menghitung otomatis kolom <strong>Total Siswa</strong>, <strong>Laki-laki</strong>, <strong>Perempuan</strong>, kelompok usia <strong>5–6</strong>, <strong>7–12</strong>, <strong>13–15</strong>, <strong>16–18</strong>, serta <strong>Siswa Usia Sesuai Jenjang (APM)</strong>.</li>
+                </ul>
+            </div>
+
+            <!-- Form Upload Excel -->
+            <form action="{{ route('siswa.import_dapodik_excel') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
+                @csrf
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Tahun Target *</label>
+                    <select name="tahun" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        @foreach($tahunOptionsList as $opt)
+                            <option value="{{ $opt['tahun'] }}" {{ (int) $tahun === (int) $opt['tahun'] ? 'selected' : '' }}>
+                                {{ $opt['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Data siswa pada tahun ini yang akan diperbarui nilainya.</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1.5">Pilih Berkas Excel Dapodik (.xlsx / .xls / .csv) *</label>
+                    <input type="file" name="file_excel" required accept=".xlsx,.xls,.csv" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                    <p class="text-[10px] text-slate-400 mt-1">Maksimal ukuran berkas 50 MB.</p>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                    <button type="button" @click="importExcelDapodikModal = false" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 font-bold text-slate-600 transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm shadow-emerald-500/25 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span>Proses & Perbarui Data</span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -468,7 +533,7 @@
             <div class="flex flex-wrap items-center gap-2">
                 <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200" x-text="'Jenjang: ' + (activeRow.jenjang || '-')"></span>
                 <span class="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200" x-text="'Kec. ' + (activeRow.kecamatan_nama || '-')"></span>
-                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" x-text="'Tahun Anggaran ' + (activeRow.tahun || '-')"></span>
+                <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200" x-text="'Tahun ' + (activeRow.tahun || '-')"></span>
             </div>
 
             <!-- KPI Summary Cards -->

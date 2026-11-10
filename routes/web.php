@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [PartisipasiSiswaController::class, 'update'])->name('update');
         Route::delete('/{id}', [PartisipasiSiswaController::class, 'destroy'])->name('destroy');
         Route::post('/import', [PartisipasiSiswaController::class, 'import'])->name('import');
+        Route::post('/import-dapodik-excel', [PartisipasiSiswaController::class, 'importDapodikExcel'])->name('import_dapodik_excel');
     });
 
     // Guru Pendidik & Tenaga Kependidikan

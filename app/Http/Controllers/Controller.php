@@ -58,7 +58,7 @@ abstract class Controller
     public static function availableTahunOptions(): array
     {
         $currentYear = (int) date('Y');
-        $years = [$currentYear - 2, $currentYear - 1, $currentYear];
+        $years = [$currentYear - 2, $currentYear - 1, $currentYear, $currentYear + 1];
 
         try {
             $dbYears = collect()
@@ -69,7 +69,8 @@ abstract class Controller
                 ->filter(fn ($y) => $y >= 2020 && $y <= 2035)
                 ->all();
 
-            $years = array_values(array_unique(array_merge($years, $dbYears)));
+            $mergedYears = array_unique(array_merge($years, $dbYears));
+            $years = range(min($mergedYears), max($mergedYears));
         } catch (\Throwable) {
             $years = array_values(array_unique($years));
         }
