@@ -79,11 +79,12 @@ class KinerjaService
         $siswaSmaSesuaiL = $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai_l');
         $siswaSmaSesuaiP = $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai_p');
 
-        // Siswa usia jenjang tertentu di SEMUA jenjang (untuk APS)
-        $siswaUsia5_6Semua = $partisipasi->sum('siswa_usia_5_6');
-        $siswaUsia7_12Semua = $partisipasi->sum('siswa_usia_7_12');
-        $siswaUsia13_15Semua = $partisipasi->sum('siswa_usia_13_15');
-        $siswaUsia16_18Semua = $partisipasi->sum('siswa_usia_16_18');
+        // Siswa usia jenjang tertentu di seluruh jenjang non-PKBM (untuk APS)
+        $partisipasiNonPkbm = $partisipasi->where('jenjang', '!=', 'PKBM');
+        $siswaUsia5_6Semua = $partisipasiNonPkbm->sum('siswa_usia_5_6');
+        $siswaUsia7_12Semua = $partisipasiNonPkbm->sum('siswa_usia_7_12');
+        $siswaUsia13_15Semua = $partisipasiNonPkbm->sum('siswa_usia_13_15');
+        $siswaUsia16_18Semua = $partisipasiNonPkbm->sum('siswa_usia_16_18');
 
         // Rumus 1: APK = (Siswa jenjang tertentu semua usia / Populasi usia jenjang) * 100
         $apkPaud = $pop5_6 > 0 ? round(($siswaPaudAll / $pop5_6) * 100, 2) : 0;
@@ -222,6 +223,13 @@ class KinerjaService
             'sma' => $gender === 'L' ? $apsSmaL : ($gender === 'P' ? $apsSmaP : $apsSma),
         ];
 
+        $outSiswaAps = [
+            'paud' => $gender === 'L' ? (int) round($siswaUsia5_6Semua * 0.51) : ($gender === 'P' ? (int) round($siswaUsia5_6Semua * 0.49) : (int) $siswaUsia5_6Semua),
+            'sd' => $gender === 'L' ? (int) round($siswaUsia7_12Semua * 0.51) : ($gender === 'P' ? (int) round($siswaUsia7_12Semua * 0.49) : (int) $siswaUsia7_12Semua),
+            'smp' => $gender === 'L' ? (int) round($siswaUsia13_15Semua * 0.51) : ($gender === 'P' ? (int) round($siswaUsia13_15Semua * 0.49) : (int) $siswaUsia13_15Semua),
+            'sma' => $gender === 'L' ? (int) round($siswaUsia16_18Semua * 0.51) : ($gender === 'P' ? (int) round($siswaUsia16_18Semua * 0.49) : (int) $siswaUsia16_18Semua),
+        ];
+
         $outGuru = [
             'total' => $gender === 'L' ? $totalGuruL : ($gender === 'P' ? $totalGuruP : $totalGuru),
             'total_l' => $totalGuruL,
@@ -242,6 +250,7 @@ class KinerjaService
             'apk' => $outApk,
             'apm' => $outApm,
             'aps' => $outAps,
+            'siswa_aps' => $outSiswaAps,
             'guru' => $outGuru,
             'paud_akreditasi' => [
                 'total' => $totalPaud,
@@ -379,10 +388,11 @@ class KinerjaService
             $siswaSmaSesuaiL = $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai_l');
             $siswaSmaSesuaiP = $partisipasi->whereIn('jenjang', ['SMA', 'SMK', 'MA'])->sum('siswa_usia_sesuai_p');
 
-            $siswaUsia5_6 = $partisipasi->sum('siswa_usia_5_6');
-            $siswaUsia7_12 = $partisipasi->sum('siswa_usia_7_12');
-            $siswaUsia13_15 = $partisipasi->sum('siswa_usia_13_15');
-            $siswaUsia16_18 = $partisipasi->sum('siswa_usia_16_18');
+            $partisipasiNonPkbm = $partisipasi->where('jenjang', '!=', 'PKBM');
+            $siswaUsia5_6 = $partisipasiNonPkbm->sum('siswa_usia_5_6');
+            $siswaUsia7_12 = $partisipasiNonPkbm->sum('siswa_usia_7_12');
+            $siswaUsia13_15 = $partisipasiNonPkbm->sum('siswa_usia_13_15');
+            $siswaUsia16_18 = $partisipasiNonPkbm->sum('siswa_usia_16_18');
 
             // Hitung APK, APM, APS All, L, P
             $apkSdAll = $pop7_12 > 0 ? round(($siswaSd / $pop7_12) * 100, 2) : 0;

@@ -13,7 +13,7 @@
                     <h2 class="text-base font-bold text-slate-900">Rumus Angka Partisipasi Sekolah (APS)</h2>
                 </div>
                 <p class="text-xs text-slate-600">
-                    APS mengukur persentase daya serap anak kelompok usia tertentu yang bersekolah di seluruh jenjang pendidikan (termasuk paket kesetaraan).
+                    APS mengukur persentase daya serap anak kelompok usia tertentu yang bersekolah di seluruh jenjang pendidikan formal (tidak menyertakan siswa PKBM).
                 </p>
             </div>
 
@@ -89,7 +89,7 @@
                 <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_aps_paud ?? 70.1 }}%</span>
             </div>
             <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['populasi']['usia_5_6'] * ($kabupaten['aps']['paud']/100)) }}</strong></div>
+                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['siswa_aps']['paud'] ?? ($kabupaten['populasi']['usia_5_6'] * ($kabupaten['aps']['paud']/100))) }}</strong></div>
                 <div class="flex justify-between"><span>Populasi 5–6 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_5_6']) }}</strong></div>
             </div>
         </div>
@@ -109,7 +109,7 @@
                 <span class="text-xs font-semibold text-emerald-600">Target: {{ $kabupaten['target']?->target_aps_sd ?? 99.2 }}%</span>
             </div>
             <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['populasi']['usia_7_12'] * ($kabupaten['aps']['sd']/100)) }}</strong></div>
+                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['siswa_aps']['sd'] ?? ($kabupaten['populasi']['usia_7_12'] * ($kabupaten['aps']['sd']/100))) }}</strong></div>
                 <div class="flex justify-between"><span>Populasi 7–12 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_7_12']) }}</strong></div>
             </div>
         </div>
@@ -129,7 +129,7 @@
                 <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_aps_smp ?? 95.8 }}%</span>
             </div>
             <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['populasi']['usia_13_15'] * ($kabupaten['aps']['smp']/100)) }}</strong></div>
+                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['siswa_aps']['smp'] ?? ($kabupaten['populasi']['usia_13_15'] * ($kabupaten['aps']['smp']/100))) }}</strong></div>
                 <div class="flex justify-between"><span>Populasi 13–15 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_13_15']) }}</strong></div>
             </div>
         </div>
@@ -149,7 +149,7 @@
                 <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_aps_sma ?? 78.9 }}%</span>
             </div>
             <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['populasi']['usia_16_18'] * ($kabupaten['aps']['sma']/100)) }}</strong></div>
+                <div class="flex justify-between"><span>Bersekolah (Semua Jenjang):</span> <strong>{{ number_format($kabupaten['siswa_aps']['sma'] ?? ($kabupaten['populasi']['usia_16_18'] * ($kabupaten['aps']['sma']/100))) }}</strong></div>
                 <div class="flex justify-between"><span>Populasi 16–18 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_16_18']) }}</strong></div>
             </div>
         </div>
@@ -345,7 +345,7 @@
     <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200/80 shadow-sm space-y-6 w-full max-w-full overflow-hidden">
         <div class="border-b border-slate-100 pb-4">
             <h3 class="text-base font-bold text-slate-900">Agregat Angka Partisipasi Sekolah per Kecamatan</h3>
-            <p class="text-xs text-slate-500">Menghitung seluruh anak usia sekolah yang berpartisipasi pada jenjang formal maupun kesetaraan</p>
+            <p class="text-xs text-slate-500">Menghitung seluruh anak usia sekolah yang berpartisipasi pada jenjang pendidikan formal (tidak menyertakan siswa PKBM)</p>
         </div>
 
         <!-- Tabel Agregat APS (Format Resmi Multi-Blok Sesuai APS.xlsx) -->
@@ -421,7 +421,7 @@
                             </a>
                         </div>
                         <p class="text-[11px] text-slate-600 leading-relaxed">
-                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-emerald-900">Master Data &rarr; Partisipasi Siswa (Dapodik)</strong> (kolom kelompok umur <code>siswa_usia_5_6</code>, <code>siswa_usia_7_12</code>, <code>siswa_usia_13_15</code>, <code>siswa_usia_16_18</code>). Menghitung seluruh anak pada kelompok umur tersebut yang sedang bersekolah di jenjang mana pun (formal maupun paket kesetaraan non-formal).
+                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-emerald-900">Master Data &rarr; Partisipasi Siswa (Dapodik)</strong> (kolom kelompok umur <code>siswa_usia_5_6</code>, <code>siswa_usia_7_12</code>, <code>siswa_usia_13_15</code>, <code>siswa_usia_16_18</code>). Menghitung seluruh anak pada kelompok umur tersebut yang sedang bersekolah di jenjang pendidikan formal (tidak menyertakan siswa PKBM).
                         </p>
                     </div>
 
