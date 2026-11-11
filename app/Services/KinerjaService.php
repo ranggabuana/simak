@@ -216,6 +216,13 @@ class KinerjaService
             'sma' => $gender === 'L' ? $apmSmaL : ($gender === 'P' ? $apmSmaP : $apmSma),
         ];
 
+        $outSiswaApm = [
+            'paud' => $gender === 'L' ? (int) $siswaPaudSesuaiL : ($gender === 'P' ? (int) $siswaPaudSesuaiP : (int) $siswaPaudSesuai),
+            'sd' => $gender === 'L' ? (int) $siswaSdSesuaiL : ($gender === 'P' ? (int) $siswaSdSesuaiP : (int) $siswaSdSesuai),
+            'smp' => $gender === 'L' ? (int) $siswaSmpSesuaiL : ($gender === 'P' ? (int) $siswaSmpSesuaiP : (int) $siswaSmpSesuai),
+            'sma' => $gender === 'L' ? (int) $siswaSmaSesuaiL : ($gender === 'P' ? (int) $siswaSmaSesuaiP : (int) $siswaSmaSesuai),
+        ];
+
         $outAps = [
             'paud' => $gender === 'L' ? $apsPaudL : ($gender === 'P' ? $apsPaudP : $apsPaud),
             'sd' => $gender === 'L' ? $apsSdL : ($gender === 'P' ? $apsSdP : $apsSd),
@@ -249,6 +256,7 @@ class KinerjaService
             'siswa' => $outSiswa,
             'apk' => $outApk,
             'apm' => $outApm,
+            'siswa_apm' => $outSiswaApm,
             'aps' => $outAps,
             'siswa_aps' => $outSiswaAps,
             'guru' => $outGuru,
@@ -714,7 +722,7 @@ class KinerjaService
 
         foreach ($kecamatanList as $kec) {
             $demografi = $kec->pendudukUsiaSekolah->first();
-            $partisipasi = $kec->partisipasiSiswa;
+            $partisipasi = $kec->partisipasiSiswa->where('jenjang', '!=', 'PKBM');
 
             // 1. Populasi Penduduk
             $pop5_6_l = (int) ($demografi?->usia_5_6_l ?? 0);
@@ -865,9 +873,9 @@ class KinerjaService
     {
         $tahun ??= (int) date('Y');
 
-        $query = SatuanPendidikan::with([
+        $query = SatuanPendidikan::where('jenjang', '!=', 'PKBM')->with([
             'kecamatan',
-            'partisipasiSiswa' => fn ($q) => $q->where('tahun', $tahun),
+            'partisipasiSiswa' => fn ($q) => $q->where('tahun', $tahun)->where('jenjang', '!=', 'PKBM'),
             'guruPendidik',
             'prestasiSiswa',
         ]);

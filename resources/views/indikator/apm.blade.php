@@ -13,7 +13,7 @@
                     <h2 class="text-base font-bold text-slate-900">Rumus Angka Partisipasi Murni (APM)</h2>
                 </div>
                 <p class="text-xs text-slate-600">
-                    APM mengukur persentase anak usia sekolah tertentu yang bersekolah tepat pada jenjang yang sesuai dengan kelompok usianya.
+                    APM mengukur persentase anak usia sekolah tertentu yang bersekolah tepat pada jenjang pendidikan formal yang sesuai dengan kelompok usianya (tidak menyertakan siswa PKBM).
                 </p>
             </div>
 
@@ -75,82 +75,106 @@
     <!-- 4 Age Breakdown Cards (5-6, 7-12, 13-15, 16-18) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full max-w-full min-w-0">
         <!-- 5 - 6 Tahun (PAUD) -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 5 – 6 TAHUN (PAUD/TK)</span>
-                @if($gender)
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
-                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
-                    </span>
-                @endif
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 5 – 6 TAHUN (PAUD/TK)</span>
+                    @if($gender)
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                            {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                        </span>
+                    @endif
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['paud'], 2) }}%</span>
+                    <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_paud ?? 65.2 }}%</span>
+                </div>
             </div>
-            <div class="mt-3 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['paud'], 2) }}%</span>
-                <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_paud ?? 65.2 }}%</span>
-            </div>
-            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Siswa Usia Tepat (5-6 Th):</span> <strong>{{ number_format($kabupaten['populasi']['usia_5_6'] * ($kabupaten['apm']['paud']/100)) }}</strong></div>
-                <div class="flex justify-between"><span>Populasi 5–6 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_5_6']) }}</strong></div>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1.5">
+                <div class="flex justify-between"><span>Siswa Usia Tepat (5-6 Th):</span> <strong class="text-slate-800">{{ number_format($kabupaten['siswa_apm']['paud'] ?? ($kabupaten['populasi']['usia_5_6'] * ($kabupaten['apm']['paud']/100))) }}</strong></div>
+                <div class="flex justify-between"><span>Populasi 5–6 Th:</span> <strong class="text-slate-800">{{ number_format($kabupaten['populasi']['usia_5_6']) }}</strong></div>
+                <div class="pt-1.5 mt-1.5 border-t border-slate-100/80">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Jenjang Dihitung:</span>
+                    <span class="text-[11px] font-semibold text-indigo-700 leading-snug block mt-0.5">PAUD, TK <span class="text-slate-400 font-normal">(Tanpa PKBM)</span></span>
+                </div>
             </div>
         </div>
 
         <!-- 7 - 12 Tahun (SD/MI) -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 7 – 12 TAHUN (SD/MI)</span>
-                @if($gender)
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
-                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
-                    </span>
-                @endif
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 7 – 12 TAHUN (SD/MI)</span>
+                    @if($gender)
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                            {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                        </span>
+                    @endif
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-indigo-600">{{ number_format($kabupaten['apm']['sd'], 2) }}%</span>
+                    <span class="text-xs font-semibold text-emerald-600">Target: {{ $kabupaten['target']?->target_apm_sd ?? 98.4 }}%</span>
+                </div>
             </div>
-            <div class="mt-3 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold text-indigo-600">{{ number_format($kabupaten['apm']['sd'], 2) }}%</span>
-                <span class="text-xs font-semibold text-emerald-600">Target: {{ $kabupaten['target']?->target_apm_sd ?? 98.4 }}%</span>
-            </div>
-            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Siswa Usia Tepat (7-12 Th):</span> <strong>{{ number_format($kabupaten['populasi']['usia_7_12'] * ($kabupaten['apm']['sd']/100)) }}</strong></div>
-                <div class="flex justify-between"><span>Populasi 7–12 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_7_12']) }}</strong></div>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1.5">
+                <div class="flex justify-between"><span>Siswa Usia Tepat (7-12 Th):</span> <strong class="text-slate-800">{{ number_format($kabupaten['siswa_apm']['sd'] ?? ($kabupaten['populasi']['usia_7_12'] * ($kabupaten['apm']['sd']/100))) }}</strong></div>
+                <div class="flex justify-between"><span>Populasi 7–12 Th:</span> <strong class="text-slate-800">{{ number_format($kabupaten['populasi']['usia_7_12']) }}</strong></div>
+                <div class="pt-1.5 mt-1.5 border-t border-slate-100/80">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Jenjang Dihitung:</span>
+                    <span class="text-[11px] font-semibold text-indigo-700 leading-snug block mt-0.5">SD, MI <span class="text-slate-400 font-normal">(Tanpa PKBM)</span></span>
+                </div>
             </div>
         </div>
 
         <!-- 13 - 15 Tahun (SMP/MTs) -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 13 – 15 TAHUN (SMP/MTS)</span>
-                @if($gender)
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
-                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
-                    </span>
-                @endif
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 13 – 15 TAHUN (SMP/MTS)</span>
+                    @if($gender)
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                            {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                        </span>
+                    @endif
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['smp'], 2) }}%</span>
+                    <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_smp ?? 86.8 }}%</span>
+                </div>
             </div>
-            <div class="mt-3 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['smp'], 2) }}%</span>
-                <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_smp ?? 86.8 }}%</span>
-            </div>
-            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Siswa Usia Tepat (13-15 Th):</span> <strong>{{ number_format($kabupaten['populasi']['usia_13_15'] * ($kabupaten['apm']['smp']/100)) }}</strong></div>
-                <div class="flex justify-between"><span>Populasi 13–15 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_13_15']) }}</strong></div>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1.5">
+                <div class="flex justify-between"><span>Siswa Usia Tepat (13-15 Th):</span> <strong class="text-slate-800">{{ number_format($kabupaten['siswa_apm']['smp'] ?? ($kabupaten['populasi']['usia_13_15'] * ($kabupaten['apm']['smp']/100))) }}</strong></div>
+                <div class="flex justify-between"><span>Populasi 13–15 Th:</span> <strong class="text-slate-800">{{ number_format($kabupaten['populasi']['usia_13_15']) }}</strong></div>
+                <div class="pt-1.5 mt-1.5 border-t border-slate-100/80">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Jenjang Dihitung:</span>
+                    <span class="text-[11px] font-semibold text-indigo-700 leading-snug block mt-0.5">SMP, MTs <span class="text-slate-400 font-normal">(Tanpa PKBM)</span></span>
+                </div>
             </div>
         </div>
 
         <!-- 16 - 18 Tahun (SMA/SMK/MA) -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 16 – 18 TAHUN (SMA/SMK/MA)</span>
-                @if($gender)
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
-                        {{ $gender === 'L' ? '♂ L' : '♀ P' }}
-                    </span>
-                @endif
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">APM 16 – 18 TAHUN (SMA/SMK/MA)</span>
+                    @if($gender)
+                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $gender === 'L' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-pink-50 text-pink-700 border border-pink-200' }}">
+                            {{ $gender === 'L' ? '♂ L' : '♀ P' }}
+                        </span>
+                    @endif
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['sma'], 2) }}%</span>
+                    <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_sma ?? 72.5 }}%</span>
+                </div>
             </div>
-            <div class="mt-3 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold text-slate-900">{{ number_format($kabupaten['apm']['sma'], 2) }}%</span>
-                <span class="text-xs font-semibold text-slate-500">Target: {{ $kabupaten['target']?->target_apm_sma ?? 72.5 }}%</span>
-            </div>
-            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
-                <div class="flex justify-between"><span>Siswa Usia Tepat (16-18 Th):</span> <strong>{{ number_format($kabupaten['populasi']['usia_16_18'] * ($kabupaten['apm']['sma']/100)) }}</strong></div>
-                <div class="flex justify-between"><span>Populasi 16–18 Th:</span> <strong>{{ number_format($kabupaten['populasi']['usia_16_18']) }}</strong></div>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1.5">
+                <div class="flex justify-between"><span>Siswa Usia Tepat (16-18 Th):</span> <strong class="text-slate-800">{{ number_format($kabupaten['siswa_apm']['sma'] ?? ($kabupaten['populasi']['usia_16_18'] * ($kabupaten['apm']['sma']/100))) }}</strong></div>
+                <div class="flex justify-between"><span>Populasi 16–18 Th:</span> <strong class="text-slate-800">{{ number_format($kabupaten['populasi']['usia_16_18']) }}</strong></div>
+                <div class="pt-1.5 mt-1.5 border-t border-slate-100/80">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Jenjang Dihitung:</span>
+                    <span class="text-[11px] font-semibold text-indigo-700 leading-snug block mt-0.5">SMA, SMK, MA <span class="text-slate-400 font-normal">(Tanpa PKBM)</span></span>
+                </div>
             </div>
         </div>
     </div>
@@ -507,7 +531,7 @@
                             </a>
                         </div>
                         <p class="text-[11px] text-slate-600 leading-relaxed">
-                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-indigo-900">Master Data &rarr; Partisipasi Siswa (Dapodik)</strong> (kolom <strong>Siswa Usia Sesuai</strong>). Hanya menghitung peserta didik yang umurnya tepat sesuai usia standar jenjang (misal siswa SD/MI yang berumur tepat 7–12 tahun; siswa di luar usia ini tidak dihitung).
+                            <span class="font-semibold text-slate-800">Sumber:</span> Menu 📁 <strong class="text-indigo-900">Master Data &rarr; Partisipasi Siswa (Dapodik)</strong> (kolom <strong>Siswa Usia Sesuai</strong> pada jenjang formal, tidak menyertakan siswa PKBM). Hanya menghitung peserta didik yang umurnya tepat sesuai usia standar jenjang (misal siswa SD/MI yang berumur tepat 7–12 tahun; siswa di luar usia ini tidak dihitung).
                         </p>
                     </div>
 
