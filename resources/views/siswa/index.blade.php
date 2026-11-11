@@ -141,6 +141,63 @@
         </div>
     </div>
 
+    <!-- Rekapitulasi Berdasarkan Kategori Umur -->
+    <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Rekapitulasi Peserta Didik Berdasarkan Kategori Umur (APS / APM)</h4>
+            </div>
+            <span class="text-[11px] text-slate-400">Tahun {{ $tahun }}</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+            <div class="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-100 flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Usia 5–6 Tahun</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-amber-100/80 text-amber-800 font-bold text-[10px]">{{ $stats['persen_usia_5_6'] }}%</span>
+                </div>
+                <div class="text-lg font-extrabold text-amber-700 my-1">{{ number_format($stats['total_usia_5_6']) }}</div>
+                <span class="text-[10px] text-amber-700/80 truncate">PAUD / TK / RA</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-rose-50/60 border border-rose-100 flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] font-bold text-rose-900 uppercase tracking-wider">Usia 7–12 Tahun</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-rose-100/80 text-rose-800 font-bold text-[10px]">{{ $stats['persen_usia_7_12'] }}%</span>
+                </div>
+                <div class="text-lg font-extrabold text-rose-700 my-1">{{ number_format($stats['total_usia_7_12']) }}</div>
+                <span class="text-[10px] text-rose-700/80 truncate">SD / MI / Paket A</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-100 flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] font-bold text-blue-900 uppercase tracking-wider">Usia 13–15 Tahun</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-blue-100/80 text-blue-800 font-bold text-[10px]">{{ $stats['persen_usia_13_15'] }}%</span>
+                </div>
+                <div class="text-lg font-extrabold text-blue-700 my-1">{{ number_format($stats['total_usia_13_15']) }}</div>
+                <span class="text-[10px] text-blue-700/80 truncate">SMP / MTs / Paket B</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex flex-col justify-between">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] font-bold text-indigo-900 uppercase tracking-wider">Usia 16–18 Tahun</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-indigo-100/80 text-indigo-800 font-bold text-[10px]">{{ $stats['persen_usia_16_18'] }}%</span>
+                </div>
+                <div class="text-lg font-extrabold text-indigo-700 my-1">{{ number_format($stats['total_usia_16_18']) }}</div>
+                <span class="text-[10px] text-indigo-700/80 truncate">SMA / SMK / MA / Paket C</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between col-span-2 sm:col-span-1">
+                <div class="flex items-center justify-between gap-1">
+                    <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Usia Lainnya</span>
+                    <span class="px-1.5 py-0.5 rounded-md bg-slate-200/80 text-slate-700 font-bold text-[10px]">{{ $stats['persen_usia_lainnya'] }}%</span>
+                </div>
+                <div class="text-lg font-extrabold text-slate-800 my-1">{{ number_format($stats['total_usia_lainnya']) }}</div>
+                <span class="text-[10px] text-slate-500 truncate">Usia &lt; 5 atau &gt; 18 Tahun</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Filter Form -->
     <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
         <form action="{{ route('siswa.index') }}" method="GET" class="flex flex-wrap items-center gap-3 text-xs">

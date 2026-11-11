@@ -106,7 +106,12 @@ class PartisipasiSiswaController extends Controller
             SUM(siswa_l) as total_siswa_l,
             SUM(siswa_p) as total_siswa_p,
             SUM(siswa_usia_sesuai_l) as total_sesuai_l,
-            SUM(siswa_usia_sesuai_p) as total_sesuai_p
+            SUM(siswa_usia_sesuai_p) as total_sesuai_p,
+            SUM(siswa_usia_5_6) as total_usia_5_6,
+            SUM(siswa_usia_7_12) as total_usia_7_12,
+            SUM(siswa_usia_13_15) as total_usia_13_15,
+            SUM(siswa_usia_16_18) as total_usia_16_18,
+            SUM(siswa_usia_lainnya) as total_usia_lainnya
         ')->first();
 
         $totalSiswa = (int) ($statRow->total_siswa ?? 0);
@@ -117,6 +122,12 @@ class PartisipasiSiswaController extends Controller
         $totalSesuaiP = (int) ($statRow->total_sesuai_p ?? 0);
         $persenSesuai = $totalSiswa > 0 ? round(($totalSesuai / $totalSiswa) * 100, 1) : 0;
         $totalRombel = (int) ($statRow->total_rombel ?? 0);
+
+        $totalUsia56 = (int) ($statRow->total_usia_5_6 ?? 0);
+        $totalUsia712 = (int) ($statRow->total_usia_7_12 ?? 0);
+        $totalUsia1315 = (int) ($statRow->total_usia_13_15 ?? 0);
+        $totalUsia1618 = (int) ($statRow->total_usia_16_18 ?? 0);
+        $totalUsiaLainnya = (int) ($statRow->total_usia_lainnya ?? 0);
 
         $stats = [
             'total_siswa' => $totalSiswa,
@@ -130,6 +141,16 @@ class PartisipasiSiswaController extends Controller
             'total_sesuai_p' => $totalSesuaiP,
             'persen_l' => $totalSiswa > 0 ? round(($totalSiswaL / $totalSiswa) * 100, 1) : 0,
             'persen_p' => $totalSiswa > 0 ? round(($totalSiswaP / $totalSiswa) * 100, 1) : 0,
+            'total_usia_5_6' => $totalUsia56,
+            'total_usia_7_12' => $totalUsia712,
+            'total_usia_13_15' => $totalUsia1315,
+            'total_usia_16_18' => $totalUsia1618,
+            'total_usia_lainnya' => $totalUsiaLainnya,
+            'persen_usia_5_6' => $totalSiswa > 0 ? round(($totalUsia56 / $totalSiswa) * 100, 1) : 0,
+            'persen_usia_7_12' => $totalSiswa > 0 ? round(($totalUsia712 / $totalSiswa) * 100, 1) : 0,
+            'persen_usia_13_15' => $totalSiswa > 0 ? round(($totalUsia1315 / $totalSiswa) * 100, 1) : 0,
+            'persen_usia_16_18' => $totalSiswa > 0 ? round(($totalUsia1618 / $totalSiswa) * 100, 1) : 0,
+            'persen_usia_lainnya' => $totalSiswa > 0 ? round(($totalUsiaLainnya / $totalSiswa) * 100, 1) : 0,
         ];
 
         $sekolahQuery = SatuanPendidikan::orderBy('nama_sekolah');

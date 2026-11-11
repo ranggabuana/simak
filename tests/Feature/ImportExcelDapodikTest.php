@@ -24,6 +24,12 @@ class ImportExcelDapodikTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Import Excel Dapodik');
         $response->assertSee('importExcelDapodikModal');
+        $response->assertSee('Rekapitulasi Peserta Didik Berdasarkan Kategori Umur (APS / APM)');
+        $response->assertSee('Usia 5–6 Tahun');
+        $response->assertSee('Usia 7–12 Tahun');
+        $response->assertSee('Usia 13–15 Tahun');
+        $response->assertSee('Usia 16–18 Tahun');
+        $response->assertSee('Usia Lainnya');
     }
 
     public function test_import_excel_dapodik_updates_existing_siswa_data_by_npsn(): void
